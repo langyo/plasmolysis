@@ -1,0 +1,27 @@
+{
+  "name": "template",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "jest --watch",
+    "start": "nodemon -w server server/index.js",
+    "build": "set NODE_ENV=production && next build",
+    "serve": "set NODE_ENV=production && node server/index.js"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.5.1",
+    "@mdi/svg": "^4.5.95",
+    "express": "^4.17.1",
+    "helmet": "^3.21.1",
+    "log4js": "^5.2.2",
+    "next": "9.1.1",
+    "next-redux-wrapper": "^4.0.1",
+    "nodemon": "^1.19.4",
+    "react": "16.10.2",
+    "react-dom": "16.10.2",
+    "react-redux": "^7.1.1",
+    "redux": "^4.0.4",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.3.0"
+  }
+}
