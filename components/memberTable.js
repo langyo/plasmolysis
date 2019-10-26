@@ -16,7 +16,7 @@ import { mdiPlus, mdiClose } from "@mdi/js";
 
 import FormDialog from "./addMemberDialog";
 
-export default function (props) {
+export default props => {
   const classes = makeStyles(theme => ({
     margin: {
       margin: 10
