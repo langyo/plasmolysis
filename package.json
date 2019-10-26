@@ -1,5 +1,5 @@
 {
-  "name": "template",
+  "name": "school-morning-check",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,10 +10,16 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.5.1",
+    "@mdi/js": "^4.5.95",
+    "@mdi/react": "^1.2.1",
     "@mdi/svg": "^4.5.95",
+    "body-parser": "^1.19.0",
+    "classnames": "^2.2.6",
     "express": "^4.17.1",
     "helmet": "^3.21.1",
+    "localforage": "^1.7.3",
     "log4js": "^5.2.2",
+    "mongoose": "^5.7.5",
     "next": "9.1.1",
     "next-redux-wrapper": "^4.0.1",
     "nodemon": "^1.19.4",
@@ -21,7 +27,9 @@
     "react-dom": "16.10.2",
     "react-redux": "^7.1.1",
     "redux": "^4.0.4",
+    "redux-actions": "^2.6.5",
     "redux-logger": "^3.0.6",
+    "redux-promise": "^0.6.0",
     "redux-thunk": "^2.3.0"
   }
 }

@@ -4,6 +4,7 @@ const compression = require('compression');
 const next = require('next');
 const helmet = require('helmet');
 const log4js = require('log4js');
+const bodyParser = require('body-parser');
 
 const port = parseInt(process.env.PORT, 10) || 80;
 const dev = process.env.NODE_ENV !== 'production';
@@ -34,6 +35,10 @@ app.prepare().then(() => {
     maxAge: '1d',
     immutable: true
   }));
+
+  server.use(bodyParser.json());
+
+  require('./databaseService')(server);
 
   server.get('/', (req, res) => {
     return app.render(req, res, '/index', req.query)
