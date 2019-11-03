@@ -2,9 +2,23 @@ export default {
   increaseStep: 'increase-step',
   decreaseStep: 'decrease-step',
   backToHeadStep: 'back-to-head-step',
+
+  openDrawer: 'open-drawer',
+  closeDrawer: 'close-drawer',
+
+  openAboutDialog: 'open-about-dialog',
+  closeAboutDialog: 'close-about-dialog',
+
+  openLoginDialog: 'open-login-dialog',
+  closeLoginDialog: 'close-login-dialog',
+  setLoginState: 'set-login-state',
+  setRootMode: 'set-root-mode',
+  quitRootMode: 'quit-root-mode',
+
   step1: {
     selectGrade: 'step1-select-grade',
-    selectClass: 'step1-select-class'
+    selectClass: 'step1-select-class',
+    setWarnNoGradeOrClassDialog: 'warn-no-grade-or-class'
   },
   step2: {
     openAddMemberDialog: 'step2-open-add-member-dialog',

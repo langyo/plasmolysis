@@ -28,6 +28,7 @@ export default class MyApp extends App {
             <Component {...pageProps} />
           </ThemeProvider>
         </Provider>
+
       </React.Fragment>
     );
   }

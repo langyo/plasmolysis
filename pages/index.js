@@ -12,35 +12,67 @@ import Step from "@material-ui/core/Step";
 import StepLabel from "@material-ui/core/StepLabel";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import Paper from "@material-ui/core/Paper";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
+import IconButton from "@material-ui/core/IconButton";
+import Drawer from "@material-ui/core/Drawer";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/LIstItemIcon";
+import ListItemText from "@material-ui/core/ListItemText";
+import Divider from "@material-ui/core/Divider";
+import CardHeader from "@material-ui/core/CardHeader";
 
 import Icon from "@mdi/react";
-import { mdiCheck } from "@mdi/js";
+import { mdiMenu, mdiAccount, mdiInformation, mdiLogin } from "@mdi/js";
 
-import MemberTable from "../components/memberTable";
-import MemberShowTable from "../components/memberShowTable";
+import PageStep1 from "../components/pages/step1";
+import PageStep2 from "../components/pages/step2";
+import PageStep3 from "../components/pages/step3";
 
-export default connect(state => state, dispatch => ({
-  selectGrade: id => dispatch(actions.step1.selectGrade(id)),
-  selectClass: id => dispatch(actions.step1.selectClass(id)),
+import AboutDialog from "../components/dialogs/aboutDialog";
+import LoginDialog from "../components/dialogs/loginDialog";
 
-  openAddMemberDialog: () => dispatch(actions.step2.openAddMemberDialog()),
-  closeAddMemberDialog: () => dispatch(actions.step2.closeAddMemberDialog()),
-  submitAndCloseDialog: (name, sex, reason) => dispatch(actions.step2.submitAndCloseDialog(name, sex, reason)),
-  deleteMember: id => dispatch(actions.step2.deleteMember(id)),
+import SuccessSnackbar from "../components/utils/successSnackbar";
 
-  submitList: () => dispatch(actions.step3.submitList()),
+export default connect(state => ({ state }), dispatch => ({
+  dispatcher: {
+    views: {
+      increaseStep: () => dispatch(actions.increaseStep()),
+      decreaseStep: () => dispatch(actions.decreaseStep()),
+      backToHeadStep: () => dispatch(actions.backToHeadStep()),
 
-  increaseStep: () => dispatch(actions.increaseStep()),
-  decreaseStep: () => dispatch(actions.decreaseStep()),
-  backToHeadStep: () => dispatch(actions.backToHeadStep())
+      openDrawer: () => dispatch(actions.openDrawer()),
+      closeDrawer: () => dispatch(actions.closeDrawer()),
+
+      openLoginDialog: () => dispatch(actions.openLoginDialog()),
+      closeLoginDialog: () => dispatch(actions.closeLoginDialog()),
+      submitAndCloseLoginDialog: (name, password) => dispatch(actions.submitAndCloseLoginDialog(name, password)),
+
+      openAboutDialog: () => dispatch(actions.openAboutDialog()),
+      closeAboutDialog: () => dispatch(actions.closeAboutDialog()),
+
+      loginRoot: (name, password) => dispatch(actions.loginRoot(name, password)),
+      quitRoot: () => dispatch(actions.quitRootMode()),
+      setLoginState: state => dispatch(actions.setLoginState(state))
+    },
+
+    pages: {
+      step1: {
+        selectGrade: id => dispatch(actions.step1.selectGrade(id)),
+        selectClass: id => dispatch(actions.step1.selectClass(id)),
+        openWarnNoGradeOrClassDialog: () => dispatch(actions.step1.setWarnNoGradeOrClassDialog(true)),
+        closeWarnNoGradeOrClassDialog: () => dispatch(actions.step1.setWarnNoGradeOrClassDialog(false)),
+      },
+      step2: {
+        openAddMemberDialog: () => dispatch(actions.step2.openAddMemberDialog()),
+        closeAddMemberDialog: () => dispatch(actions.step2.closeAddMemberDialog()),
+        submitAndCloseDialog: (name, sex, reason) => dispatch(actions.step2.submitAndCloseDialog(name, sex, reason)),
+        deleteMember: id => dispatch(actions.step2.deleteMember(id)),
+        submitList: () => dispatch(actions.step3.submitList())
+      }
+    }
+  }
 }))(props => {
   React.useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side');
@@ -50,6 +82,13 @@ export default connect(state => state, dispatch => ({
   }, []);
 
   const classes = makeStyles(theme => ({
+    drawerList: {
+      width: 240
+    },
+    divider: {
+      marginTop: 10,
+      marginBottom: 10
+    },
     center: {
       display: "flex",
       justifyContent: "center",
@@ -79,14 +118,74 @@ export default connect(state => state, dispatch => ({
       <link rel='icon' href='/favicon.ico' />
     </Head>,
     <div className={classnames(classes.center)}>
+      <LoginDialog
+        open={props.state.views.loginDialogOpen}
+        loginState={props.state.views.loginState}
+        onClose={props.dispatcher.views.closeLoginDialog}
+        onSubmit={props.dispatcher.views.loginRoot}
+      />
+      <AboutDialog
+        open={props.state.views.aboutDialogOpen}
+        onClose={props.dispatcher.views.closeAboutDialog}
+      />
+
+      <SuccessSnackbar
+        open={props.state.views.loginState === 'success'}
+        onClose={() => props.dispatcher.views.setLoginState('ready')}
+      />
+
+      <Drawer
+        anchor="left"
+        open={props.state.views.drawerOpen}
+        onClose={props.dispatcher.views.closeDrawer}
+      >
+        <List className={classes.drawerList}>
+          {props.state.views.rootMode === false && <CardHeader
+            avatar={
+              <Icon path={mdiAccount} size={1} />
+            }
+            title="尚未登录"
+            subheader="当前无管理权限"
+          />}
+          {props.state.views.rootMode === true && <CardHeader
+            avatar={
+              <Icon path={mdiAccount} size={1} />
+            }
+            title="admin"
+            subheader="管理员模式"
+          />}
+          <Divider className={classes.divider} />
+          {props.state.views.rootMode === false && <ListItem button onClick={props.dispatcher.views.openLoginDialog}>
+            <ListItemIcon>
+              <Icon path={mdiLogin} size={1} />
+            </ListItemIcon>
+            <ListItemText primary={"管理员登录"} />
+          </ListItem>}
+          {props.state.views.rootMode === true && <ListItem button onClick={props.dispatcher.views.quitRoot}>
+            <ListItemIcon>
+              <Icon path={mdiLogin} size={1} />
+            </ListItemIcon>
+            <ListItemText primary={"退出管理员模式"} />
+          </ListItem>}
+          <ListItem button onClick={props.dispatcher.views.openAboutDialog}>
+            <ListItemIcon>
+              <Icon path={mdiInformation} size={1} />
+            </ListItemIcon>
+            <ListItemText primary={"关于"} />
+          </ListItem>
+        </List>
+      </Drawer>
       <AppBar position="static">
         <Toolbar>
+          <IconButton onClick={props.dispatcher.views.openDrawer}>
+            <Icon path={mdiMenu} size={1} color="white" />
+          </IconButton>
           <Typography variant="h6" className={classes.margin}>
             晨检上报系统
           </Typography>
         </Toolbar>
       </AppBar>
-      <Stepper activeStep={props.activeStep} alternativeLabel>
+      <Stepper activeStep={props.state.views.activeStep} alternativeLabel>
         {["选择上报班级", "填写上报情况", "提交结果"].map(label => (
           <Step key={label}>
             <StepLabel>{label}</StepLabel>
@@ -94,117 +193,30 @@ export default connect(state => state, dispatch => ({
         ))}
       </Stepper>
       <div className={classnames(classes.fillWidth, classes.center)}>
-        {props.activeStep === 0 && (
-          <Paper
-            className={classnames(
-              classes.centerRow,
-              classes.fillWidth,
-              classes.card
-            )}
-          >
-            <FormControl
-              className={classnames(classes.formControl, classes.margin)}
-            >
-              <InputLabel>年级</InputLabel>
-              <Select value={props.grade} onChange={e => props.selectGrade(e.target.value)}>
-                <MenuItem value={1}>高一</MenuItem>
-                <MenuItem value={2}>高二</MenuItem>
-                <MenuItem value={3}>高三</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl
-              className={classnames(classes.formControl, classes.margin)}
-            >
-              <InputLabel>班级</InputLabel>
-              <Select value={props.classId} onChange={e => props.selectClass(e.target.value)}>
-                <MenuItem value={1}>1</MenuItem>
-                <MenuItem value={2}>2</MenuItem>
-                <MenuItem value={3}>3</MenuItem>
-              </Select>
-            </FormControl>
-          </Paper>
-        )}
-        {props.activeStep === 1 && (
-          <MemberTable
-            dialogOpen={props.dialogOpen}
-            setDialogOpen={props.openAddMemberDialog}
-            setDialogClose={props.closeAddMemberDialog}
-            addMember={props.submitAndCloseDialog}
-            removeMember={props.deleteMember}
-            studentList={props.studentList}
-          />
-        )}
-        {props.activeStep === 2 && (
-          <Paper
-            className={classnames(
-              classes.center,
-              classes.fillWidth,
-              classes.card
-            )}
-          >
-            {props.submitState === 'loading' && [
-              <Typography className={classes.margin} variant="body1">
-                正在提交
-              </Typography>,
-              <CircularProgress className={classes.margin} />
-            ]}
-            {props.submitState === 'success' && [
-              <Typography className={classes.margin} variant="body1">
-                提交成功
-              </Typography>,
-              <Icon className={classes.margin} path={mdiCheck} size={2} />
-            ]}
-            {props.submitState === 'fail' && [
-              <Typography className={classes.margin} variant="body1">
-                提交失败
-              </Typography>,
-              <Icon className={classes.margin} path={mdiClose} size={2} />
-            ]}
-
-            {props.fetchLatestState === 'loading' && [
-              <Typography className={classes.margin} variant="body1">
-                正在获取最近上报的记录列表
-              </Typography>,
-              <CircularProgress className={classes.margin} />
-            ]}
-            {props.fetchLatestState === 'success' && <MemberShowTable list={props.fetchLatestList} />}
-            {props.fetchLatestState === 'fail' && [
-              <Typography className={classes.margin} variant="body1">
-                获取上报列表失败
-              </Typography>,
-              <Icon className={classes.margin} path={mdiClose} size={2} />
-            ]}
-          </Paper>
-        )}
-        {props.activeStep !== 2 && (
-          <div className={classes.centerRow}>
-            <Button
-              disabled={props.activeStep === 0}
-              onClick={() =>
-                props.decreaseStep()
-              }
-              className={classes.margin}
-            >
-              上一步
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => {
-                if (props.activeStep === 1) props.submitList();
-                props.increaseStep();
-              }}
-              className={classes.margin}
-            >
-              下一步
-            </Button>
-          </div>
-        )}
-        {props.activeStep === 2 && props.submitState !== "done" && (
-          <Button className={classes.margin} onClick={props.backToHeadStep}>
-            返回至开始位置
-          </Button>
-        )}
+        {props.state.views.activeStep === 0 && <PageStep1
+          {...props.state.pages.step1}
+          {...props.state.views}
+          {...props.state.data}
+          {...props.dispatcher.pages.step1}
+          {...props.dispatcher.views}
+          {...props.dispatcher.data}
+        />}
+        {props.state.views.activeStep === 1 && <PageStep2
+          {...props.state.pages.step2}
+          {...props.state.views}
+          {...props.state.data}
+          {...props.dispatcher.pages.step2}
+          {...props.dispatcher.views}
+          {...props.dispatcher.data}
+        />}
+        {props.state.views.activeStep === 2 && <PageStep3
+          {...props.state.pages.step3}
+          {...props.state.views}
+          {...props.state.data}
+          {...props.dispatcher.pages.step3}
+          {...props.dispatcher.views}
+          {...props.dispatcher.data}
+        />}
       </div>
     </div>
   ]);
