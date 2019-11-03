@@ -13,7 +13,7 @@ import {
   Toolbar
 } from "@material-ui/core";
 
-import MainPage from "../components/pages/mainPage";
+import components from "../components";
 
 export default connect(state => ({ state }), dispatch => ({
   dispatcher: {
@@ -43,9 +43,6 @@ export default connect(state => ({ state }), dispatch => ({
     },
     fillWidth: {
       width: "80%"
-    },
-    margin: {
-      margin: 10
     }
   }))();
 
@@ -57,13 +54,13 @@ export default connect(state => ({ state }), dispatch => ({
     <div className={classnames(classes.center)}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" className={classes.margin}>
+          <Typography variant="h6">
             模板页面
           </Typography>
         </Toolbar>
       </AppBar>
       <div className={classnames(classes.fillWidth, classes.center)}>
-        <MainPage />
+        {components.pages.mainPage}
       </div>
     </div>
   ]);

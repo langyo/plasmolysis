@@ -2,7 +2,7 @@ const models = require('./databaseDriver');
 
 models.accounts.find({ name: 'admin' }).exec(doc => {
   if (!doc) {
-    let n = new models.rootAccounts({
+    let n = new models.accounts({
       name: 'admin',
       password: 'admin'
     });
