@@ -15,24 +15,11 @@ module.exports = {
       default: Date.now,
       index: true
     },
-    name: String,
-    sex: {
-      type: String,
-      enum: ["boy", "girl"]
-    },
-    reason: String,
-    grade: Number,
-    classId: Number
+    info: String
   })),
   
-  rootAccounts: db.model("RootAccount", mongoose.Schema({
+  accounts: db.model("Account", mongoose.Schema({
     name: String,
     password: String
-  })),
-
-  classInfo: db.model("ClassInfo", mongoose.Schema({
-    grade: Number,
-    classId: Number,
-    classMaster: String
   }))
 }
