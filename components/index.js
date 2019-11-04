@@ -12,7 +12,7 @@ requireFunc.keys().forEach(key => {
       if (obj[head]) obj[head] = dfs(obj[head]);
       else obj[head] = dfs({});
     } else {
-      obj[head] = React.createElement(requireFunc(key).default, { key });
+      obj[head] = requireFunc(key).default;
     }
     return obj;
   }

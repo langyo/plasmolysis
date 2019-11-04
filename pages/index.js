@@ -7,25 +7,9 @@ import actions from '../src/actions';
 import classnames from "classnames";
 import { makeStyles } from "@material-ui/core/styles";
 
-import {
-  Typography,
-  AppBar,
-  Toolbar
-} from "@material-ui/core";
-
-import components from "../components";
+import Main from "../components/views/main";
 
 export default connect(state => ({ state }), dispatch => ({
-  dispatcher: {
-    views: {
-
-    },
-    pages: {
-      mainPage: {
-
-      }
-    }
-  }
 }))(props => {
   React.useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side');
@@ -34,34 +18,11 @@ export default connect(state => ({ state }), dispatch => ({
     }
   }, []);
 
-  const classes = makeStyles(theme => ({
-    center: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "column"
-    },
-    fillWidth: {
-      width: "80%"
-    }
-  }))();
-
   return ([
     <Head>
       <title>TEMPLATE</title>
       <link rel='icon' href='/favicon.ico' />
     </Head>,
-    <div className={classnames(classes.center)}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6">
-            模板页面
-          </Typography>
-        </Toolbar>
-      </AppBar>
-      <div className={classnames(classes.fillWidth, classes.center)}>
-        {components.pages.mainPage}
-      </div>
-    </div>
+    <Main />
   ]);
 });
