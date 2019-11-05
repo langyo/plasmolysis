@@ -4,11 +4,6 @@ import Head from 'next/head';
 import { connect } from 'react-redux';
 import actions from '../src/actions';
 
-import classnames from "classnames";
-import { makeStyles } from "@material-ui/core/styles";
-
-import Main from "../components/views/main";
-
 export default connect(state => ({ state }), dispatch => ({
 }))(props => {
   React.useEffect(() => {
@@ -20,9 +15,9 @@ export default connect(state => ({ state }), dispatch => ({
 
   return ([
     <Head>
-      <title>TEMPLATE</title>
+      <title>I 笔记</title>
       <link rel='icon' href='/favicon.ico' />
     </Head>,
-    <Main />
+    <div></div>
   ]);
 });

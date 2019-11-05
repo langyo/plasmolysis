@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-let db = mongoose.createConnection('mongodb://localhost/morning_check');
+let db = mongoose.createConnection('mongodb://localhost/test');
 
 db.on('error', e => (console.error(e), process.exit()));
 
@@ -8,18 +8,24 @@ db.once('open', () => {
   console.log('Database has been connected.');
 });
 
-module.exports = {
-  logger: db.model("Log", mongoose.Schema({
+export default {
+  notes: db.model("Notes", mongoose.Schema({
     date: {
       type: Date,
       default: Date.now,
       index: true
     },
-    info: String
+    author: String,
+    title: String,
+    body: String
   })),
   
   accounts: db.model("Account", mongoose.Schema({
     name: String,
-    password: String
+    password: String,
+    token: {
+      type: String,
+      default: ''
+    }
   }))
 }
