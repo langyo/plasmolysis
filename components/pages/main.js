@@ -30,7 +30,7 @@ export default props => {
         classes.fillWidth
       )}
     >
-      <Typography className={classes.margin} variant='body1'>模板页面</Typography>
+      <Typography className={classes.margin} variant='body1'>欢迎！</Typography>
     </Paper>
   ]
 }
