@@ -6,9 +6,9 @@ export default {
     updateState: createAction('framework.updateState', payload => payload),
     togglePage: createAction('framework.togglePage', payload => payload)
   },
-  dialogs: Object.keys(thunks.dialogs).reduce((prev, name) => ({
+  models: Object.keys(thunks.models).reduce((prev, name) => ({
     ...prev,
-    [name]: Object.keys(thunks.dialogs[name]).reduce(
+    [name]: Object.keys(thunks.models[name]).reduce(
       ((prev, action) => ({
         ...prev,
         [/\.(.*)$/.exec(action)[1]]: createAction(/\.(.*)$/.exec(action)[1])

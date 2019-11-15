@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classnames from "classnames";
 import { makeStyles } from "@material-ui/core/styles";
 
-import { pages, dialogs, views } from '../src/connector';
+import { pages, models, views } from '../src/connector';
 
 export default connect(state => state, dispatch => ({}))(props => {
   React.useEffect(() => {
@@ -23,7 +23,7 @@ export default connect(state => state, dispatch => ({}))(props => {
     </Head>,
     <>
       {Object.keys(views).map((n, index) => React.createElement(views[n], { key: n }))}
-      {Object.keys(dialogs).map((n, index) => React.createElement(dialogs[n], { key: n }))}
+      {Object.keys(models).map((n, index) => React.createElement(models[n], { key: n }))}
       {React.createElement(pages[props.renderPage], { key: props.renderPage })}
     </>
   ]);

@@ -16,18 +16,18 @@ const fileReadDir = name => {
   return ret;
 };
 
-const actions = fileReadDir(path.resolve('./actions'));
+const controllers = fileReadDir(path.resolve('./controllers'));
 
 let services = {};
 
 const $ = require('./$');
 
-for (let type of ['dialogs', 'pages', 'views']) {
-  for (let name of Object.keys(actions[type])) {
-    for (let action of Object.keys(actions[type][name])) {
+for (let type of ['models', 'pages', 'views']) {
+  for (let name of Object.keys(controllers[type])) {
+    for (let action of Object.keys(controllers[type][name])) {
       if (action === 'init') continue;
 
-      let { taskList } = actions[type][name][action](new $());
+      let { taskList } = controllers[type][name][action](new $());
 
       for (let task of taskList) {
         switch (task.type) {

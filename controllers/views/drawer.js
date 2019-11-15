@@ -7,7 +7,7 @@ export default {
   },
 
   open: $ => $.setState((payload, state) => ({
-      isOpen: true
+    isOpen: true
   })),
   close: $ => $.setState((payload, state) => ({
     isOpen: false
@@ -21,6 +21,6 @@ export default {
     isLogin: false
   })),
 
-  openAboutDialog: $ => $.dispatch(payload => ({ type: 'dialogs.aboutDialog.open' })),
-  openLoginDialog: $ => $.dispatch(payload => ({ type: 'dialogs.loginDialog.open' }))
+  openAboutDialog: $ => $.dispatch(payload => ({ type: 'models.aboutDialog.open' })),
+  openLoginDialog: $ => $.dispatch(payload => ({ type: 'models.loginDialog.open' }))
 }

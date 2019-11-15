@@ -1,18 +1,18 @@
-const { actions } = require('./require');
+const { controllers } = require('./require');
 const $ = require('./$');
 
 let thunks = {};
-let initState = { dialogs: {}, pages: {}, views: {} };
+let initState = { models: {}, pages: {}, views: {} };
 
-for (let type of ['dialogs', 'pages', 'views']) {
-  for (let name of Object.keys(actions[type])) {
-    for (let action of Object.keys(actions[type][name])) {
+for (let type of ['models', 'pages', 'views']) {
+  for (let name of Object.keys(controllers[type])) {
+    for (let action of Object.keys(controllers[type][name])) {
       if (action === 'init') {
-        initState[type][name] = actions[type][name].init;
+        initState[type][name] = controllers[type][name].init;
         continue;
       }
 
-      let { taskList } = actions[type][name][action](new $());
+      let { taskList } = controllers[type][name][action](new $());
       let subThunks = [];
 
       for (let task of taskList) {
