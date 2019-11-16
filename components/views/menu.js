@@ -12,13 +12,14 @@ export default props => {
     menu: {
       position: 'absolute',
       left: 30,
-      top: 30
+      top: 30,
+      zIndex: 10000
     }
   }))();
 
   return [
     <IconButton className={classes.menu} onClick={() => props.openDrawer()}>
-      <Icon path={mdiMenu} size={1} color="white" />
+      <Icon path={mdiMenu} size={1} />
     </IconButton>
   ];
 }

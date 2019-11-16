@@ -26,15 +26,9 @@ module.exports = {
       classId: Number
     })),
 
-    rootAccounts: db.model("RootAccount", mongoose.Schema({
+    accounts: db.model("RootAccount", mongoose.Schema({
       name: String,
       password: String
-    })),
-
-    classInfo: db.model("ClassInfo", mongoose.Schema({
-      grade: Number,
-      classId: Number,
-      classMaster: String
     }))
   }
 }

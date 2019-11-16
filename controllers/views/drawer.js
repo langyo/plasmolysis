@@ -22,5 +22,9 @@ export default {
   })),
 
   openAboutDialog: $ => $.dispatch(payload => ({ type: 'models.aboutDialog.open' })),
-  openLoginDialog: $ => $.dispatch(payload => ({ type: 'models.loginDialog.open' }))
+  openLoginDialog: $ => $.dispatch(payload => ({ type: 'models.loginDialog.open' })),
+
+  openMainPage: $ => $.dispatch(payload => ({ type: 'framework.togglePage', payload: 'main' })),
+  openEditPage: $ => $.dispatch(payload => ({ type: 'framework.togglePage', payload: 'noteEdit' })),
+  openShowPage: $ => $.dispatch(payload => ({ type: 'framework.togglePage', payload: 'noteShow' }))
 }

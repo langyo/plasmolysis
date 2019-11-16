@@ -16,7 +16,7 @@ export default props => {
   }))();
 
   return (
-    <Dialog fullWidth open={props.open} onClose={props.onClose}>
+    <Dialog fullWidth open={props.isOpen} onClose={props.onClose}>
       <DialogTitle>关于</DialogTitle>
       <DialogContent>
         <DialogContentText>

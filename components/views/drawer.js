@@ -77,6 +77,25 @@ export default props => {
         </ListItemIcon>
         <ListItemText primary={"关于"} />
       </ListItem>
+      <Divider className={classes.divider} />
+      <ListItem button onClick={() => props.openMainPage()}>
+        <ListItemIcon>
+          <Icon path={mdiInformation} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={"主页"} />
+      </ListItem>
+      <ListItem button onClick={() => props.openEditPage()}>
+        <ListItemIcon>
+          <Icon path={mdiInformation} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={"编辑页"} />
+      </ListItem>
+      <ListItem button onClick={() => props.openShowPage()}>
+        <ListItemIcon>
+          <Icon path={mdiInformation} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={"展示页"} />
+      </ListItem>
     </List>
   </Drawer>];
 }
