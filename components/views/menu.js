@@ -13,7 +13,7 @@ export default props => {
       position: 'absolute',
       left: 30,
       top: 30,
-      zIndex: 10000
+      zIndex: 1000
     }
   }))();
 

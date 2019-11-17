@@ -23,7 +23,7 @@ export default props => {
     }
   }))();
 
-  return [
+  return <div className={classes.centerRow}>
     <Paper
       className={classnames(
         classes.centerRow,
@@ -32,5 +32,5 @@ export default props => {
     >
       <Typography className={classes.margin} variant='body1'>展示页</Typography>
     </Paper>
-  ]
+  </div>;
 }

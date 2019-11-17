@@ -21,8 +21,8 @@ export default {
     isLogin: false
   })),
 
-  openAboutDialog: $ => $.dispatch(payload => ({ type: 'models.aboutDialog.open' })),
-  openLoginDialog: $ => $.dispatch(payload => ({ type: 'models.loginDialog.open' })),
+  openAboutDialog: $ => $.dispatch(payload => ({ type: 'models.about.open' })),
+  openLoginDialog: $ => $.dispatch(payload => ({ type: 'models.login.open' })),
 
   openMainPage: $ => $.dispatch(payload => ({ type: 'framework.togglePage', payload: 'main' })),
   openEditPage: $ => $.dispatch(payload => ({ type: 'framework.togglePage', payload: 'noteEdit' })),

@@ -12,11 +12,8 @@ import {
 } from "@material-ui/core";
 
 export default props => {
-  const classes = makeStyles(theme => ({
-  }))();
-
   return (
-    <Dialog fullWidth open={props.isOpen} onClose={props.onClose}>
+    <Dialog fullWidth open={props.isOpen} onClose={props.close}>
       <DialogTitle>关于</DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -24,7 +21,7 @@ export default props => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.onClose} color="primary">
+        <Button onClick={props.close} color="primary">
           确认
         </Button>
       </DialogActions>
