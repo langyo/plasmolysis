@@ -1,14 +1,14 @@
-let actionmodelsReq = require.context('../controllers/models', true, /\.js$/);
-let actionPagesReq = require.context('../controllers/pages', true, /\.js$/);
-let actionViewsReq = require.context('../controllers/views', true, /\.js$/);
+let controllerModelsReq = require.context('../controllers/models', true, /\.js$/);
+let controllerPagesReq = require.context('../controllers/pages', true, /\.js$/);
+let controllerViewsReq = require.context('../controllers/views', true, /\.js$/);
 
 let controllers = { models: {}, pages: {}, views: {} };
 
-actionmodelsReq.keys().forEach(key => {
+controllerModelsReq.keys().forEach(key => {
   let path = /^\.+\/(.*)\.js$/.exec(key)[1].split('/');
   let pathStr = path.reduce((prev, next) => `${prev}.${next}`);
   const dfs = (obj, pos) => {
-    if (pos + 1 === path.length) obj[path[pos]] = actionmodelsReq(key).default;
+    if (pos + 1 === path.length) obj[path[pos]] = controllerModelsReq(key).default;
     else {
       if (obj[path[pos]]) obj[path[pos]] = dfs(obj[pathStr], pos + 1);
       else obj[path[pos]] = dfs({}, pos + 1);
@@ -17,11 +17,11 @@ actionmodelsReq.keys().forEach(key => {
   }
   controllers.models = dfs(controllers.models, 0);
 });
-actionPagesReq.keys().forEach(key => {
+controllerPagesReq.keys().forEach(key => {
   let path = /^\.+\/(.*)\.js$/.exec(key)[1].split('/');
   let pathStr = path.reduce((prev, next) => `${prev}.${next}`);
   const dfs = (obj, pos) => {
-    if (pos + 1 === path.length) obj[path[pos]] = actionPagesReq(key).default;
+    if (pos + 1 === path.length) obj[path[pos]] = controllerPagesReq(key).default;
     else {
       if (obj[path[pos]]) obj[path[pos]] = dfs(obj[pathStr], pos + 1);
       else obj[path[pos]] = dfs({}, pos + 1);
@@ -30,11 +30,11 @@ actionPagesReq.keys().forEach(key => {
   }
   controllers.pages = dfs(controllers.pages, 0);
 });
-actionViewsReq.keys().forEach(key => {
+controllerViewsReq.keys().forEach(key => {
   let path = /^\.+\/(.*)\.js$/.exec(key)[1].split('/');
   let pathStr = path.reduce((prev, next) => `${prev}.${next}`);
   const dfs = (obj, pos) => {
-    if (pos + 1 === path.length) obj[path[pos]] = actionViewsReq(key).default;
+    if (pos + 1 === path.length) obj[path[pos]] = controllerViewsReq(key).default;
     else {
       if (obj[path[pos]]) obj[path[pos]] = dfs(obj[pathStr], pos + 1);
       else obj[path[pos]] = dfs({}, pos + 1);

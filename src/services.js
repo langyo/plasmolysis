@@ -1,35 +1,81 @@
-const context = require('../server/context');
+import context from '../server/context';
 
-const fs = require('fs');
-const path = require('path');
+import { readdirSync, statSync } from 'fs';
+import { resolve } from 'path';
 
 const fileReadDir = name => {
-  let files = fs.readdirSync(name);
+  let files = readdirSync(name);
   let ret = {};
 
-  for(let file of files) {
-    if(fs.statSync(`${name}/${file}`).isDirectory())
-     ret[file] = fileReadDir(`${name}/${file}`);
+  for (let file of files) {
+    if (statSync(`${name}/${file}`).isDirectory())
+      ret[file] = fileReadDir(`${name}/${file}`);
     else ret[file] = require(`${name}/${file}`).default;
   }
-  
+
   return ret;
 };
 
-const controllers = fileReadDir(path.resolve('./controllers'));
+const controllers = fileReadDir(resolve('./controllers'));
 
 let services = {};
 
-const $ = require('./$');
-
 for (let type of ['models', 'pages', 'views']) {
   for (let name of Object.keys(controllers[type])) {
-    for (let action of Object.keys(controllers[type][name])) {
-      if (action === 'init') continue;
+    // 生成动作表
+    let dealed = controllers[type][name]({
+      setState: () => null,
+      setData: () => null,
+      dispatch: () => null,
+      fetch: () => null,
+      send: () => null,
+      route: () => null,
+      handle: func => ({ type: 'handle', func })
+    });
 
-      let { taskList } = controllers[type][name][action](new $());
+    // 去除所有的不用于表达动作的特殊键
+    dealed = Object.keys(dealed)
+      .filter(name => name !== 'init')
+      .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
-      for (let task of taskList) {
+    // 对其中每个作为数组存在的元素进行扁平化
+    dealed = Object.keys(dealed).reduce((prev, action) => {
+      const dfs = arr =>arr.reduce(
+        (prev, next) => Array.isArray(next) ? prev.concat(dfs(next)) : [...prev, next],
+        []
+      );
+      return ({
+        ...prev,
+        [action]: dfs(dealed[action])
+      });
+    }, {});
+
+    // 整合所有的 fetch
+    dealed = Object.keys(dealed).reduce((prev, action) => {
+      if (dealed[action]) {
+        return ({
+          ...prev,
+          [action]: Object.keys(dealed[action]).reduce((prev, next) => {
+            if (dealed[action][next]) {
+              switch (dealed[action][next].type) {
+                case 'fetch':
+                case 'send':
+                case 'route':
+                  break;
+                case 'handle':
+                  return [...prev, { type: 'fetchCombine', func: dealed[action][next].func }];
+                default:
+                  return [...prev, dealed[action][next]];
+              }
+            } else return prev;
+          }, [])
+        });
+      }
+      else return prev;
+    }, {});
+
+    for (let action of Object.keys(dealed)) {
+      for (let task of dealed[action]) {
         switch (task.type) {
           case 'setState':
           case 'dispatch':
@@ -48,7 +94,7 @@ for (let type of ['models', 'pages', 'views']) {
   }
 }
 
-module.exports = server => {
+export default server => {
   for (let path of Object.keys(services)) {
     server.use(path, (req, res) => services[path](context)(req, res));
   }
