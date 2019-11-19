@@ -81,6 +81,7 @@ for (let type of ['models', 'pages', 'views']) {
           case 'dispatch':
             break;
           case 'fetchCombine':
+            console.log('New service:', task);
             services[task.route.path] = context => (req, res) => task.handle(req.body, context, json => {
               res.send(JSON.stringify(json));
               res.end();

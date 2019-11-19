@@ -47,18 +47,18 @@ export default props => {
     onClose={() => props.close()}
   >
     <List className={classes.drawerList}>
-      {props.rootMode === false && <CardHeader
+      {props.data.account.hasLogin === false && <CardHeader
         avatar={
           <Icon path={mdiAccount} size={1} />
         }
         title="尚未登录"
         subheader="登录以获取更多权限"
       />}
-      {props.rootMode === true && <CardHeader
+      {props.data.account.hasLogin === true && <CardHeader
         avatar={
           <Icon path={mdiAccount} size={1} />
         }
-        title="已登录"
+        title={props.data.account.userName}
       />}
       <Divider className={classes.divider} />
       {props.rootMode === false && <ListItem button onClick={() => props.openLoginDialog()}>

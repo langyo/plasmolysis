@@ -17,8 +17,6 @@ export default props => {
     }
   }))();
 
-  console.log(props)
-
   return [
     <IconButton className={classes.menu} onClick={() => props.openDrawer()}>
       <Icon path={mdiMenu} size={1} />
