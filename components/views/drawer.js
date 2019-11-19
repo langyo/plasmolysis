@@ -39,8 +39,6 @@ export default props => {
     }
   }))();
 
-  console.log(props)
-
   return [<Drawer
     anchor="left"
     open={props.isOpen}
