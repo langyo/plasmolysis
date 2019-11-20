@@ -13,7 +13,6 @@ module.exports = {
     logger: db.model("Log", mongoose.Schema({
       date: {
         type: Date,
-        default: Date.now,
         index: true
       },
       name: String,
@@ -28,7 +27,21 @@ module.exports = {
 
     accounts: db.model("RootAccount", mongoose.Schema({
       name: String,
-      password: String
+      password: String,
+      shortId: Number
+    })),
+
+    notes: db.model("Note", mongoose.Schema({
+      owner: {
+        type: Number,
+        index: true
+      },
+      title: String,
+      body: String,
+      date: {
+        type: Date,
+        index: true
+      }
     }))
   }
 }

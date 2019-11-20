@@ -27,7 +27,8 @@ export default props => {
     <Paper
       className={classnames(
         classes.centerRow,
-        classes.fillWidth
+        classes.fillWidth,
+        classes.margin
       )}
     >
       <Typography className={classes.margin} variant='body1'>编辑页</Typography>
