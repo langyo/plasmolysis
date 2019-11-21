@@ -11,7 +11,16 @@ import Divider from "@material-ui/core/Divider";
 import CardHeader from "@material-ui/core/CardHeader";
 
 import Icon from "@mdi/react";
-import { mdiAccount, mdiInformation, mdiLogin } from "@mdi/js";
+import {
+  mdiAccount,
+  mdiInformation,
+  mdiLogin,
+  mdiAccountMultiplePlusOutline,
+  mdiAccountArrowRightOutline,
+  mdiBookOpenVariant,
+  mdiFileEditOutline,
+  mdiHome
+} from "@mdi/js";
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -59,17 +68,23 @@ export default props => {
         title={props.data.account.userName}
       />}
       <Divider className={classes.divider} />
-      {props.rootMode === false && <ListItem button onClick={() => props.openLoginDialog()}>
+      {props.data.account.hasLogin === false && [<ListItem button onClick={() => props.openLoginDialog()}>
         <ListItemIcon>
-          <Icon path={mdiLogin} size={1} />
+          <Icon path={mdiAccountArrowRightOutline} size={1} />
         </ListItemIcon>
         <ListItemText primary={"登录"} />
-      </ListItem>}
-      {props.rootMode === true && <ListItem button onClick={() => props.logoutUpdate()}>
+      </ListItem>,
+      <ListItem button onClick={() => props.openRegisterDialog()}>
+        <ListItemIcon>
+          <Icon path={mdiAccountMultiplePlusOutline} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={"注册"} />
+      </ListItem>]}
+      {props.data.account.hasLogin === true && <ListItem button onClick={() => props.logoutUpdate()}>
         <ListItemIcon>
           <Icon path={mdiLogin} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"退出登录"} />
+        <ListItemText primary={"登出"} />
       </ListItem>}
       <ListItem button onClick={() => props.openAboutDialog()}>
         <ListItemIcon>
@@ -80,21 +95,21 @@ export default props => {
       <Divider className={classes.divider} />
       <ListItem button onClick={() => props.openMainPage()}>
         <ListItemIcon>
-          <Icon path={mdiInformation} size={1} />
+          <Icon path={mdiHome} size={1} />
         </ListItemIcon>
         <ListItemText primary={"主页"} />
       </ListItem>
       <ListItem button onClick={() => props.openEditPage()}>
         <ListItemIcon>
-          <Icon path={mdiInformation} size={1} />
+          <Icon path={mdiFileEditOutline} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"编辑页"} />
+        <ListItemText primary={"编辑"} />
       </ListItem>
       <ListItem button onClick={() => props.openShowPage()}>
         <ListItemIcon>
-          <Icon path={mdiInformation} size={1} />
+          <Icon path={mdiBookOpenVariant} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"展示页"} />
+        <ListItemText primary={"展示"} />
       </ListItem>
     </List>
   </Drawer>];

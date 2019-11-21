@@ -3,5 +3,8 @@ export default {
     hasLogin: false,
     userName: '',
     accessToken: ''
+  },
+  notes: {
+    latestPush: []
   }
 };

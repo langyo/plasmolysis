@@ -22,8 +22,8 @@ export default connect(state => state, dispatch => ({}))(props => {
       <link rel='icon' href='/favicon.ico' />
     </Head>,
     <>
-      {Object.keys(views).map((n, index) => React.createElement(views[n], { key: n }))}
-      {Object.keys(models).map((n, index) => React.createElement(models[n], { key: n }))}
+      {Object.keys(views).map((n, key) => React.createElement(views[n], { key }))}
+      {Object.keys(models).map((n, key) => React.createElement(models[n], { key }))}
       {React.createElement(pages[props.renderPage], { key: props.renderPage })}
     </>
   ]);

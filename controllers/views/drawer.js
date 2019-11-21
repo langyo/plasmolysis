@@ -35,6 +35,9 @@ export default ({ setState, dispatch }) => ({
   openLoginDialog: [
     dispatch(payload => ({ type: 'models.login.open' }))
   ],
+  openRegisterDialog: [
+    dispatch(payload => ({ type: 'models.register.open' }))
+  ],
 
   openMainPage: [
     dispatch(payload => ({ type: 'framework.togglePage', payload: 'main' }))

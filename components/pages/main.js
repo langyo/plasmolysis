@@ -13,8 +13,9 @@ import {
 import Icon from "@mdi/react";
 
 import {
+  mdiGreasePencil,
   mdiMagnify,
-  mdiArrowRight
+  mdiChevronRight
 } from "@mdi/js";
 
 export default props => {
@@ -24,6 +25,9 @@ export default props => {
       justifyContent: "center",
       alignItems: "center",
       flexDirection: "row"
+    },
+    maxWidth: {
+      width: '100%'
     },
     margin: {
       margin: 10
@@ -41,19 +45,23 @@ export default props => {
     },
     iconButton: {
       padding: 10
+    },
+    textAlignCenter: {
+      textAlign: 'center'
     }
   }))();
 
-  return <div className={classes.centerRow}>
-    {[
-      <Paper
-        className={classnames(
-          classes.searchBar,
-          classes.margin
-        )}
-      >
+  return [
+    <div className={classnames(classes.maxWidth, classes.centerRow)}>
+      <Icon path={mdiGreasePencil} size={3} className={classes.margin} color='#3399cc' />
+    </div>,
+    <div className={classnames(classes.maxWidth, classes.centerRow)}>
+      <Typography variant='h5' className={classes.margin}>I 笔记</Typography>
+    </div>,
+    <div className={classnames(classes.maxWidth, classes.centerRow)}>
+      <Paper className={classes.searchBar}>
         <IconButton className={classes.iconButton} disabled>
-          <Icon path={mdiArrowRight} size={1} />
+          <Icon path={mdiChevronRight} size={1} />
         </IconButton>
         <InputBase
           className={classes.input}
@@ -63,6 +71,12 @@ export default props => {
           <Icon path={mdiMagnify} size={1} />
         </IconButton>
       </Paper>
-    ]}
-  </div>;
+    </div>,
+    <div className={classnames(classes.maxWidth, classes.centerRow)}>
+      {props.data.notes.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
+        <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
+        <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
+      </Paper>}
+    </div>
+  ];
 }
