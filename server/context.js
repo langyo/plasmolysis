@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-let db = mongoose.createConnection('mongodb://localhost/morning_check');
+let db = mongoose.createConnection('mongodb://localhost/i-note');
 
 db.on('error', e => (console.error(e), process.exit()));
 

@@ -24,12 +24,13 @@ for (let type of ['models', 'pages', 'views']) {
   for (let name of Object.keys(controllers[type])) {
     // 生成动作表
     let dealed = controllers[type][name]({
-      setState: () => null,
-      setData: () => null,
-      dispatch: () => null,
-      fetch: () => null,
-      send: () => null,
-      route: () => null,
+      deal: () => ({ type: 'deal' }),
+      setState: () => ({ type: 'setState' }),
+      setData: () => ({ type: 'setData' }),
+      dispatch: () => ({ type: 'dispatch' }),
+      fetch: () => ({ type: 'fetch' }),
+      send: () => ({ type: 'send' }),
+      route: obj => ({ type: 'route', obj }),
       handle: func => ({ type: 'handle', func })
     });
 
@@ -40,7 +41,7 @@ for (let type of ['models', 'pages', 'views']) {
 
     // 对其中每个作为数组存在的元素进行扁平化
     dealed = Object.keys(dealed).reduce((prev, action) => {
-      const dfs = arr =>arr.reduce(
+      const dfs = arr => arr.reduce(
         (prev, next) => Array.isArray(next) ? prev.concat(dfs(next)) : [...prev, next],
         []
       );
@@ -60,15 +61,16 @@ for (let type of ['models', 'pages', 'views']) {
               switch (dealed[action][next].type) {
                 case 'fetch':
                 case 'send':
+                  return prev;
                 case 'route':
-                  break;
+                  return { ...prev, fetchObj: { ...prev.fetchObj, route: dealed[action][next].obj } };
                 case 'handle':
-                  return [...prev, { type: 'fetchCombine', func: dealed[action][next].func }];
+                  return { list: [...prev.list, { type: 'fetchCombine', ...prev.fetchObj, handle: dealed[action][next].func }], fetchObj: {} };;
                 default:
-                  return [...prev, dealed[action][next]];
+                  return { ...prev, list: [...prev.list, dealed[action][next]] };
               }
             } else return prev;
-          }, [])
+          }, { list: [], fetchObj: {} }).list
         });
       }
       else return prev;
@@ -77,9 +79,6 @@ for (let type of ['models', 'pages', 'views']) {
     for (let action of Object.keys(dealed)) {
       for (let task of dealed[action]) {
         switch (task.type) {
-          case 'setState':
-          case 'dispatch':
-            break;
           case 'fetchCombine':
             console.log('New service:', task);
             services[task.route.path] = context => (req, res) => task.handle(req.body, context, json => {
@@ -88,7 +87,7 @@ for (let type of ['models', 'pages', 'views']) {
             });
             break;
           default:
-            throw new Error('未知的流动作！');
+            break;
         }
       }
     }

@@ -3,11 +3,11 @@ import classnames from "classnames";
 import { makeStyles } from "@material-ui/core/styles";
 
 import {
-  IconButton,
-  Fab
+  IconButton
 } from "@material-ui/core";
 import {
   SpeedDial,
+  SpeedDialIcon,
   SpeedDialAction
 } from "@material-ui/lab";
 
@@ -15,6 +15,7 @@ import Icon from "@mdi/react";
 import {
   mdiMenu,
   mdiPlus,
+  mdiClose,
   mdiPencil,
   mdiFileOutline
 } from "@mdi/js";
@@ -45,7 +46,7 @@ export default props => {
       ariaLabel="新建"
       className={classes.dashboard}
       hidden={false}
-      icon={<Icon path={mdiPlus} size={1} color='#fff' />}
+      icon={<SpeedDialIcon openIcon={<Icon path={mdiClose} size={1} color='#fff' />} icon={<Icon path={mdiPlus} size={1} color='#fff' />} />}
       onClose={() => setDialOpen(false)}
       onOpen={() => setDialOpen(true)}
       open={dialOpen}

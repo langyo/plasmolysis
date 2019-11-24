@@ -66,7 +66,7 @@ export default props => {
         </Button>
         <Button
           disabled={!(name && password)}
-          onClick={() => props.submit(name, password)}
+          onClick={() => props.submit({ name, password })}
           color="primary"
           disbaled={props.loginState === 'loading'}
         >

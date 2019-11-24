@@ -8,13 +8,14 @@ for (let type of ['models', 'pages', 'views']) {
   for (let name of Object.keys(controllers[type])) {
     // 生成动作表
     let dealed = controllers[type][name]({
+      // deal: func => ({ type: 'deal', func }),
       setState: func => ({ type: 'setState', func }),
       setData: func => ({ type: 'setData', func }),
       dispatch: func => ({ type: 'dispatch', func }),
       fetch: func => ({ type: 'fetch', func }),
       send: func => ({ type: 'send', func }),
       route: obj => ({ type: 'route', obj }),
-      handle: () => null
+      handle: () => ({ type: 'handle' })
     });
 
     // 去除所有的不用于表达动作的特殊键
@@ -51,7 +52,7 @@ for (let type of ['models', 'pages', 'views']) {
                   prev.fetchObj.send = dealed[action][next].func;
                   return prev;
                 case 'route':
-                  prev.fetchObj.route = dealed[action][next].func;
+                  prev.fetchObj.route = dealed[action][next].obj;
                   return prev;
                 case 'handle':
                   return { list: [...prev.list, { type: 'fetchCombine', ...prev.fetchObj }], fetchObj: {} };
@@ -106,7 +107,7 @@ for (let type of ['models', 'pages', 'views']) {
             });
             break;
           case 'fetchCombine':
-            subThunks.push(next => (payload, dispatch, state) => fetch(task.fetch.host || '' + task.route.path, {
+            subThunks.push(next => (payload, dispatch, state) => fetch((task.fetch.host || '') + task.route.path, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -116,6 +117,11 @@ for (let type of ['models', 'pages', 'views']) {
               body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
             }).then(res => res.json()).then(json => next(json, dispatch, state)));
             break;
+          // case 'deal':
+          //   subThunks.push(next => (payload, dispatch, state) => {
+          //     task.func(payload, state, dispatch, next);
+          //   });
+          //   break;
           default:
             throw new Error('未知的流动作！');
         }
