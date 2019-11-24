@@ -8,6 +8,7 @@ for (let component of Object.keys(components.models)) {
   models[component] = connect(
     (state => ({ ...state.models[component], data: state.data })),
     (dispatch => Object.keys(controllers.models[component]({
+      deal: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
@@ -26,6 +27,7 @@ for (let component of Object.keys(components.pages)) {
   pages[component] = connect(
     (state => ({ ...state.pages[component], data: state.data })),
     (dispatch => Object.keys(controllers.pages[component]({
+      deal: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
@@ -44,6 +46,7 @@ for (let component of Object.keys(components.views)) {
   views[component] = connect(
     (state => ({ ...state.views[component], data: state.data })),
     (dispatch => Object.keys(controllers.views[component]({
+      deal: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
