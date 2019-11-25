@@ -3,6 +3,7 @@ import initData from '../configs/initData';
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };
+let initStateForModels = {};
 
 for (let type of ['models', 'pages', 'views']) {
   for (let name of Object.keys(controllers[type])) {
@@ -10,7 +11,8 @@ for (let type of ['models', 'pages', 'views']) {
     let dealed = controllers[type][name]({
       deal: func => ({ type: 'deal', func }),
       togglePage: name => ({ type: 'togglePage', name }),
-      createModel: (name, payload) => ({ type: 'createModel', name, payload }),
+      createModel: (name, payload) => ({ type: 'createModel', name, payload: payload ? payload : {} }),
+      destoryModel: (name, id) => ({ type: 'destoryModel', name, payload: { id } }),
       setState: obj => ({ type: 'setState', obj }),
       setData: obj => ({ type: 'setData', obj }),
       dispatch: obj => ({ type: 'dispatch', obj }),
@@ -21,7 +23,13 @@ for (let type of ['models', 'pages', 'views']) {
     });
 
     // 去除所有的不用于表达动作的特殊键
-    if (dealed.init) initState[type][name] = dealed.init;
+    if (dealed.init) {
+      if (type !== 'models') initState[type][name] = dealed.init;
+      else {
+        initState[type][name] = {};
+        initStateForModels[name] = dealed.init;
+      }
+    }
     else initState[type][name] = {};
     dealed = Object.keys(dealed)
       .filter(name => name !== 'init')
@@ -76,11 +84,21 @@ for (let type of ['models', 'pages', 'views']) {
         switch (task.type) {
           case 'setState':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({
+              if (type !== 'models') dispatch({
                 type: 'framework.updateState',
                 payload: {
                   [type]: {
                     [name]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
+                  }
+                }
+              });
+              else dispatch({
+                type: 'framework.updateState',
+                payload: {
+                  [type]: {
+                    [id]: {
+                      [name]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
+                    }
                   }
                 }
               });
@@ -114,7 +132,13 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'createModel':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload }});
+              dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload } });
+              next(payload, dispatch, state);
+            });
+            break;
+          case 'destoryModel':
+            subThunks.push(next => (payload, dispatch, state) => {
+              dispatch({ type: 'framework.createModel', payload: { name: task.name, id: task.id } });
               next(payload, dispatch, state);
             });
             break;
@@ -151,4 +175,4 @@ for (let type of ['models', 'pages', 'views']) {
   }
 }
 
-export { thunks, initState };
+export { thunks, initState, initStateForModels };

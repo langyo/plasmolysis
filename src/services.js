@@ -25,6 +25,9 @@ for (let type of ['models', 'pages', 'views']) {
     // 生成动作表
     let dealed = controllers[type][name]({
       deal: () => ({ type: 'deal' }),
+      togglePage: () => ({ type: 'togglePage' }),
+      createModel: () => ({ type: 'createModel' }),
+      destoryModel: () => ({ type: 'destoryModel' }),
       setState: () => ({ type: 'setState' }),
       setData: () => ({ type: 'setData' }),
       dispatch: () => ({ type: 'dispatch' }),

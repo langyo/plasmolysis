@@ -1,4 +1,4 @@
-export default ({ setState, dispatch, togglePage }) => ({
+export default ({ setState, dispatch, togglePage, createModel }) => ({
   init: {
     isOpen: false,
 
@@ -26,13 +26,13 @@ export default ({ setState, dispatch, togglePage }) => ({
   ],
 
   openAboutDialog: [
-    dispatch({ type: 'models.about.open' })
+    createModel('about')
   ],
   openLoginDialog: [
-    dispatch({ type: 'models.login.open' })
+    createModel('login')
   ],
   openRegisterDialog: [
-    dispatch({ type: 'models.register.open' })
+    createModel('register')
   ],
 
   openMainPage: [

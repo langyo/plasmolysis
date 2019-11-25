@@ -1,10 +1,7 @@
-export default ({ setState, dispatch }) => ({
+export default ({ setState, destoryModel }) => ({
   init: {
-    isOpen: false
+    isOpen: true
   },
-  open: [
-    setState({ isOpen: true })
-  ],
   close: [
     setState({ isOpen: false })
   ]

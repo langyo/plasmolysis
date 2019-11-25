@@ -1,29 +1,42 @@
 import { components, controllers } from './require';
 import { connect } from 'react-redux';
 import { thunks } from './thunks';
+import store from './store';
 
-let models = {}, pages = {}, views = {};
+let pages = {}, views = {};
 
-for (let component of Object.keys(components.models)) {
-  models[component] = connect(
-    (state => ({ ...state.models[component], data: state.data })),
-    (dispatch => Object.keys(controllers.models[component]({
-      deal: () => null,
-      togglePage: () => null,
-      createModel: () => null,
-      setState: () => null,
-      setData: () => null,
-      dispatch: () => null,
-      fetch: () => null,
-      send: () => null,
-      route: () => null,
-      handle: () => null
-    })).reduce((prev, action) => (action !== 'init' ? ({
-      ...prev,
-      [action]: (payload => dispatch(thunks[`models.${component}.${action}`](payload)))
-    }) : (prev)), {}))
-  )(components.models[component]);
-}
+const models = () => {
+  let ret = {};
+  for (let component of Object.keys(components.models)) {
+    ret[component] = {};
+    for(let id of Object.keys(store.getState().models[component])) {
+      ret[component][id] = connect(
+        (state => ({
+          ...state.models[component][id],
+          data: state.data,
+          $id: id
+        })),
+        (dispatch => Object.keys(controllers.models[component]({
+          deal: () => null,
+          togglePage: () => null,
+          createModel: () => null,
+          destoryModel: () => null,
+          setState: () => null,
+          setData: () => null,
+          dispatch: () => null,
+          fetch: () => null,
+          send: () => null,
+          route: () => null,
+          handle: () => null
+        })).reduce((prev, action) => (action !== 'init' ? ({
+          ...prev,
+          [action]: (payload => dispatch(thunks[`models.${component}.${action}`]({ ...payload, $id: id })))
+        }) : (prev)), {})),
+      )(components.models[component]);
+    }
+  }
+  return ret;
+};
 
 for (let component of Object.keys(components.pages)) {
   pages[component] = connect(
@@ -32,6 +45,7 @@ for (let component of Object.keys(components.pages)) {
       deal: () => null,
       togglePage: () => null,
       createModel: () => null,
+      destoryModel: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
@@ -53,6 +67,7 @@ for (let component of Object.keys(components.views)) {
       deal: () => null,
       togglePage: () => null,
       createModel: () => null,
+      destoryModel: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
