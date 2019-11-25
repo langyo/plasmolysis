@@ -6,13 +6,13 @@ export default ({ deal, setState, dispatch, setData, fetch, route, send, handle 
     fetching: false
   },
   open: [
-    setState(() => ({ isOpen: true }))
+    setState({ isOpen: true })
   ],
   close: [
-    setState(() => ({ isOpen: false }))
+    setState({ isOpen: false })
   ],
   submit: [
-    setState(() => ({ fetching: true })),
+    setState({ fetching: true }),
     fetch({}),
     send((payload, state) => payload),
     route({ path: '/api/login' }),

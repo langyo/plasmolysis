@@ -9,9 +9,11 @@ for (let type of ['models', 'pages', 'views']) {
     // 生成动作表
     let dealed = controllers[type][name]({
       deal: func => ({ type: 'deal', func }),
-      setState: func => ({ type: 'setState', func }),
-      setData: func => ({ type: 'setData', func }),
-      dispatch: func => ({ type: 'dispatch', func }),
+      togglePage: name => ({ type: 'togglePage', name }),
+      createModel: (name, payload) => ({ type: 'createModel', name, payload }),
+      setState: obj => ({ type: 'setState', obj }),
+      setData: obj => ({ type: 'setData', obj }),
+      dispatch: obj => ({ type: 'dispatch', obj }),
       fetch: func => ({ type: 'fetch', func }),
       send: func => ({ type: 'send', func }),
       route: obj => ({ type: 'route', obj }),
@@ -78,7 +80,7 @@ for (let type of ['models', 'pages', 'views']) {
                 type: 'framework.updateState',
                 payload: {
                   [type]: {
-                    [name]: task.func(payload, state)
+                    [name]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
                   }
                 }
               });
@@ -90,9 +92,7 @@ for (let type of ['models', 'pages', 'views']) {
               dispatch({
                 type: 'framework.updateState',
                 payload: {
-                  data: {
-                    ...task.func(payload, state)
-                  }
+                  data: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
                 }
               });
               next(payload, dispatch, state);
@@ -100,9 +100,21 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'dispatch':
             subThunks.push(next => (payload, dispatch, state) => {
-              let ret = task.func(payload, state);
+              let ret = typeof task.obj === 'function' ? task.obj(payload, state) : task.obj;
               if (/^framework\./.test(ret.type)) dispatch({ ...ret });
               else dispatch(thunks[ret.type](ret.payload));
+              next(payload, dispatch, state);
+            });
+            break;
+          case 'togglePage':
+            subThunks.push(next => (payload, dispatch, state) => {
+              dispatch({ type: 'framework.togglePage', payload: task.name });
+              next(payload, dispatch, state);
+            });
+            break;
+          case 'createModel':
+            subThunks.push(next => (payload, dispatch, state) => {
+              dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload }});
               next(payload, dispatch, state);
             });
             break;

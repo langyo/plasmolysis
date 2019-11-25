@@ -3,9 +3,9 @@ export default ({ setState, dispatch }) => ({
     isOpen: false
   },
   open: [
-    setState(() => ({ isOpen: true }))
+    setState({ isOpen: true })
   ],
   close: [
-    setState(() => ({ isOpen: false }))
+    setState({ isOpen: false })
   ]
 });

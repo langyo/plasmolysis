@@ -1,4 +1,4 @@
-export default ({ setState, dispatch }) => ({
+export default ({ setState, dispatch, togglePage }) => ({
   init: {
     isOpen: false,
 
@@ -7,45 +7,41 @@ export default ({ setState, dispatch }) => ({
   },
 
   open: [
-    setState((payload, state) => ({
-      isOpen: true
-    }))
+    setState({ isOpen: true })
   ],
   close: [
-    setState((payload, state) => ({
-      isOpen: false
-    }))
+    setState({ isOpen: false })
   ],
 
   loginUpdate: [
-    setState((paylaod, state) => ({
+    setState(payload => ({
       isLogin: true,
       userName: payload.name
     }))
   ],
   logoutUpdate: [
-    setState((paylaod, state) => ({
+    setState({
       isLogin: false
-    }))
+    })
   ],
 
   openAboutDialog: [
-    dispatch(payload => ({ type: 'models.about.open' }))
+    dispatch({ type: 'models.about.open' })
   ],
   openLoginDialog: [
-    dispatch(payload => ({ type: 'models.login.open' }))
+    dispatch({ type: 'models.login.open' })
   ],
   openRegisterDialog: [
-    dispatch(payload => ({ type: 'models.register.open' }))
+    dispatch({ type: 'models.register.open' })
   ],
 
   openMainPage: [
-    dispatch(payload => ({ type: 'framework.togglePage', payload: 'main' }))
+    togglePage('main')
   ],
   openEditPage: [
-    dispatch(payload => ({ type: 'framework.togglePage', payload: 'noteEdit' }))
+    togglePage('noteEdit')
   ],
   openShowPage: [
-    dispatch(payload => ({ type: 'framework.togglePage', payload: 'noteShow' }))
+    togglePage('noteShow')
   ]
 });

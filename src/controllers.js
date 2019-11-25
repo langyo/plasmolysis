@@ -4,7 +4,8 @@ import { thunks } from './thunks';
 export default {
   framework: {
     updateState: createAction('framework.updateState', payload => payload),
-    togglePage: createAction('framework.togglePage', payload => payload)
+    togglePage: createAction('framework.togglePage', payload => payload),
+    createModel: createAction('framework.createModel', payload => payload)
   },
   models: Object.keys(thunks.models).reduce((prev, name) => ({
     ...prev,

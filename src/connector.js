@@ -9,6 +9,8 @@ for (let component of Object.keys(components.models)) {
     (state => ({ ...state.models[component], data: state.data })),
     (dispatch => Object.keys(controllers.models[component]({
       deal: () => null,
+      togglePage: () => null,
+      createModel: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
@@ -28,6 +30,8 @@ for (let component of Object.keys(components.pages)) {
     (state => ({ ...state.pages[component], data: state.data })),
     (dispatch => Object.keys(controllers.pages[component]({
       deal: () => null,
+      togglePage: () => null,
+      createModel: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
@@ -47,6 +51,8 @@ for (let component of Object.keys(components.views)) {
     (state => ({ ...state.views[component], data: state.data })),
     (dispatch => Object.keys(controllers.views[component]({
       deal: () => null,
+      togglePage: () => null,
+      createModel: () => null,
       setState: () => null,
       setData: () => null,
       dispatch: () => null,
