@@ -83,7 +83,7 @@ for (let type of ['models', 'pages', 'views']) {
       for (let task of dealed[action]) {
         switch (task.type) {
           case 'fetchCombine':
-            console.log('New service:', task);
+            console.log('New service:', task.route.path);
             services[task.route.path] = context => (req, res) => task.handle(req.body, context, json => {
               res.send(JSON.stringify(json));
               res.end();

@@ -32,9 +32,9 @@ export default props => {
         vertical: 'top',
         horizontal: 'center',
       }}
-      open={props.isOpen}
+      open={true}
       autoHideDuration={3000}
-      onClose={props.close}
+      onClose={props.$destory}
     >
       <SnackbarContent
         className={classes.color}

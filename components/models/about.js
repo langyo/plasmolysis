@@ -13,7 +13,7 @@ import {
 
 export default props => {
   return (
-    <Dialog fullWidth open={props.isOpen} onClose={props.close}>
+    <Dialog fullWidth open={true} onClose={props.$destory}>
       <DialogTitle>关于</DialogTitle>
       <DialogContent>
         <DialogContentText>
@@ -21,7 +21,7 @@ export default props => {
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.close} color="primary">
+        <Button onClick={props.$destory} color="primary">
           确认
         </Button>
       </DialogActions>

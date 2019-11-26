@@ -2,15 +2,8 @@ import { generate } from 'shortid';
 
 export default ({ deal, setState, dispatch, setData, fetch, route, send, handle }) => ({
   init: {
-    isOpen: false,
     fetching: false
   },
-  open: [
-    setState({ isOpen: true })
-  ],
-  close: [
-    setState({ isOpen: false })
-  ],
   submit: [
     setState({ fetching: true }),
     fetch({}),

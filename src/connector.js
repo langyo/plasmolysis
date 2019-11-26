@@ -9,29 +9,60 @@ const models = () => {
   let ret = {};
   for (let component of Object.keys(components.models)) {
     ret[component] = {};
-    for(let id of Object.keys(store.getState().models[component])) {
+    for (let id of Object.keys(store.getState().models[component])) {
       ret[component][id] = connect(
         (state => ({
           ...state.models[component][id],
           data: state.data,
           $id: id
         })),
-        (dispatch => Object.keys(controllers.models[component]({
-          deal: () => null,
-          togglePage: () => null,
-          createModel: () => null,
-          destoryModel: () => null,
-          setState: () => null,
-          setData: () => null,
-          dispatch: () => null,
-          fetch: () => null,
-          send: () => null,
-          route: () => null,
-          handle: () => null
-        })).reduce((prev, action) => (action !== 'init' ? ({
-          ...prev,
-          [action]: (payload => dispatch(thunks[`models.${component}.${action}`]({ ...payload, $id: id })))
-        }) : (prev)), {})),
+        (dispatch => ({
+          ...(Object.keys(controllers.models[component]({
+            deal: () => null,
+            togglePage: () => null,
+            createModel: () => null,
+            destoryModel: () => null,
+            setState: () => null,
+            setData: () => null,
+            dispatch: () => null,
+            fetch: () => null,
+            send: () => null,
+            route: () => null,
+            handle: () => null
+          })).reduce((prev, action) => (action !== 'init' ? ({
+            ...prev,
+            [action]: (payload => dispatch(thunks[`models.${component}.${action}`]({ ...payload, $id: id })))
+          }) : (prev)), {})),
+          $swap: newIndex => {
+            // 搜索新索引编号对应 model 的 id
+            let components = store.getState().models[component];
+            let oldIndex = store.getState().models[component][id].$index;
+            for(let i of Object.keys(components)) {
+              if(components[i].$index === newIndex) {
+                dispatch({
+                  type: 'framework.updateState',
+                  payload: {
+                    models: {
+                      [i]: {
+                        $index: oldIndex
+                      },
+                      [id]: {
+                        $index: newIndex
+                      }
+                    }
+                  }
+                })
+              }
+            }
+          },
+          $destory: () => dispatch({
+            type: 'framework.destoryModel',
+            payload: {
+              name: component,
+              id
+            }
+          })
+        })),
       )(components.models[component]);
     }
   }
