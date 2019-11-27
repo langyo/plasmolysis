@@ -9,17 +9,62 @@ for (let type of ['models', 'pages', 'views']) {
   for (let name of Object.keys(controllers[type])) {
     // 生成动作表
     let dealed = controllers[type][name]({
-      deal: func => ({ type: 'deal', func }),
-      togglePage: name => ({ type: 'togglePage', name }),
-      createModel: (name, payload) => ({ type: 'createModel', name, payload: payload ? payload : {} }),
-      destoryModel: (name, id) => ({ type: 'destoryModel', name, payload: { id } }),
-      setState: obj => ({ type: 'setState', obj }),
-      setData: obj => ({ type: 'setData', obj }),
-      dispatch: obj => ({ type: 'dispatch', obj }),
-      fetch: func => ({ type: 'fetch', func }),
-      send: func => ({ type: 'send', func }),
-      route: obj => ({ type: 'route', obj }),
-      handle: () => ({ type: 'handle' })
+      deal: func => {
+        if (!func) throw new Error('You must provide a function!');
+        return { type: 'deal', func };
+      },
+      togglePage: name => {
+        if (Object.keys(controllers.pages).indexOf(name) < 0) throw new Error(`No page named ${name}!`);
+        return { type: 'togglePage', name };
+      },
+      createModel: (obj1, obj2) => {
+        if (typeof obj1 === 'function') {
+          return { type: 'createModel', func: obj1 };
+        }
+        else if (typeof obj1 === 'string') {
+          return { type: 'createModel', name: obj1, payload: obj2 === undefined ? {} : obj2 };
+        }
+        else throw new Error('The first argument must be a function or a string!');
+      },
+      destoryModel: (obj1, obj2) => {
+        if (typeof obj1 === 'function') {
+          return { type: 'destoryModel', func: obj1 };
+        }
+        else if (typeof obj1 === 'string') {
+          if (!obj2) throw new Error('You must provide the model id!');
+          return { type: 'destoryModel', name: obj1, payload: { id: obj2 } };
+        }
+        else throw new Error('The first argument must be a function or a string!');
+      },
+      setState: obj => {
+        if (!obj) throw new Error('You must provide a function or an object!');
+        return { type: 'setState', obj };
+      },
+      setData: obj => {
+        if (!obj) throw new Error('You must provide a function or an object!');
+        return { type: 'setData', obj };
+      },
+      dispatch: obj => {
+        if (!obj) throw new Error('You must provide a function or an object!');
+        return { type: 'dispatch', obj };
+      },
+      fetch: obj => {
+        if (typeof obj !== 'object') throw new Error('You must provide an object!');
+        return { type: 'fetch', obj: obj };
+      },
+      send: func => {
+        if (typeof func !== 'function') throw new Error('You must provide a function!');
+        return { type: 'send', func };
+      },
+      route: obj => {
+        if (typeof obj !== 'object') throw new Error('You must provide an object!');
+        return { type: 'route', obj };
+      },
+      handle: () => ({ type: 'handle' }),
+      wait: length => {
+        if (typeof length !== 'number') throw new Error('You must provide an integer!');
+        return { type: 'wait', length };
+      }
     });
 
     // 去除所有的不用于表达动作的特殊键
@@ -84,6 +129,7 @@ for (let type of ['models', 'pages', 'views']) {
         switch (task.type) {
           case 'setState':
             subThunks.push(next => (payload, dispatch, state) => {
+              console.log('Executed set state!')
               if (type !== 'models') dispatch({
                 type: 'framework.updateState',
                 payload: {
@@ -96,8 +142,8 @@ for (let type of ['models', 'pages', 'views']) {
                 type: 'framework.updateState',
                 payload: {
                   [type]: {
-                    [id]: {
-                      [name]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
+                    [name]: {
+                      [payload.$id]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
                     }
                   }
                 }
@@ -119,8 +165,16 @@ for (let type of ['models', 'pages', 'views']) {
           case 'dispatch':
             subThunks.push(next => (payload, dispatch, state) => {
               let ret = typeof task.obj === 'function' ? task.obj(payload, state) : task.obj;
-              if (/^framework\./.test(ret.type)) dispatch({ ...ret });
-              else dispatch(thunks[ret.type](ret.payload));
+              if (/^framework\./.test(ret.type)) {
+                if (['togglePage, updateState, createModel, destoryModel'].indexOf(ret.type) < 0)
+                  throw new Error(`There is no action named ${ret.payload}!`);
+                dispatch({ ...ret });
+              }
+              else {
+                if (Object.keys(thunks).indexOf(ret.type) < 0)
+                  throw new Error(`There is no action named ${ret.payload}!`);
+                dispatch(thunks[ret.type](ret.payload));
+              };
               next(payload, dispatch, state);
             });
             break;
@@ -132,13 +186,29 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'createModel':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload } });
+              console.log('Executed create model!')
+              if (task.func) {
+                let ret = task.func(payload);
+                if (!ret.name) throw new Error('You must provide the name of the model!');
+                dispatch({ type: 'framework.createModel', payload: ret });
+              } else {
+                dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload } });
+              }
               next(payload, dispatch, state);
             });
             break;
           case 'destoryModel':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.createModel', payload: { name: task.name, id: task.id } });
+              console.log('Executed destory model!')
+              if (task.func) {
+                let ret = task.func(payload);
+                console.log(ret)
+                if (!ret.name) throw new Error('You must provide the name of the model!');
+                if (!ret.id) throw new Error('You must provide the model id!');
+                dispatch({ type: 'framework.destoryModel', payload: ret });
+              } else {
+                dispatch({ type: 'framework.destoryModel', payload: { name: task.name, id: task.id } });
+              }
               next(payload, dispatch, state);
             });
             break;
@@ -151,12 +221,18 @@ for (let type of ['models', 'pages', 'views']) {
               },
               ...task.fetch,
               body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
-            }).then(res => res.json()).then(json => next(json, dispatch, state)));
+            }).then(res => res.json()).then(json => next({ ...json, $id: payload.$id }, dispatch, state)));
             break;
           case 'deal':
             subThunks.push(next => (payload, dispatch, state) => {
-              task.func(payload, state, dispatch, next);
+              task.func(payload, dispatch, state, next);
             });
+            break;
+          case 'wait':
+            subThunks.push(next => (payload, dispatch, state) => {
+              console.log('Executed wait!')
+              setTimeout(() => next(payload, dispatch, state), task.length);
+            })
             break;
           default:
             throw new Error('未知的流动作！');

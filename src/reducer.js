@@ -25,27 +25,33 @@ export default handleActions({
     renderPage: action.payload
   }),
 
-  'framework.createModel': (state, action) => merge(state, {
-    models: {
-      [action.payload.name]: {
-        [generate()]: {
-          ...action.payload.payload,
-          ...initStateForModels[action.payload.name]
+  'framework.createModel': (state, action) => {
+    let id = generate();
+    return merge(state, {
+      models: {
+        [action.payload.name]: {
+          [id]: {
+            ...action.payload.payload,
+            ...initStateForModels[action.payload.name],
+            $id: id
+          }
         }
       }
-    }
-  }),
+    })
+  },
 
-  'framework.destoryModel': (state, action) => ({
-    ...state,
-    models: {
-      ...state.models,
-      [action.payload.name]: Object.keys(state.models[action.payload.name]).reduce((prev, next) => {
-        if (next === action.payload.id) return prev;
-        else return { ...prev, [next]: state.models[action.payload.name][next] }
-      }, {})
-    }
-  }),
+  'framework.destoryModel': (state, action) => {
+    return ({
+      ...state,
+      models: {
+        ...state.models,
+        [action.payload.name]: Object.keys(state.models[action.payload.name]).reduce((prev, next) => {
+          if (next === action.payload.id) return prev;
+          else return { ...prev, [next]: state.models[action.payload.name][next] }
+        }, {})
+      }
+    })
+  },
 
   ...thunks
 }, {

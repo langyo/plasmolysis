@@ -12,16 +12,22 @@ import {
 } from "@material-ui/core";
 
 export default props => {
+  const [isOpen, setOpen] = React.useState(true);
+  const close = () => {
+    setOpen(false);
+    setTimeout(props.$destory, 300);
+  }
+
   return (
-    <Dialog fullWidth open={true} onClose={props.$destory}>
+    <Dialog fullWidth open={isOpen} onClose={close}>
       <DialogTitle>关于</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          <Typography variant="body1">这是一个示例项目，演示了一个简单的笔记存储服务，包含账户系统。</Typography>
+          <Typography component={'span'} variant="body1">这是一个示例项目，演示了一个简单的笔记存储服务，包含账户系统。</Typography>
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={props.$destory} color="primary">
+        <Button onClick={close} color="primary">
           确认
         </Button>
       </DialogActions>

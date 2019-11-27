@@ -34,7 +34,8 @@ for (let type of ['models', 'pages', 'views']) {
       fetch: () => ({ type: 'fetch' }),
       send: () => ({ type: 'send' }),
       route: obj => ({ type: 'route', obj }),
-      handle: func => ({ type: 'handle', func })
+      handle: func => ({ type: 'handle', func }),
+      wait: () => ({ type: 'wait' })
     });
 
     // 去除所有的不用于表达动作的特殊键

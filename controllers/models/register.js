@@ -1,2 +1,2 @@
-export default ({ setState, dispatch }) => ({
+export default ({ }) => ({
 });

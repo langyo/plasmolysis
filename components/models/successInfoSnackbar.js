@@ -32,20 +32,20 @@ export default props => {
         vertical: 'top',
         horizontal: 'center',
       }}
-      open={true}
+      open={isOpen}
       autoHideDuration={3000}
-      onClose={props.$destory}
+      onClose={close}
     >
       <SnackbarContent
         className={classes.color}
         message={
           <span className={classes.message}>
             <Icon className={classes.iconVariant} path={mdiCheckCircle} size={1} color='white' />
-            {"登录成功！"}
+            {props.context}
           </span>
         }
         action={
-          <IconButton color="inherit" onClick={props.close}>
+          <IconButton color="inherit" onClick={close}>
             <Icon path={mdiClose} size={1} color='white' />
           </IconButton>
         }

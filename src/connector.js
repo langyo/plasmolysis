@@ -28,7 +28,8 @@ const models = () => {
             fetch: () => null,
             send: () => null,
             route: () => null,
-            handle: () => null
+            handle: () => null,
+            wait: () => null
           })).reduce((prev, action) => (action !== 'init' ? ({
             ...prev,
             [action]: (payload => dispatch(thunks[`models.${component}.${action}`]({ ...payload, $id: id })))
@@ -83,7 +84,8 @@ for (let component of Object.keys(components.pages)) {
       fetch: () => null,
       send: () => null,
       route: () => null,
-      handle: () => null
+      handle: () => null,
+      wait: () => null
     })).reduce((prev, action) => (action !== 'init' ? ({
       ...prev,
       [action]: (payload => dispatch(thunks[`pages.${component}.${action}`](payload)))
@@ -105,7 +107,8 @@ for (let component of Object.keys(components.views)) {
       fetch: () => null,
       send: () => null,
       route: () => null,
-      handle: () => null
+      handle: () => null,
+      wait: () => null
     })).reduce((prev, action) => (action !== 'init' ? ({
       ...prev,
       [action]: (payload => dispatch(thunks[`views.${component}.${action}`](payload)))

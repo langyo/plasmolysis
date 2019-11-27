@@ -3,6 +3,7 @@ import Head from 'next/head';
 
 import { connect } from 'react-redux';
 
+import configs from '../configs/config';
 import { pages, models, views } from '../src/connector';
 
 export default connect(state => state)(props => {
@@ -17,8 +18,8 @@ export default connect(state => state)(props => {
 
   return ([
     <Head>
-      <title>I 笔记</title>
-      <link rel='icon' href='/favicon.ico' />
+      <title>{configs.title}</title>
+      <link rel='icon' href={configs.icon} />
     </Head>,
     <>
       {Object.keys(views).map((n, key) => React.createElement(views[n], { key }))}

@@ -56,7 +56,7 @@ export default props => {
       <Icon path={mdiGreasePencil} size={3} className={classes.margin} color='#3399cc' />
     </div>,
     <div className={classnames(classes.maxWidth, classes.centerRow)}>
-      <Typography variant='h5' className={classes.margin}>I 笔记</Typography>
+      <Typography component={'span'} variant='h5' className={classes.margin}>I 笔记</Typography>
     </div>,
     <div className={classnames(classes.maxWidth, classes.centerRow)}>
       <Paper className={classes.searchBar}>

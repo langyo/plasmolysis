@@ -22,8 +22,14 @@ export default props => {
   const [name, setName] = React.useState("");
   const [password, setPassword] = React.useState("");
 
+  const [isOpen, setOpen] = React.useState(true);
+  const close = () => {
+    setOpen(false);
+    setTimeout(props.$destory, 300);
+  }
+
   return [
-    <Dialog open={true} onClose={props.$destory}>
+    <Dialog open={isOpen} onClose={close}>
       <DialogTitle>登录</DialogTitle>
       <DialogContent>
         <Grid container>
@@ -58,7 +64,7 @@ export default props => {
       </DialogContent>
       <DialogActions>
         <Button
-          onClick={props.$destory}
+          onClick={close}
           color="primary"
           disbaled={props.loginState === 'loading'}
         >

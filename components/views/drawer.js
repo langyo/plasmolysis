@@ -51,7 +51,7 @@ export default props => {
   return [<Drawer
     anchor="left"
     open={props.isOpen}
-    onClose={() => props.close()}
+    onClose={props.close}
   >
     <List className={classes.drawerList}>
       {props.data.account.hasLogin === false && <CardHeader
