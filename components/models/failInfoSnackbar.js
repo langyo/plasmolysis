@@ -10,7 +10,7 @@ import {
 import { red } from '@material-ui/core/colors';
 
 import Icon from "@mdi/react";
-import { mdiCheckCircle, mdiClose } from "@mdi/js";
+import { mdiCloseCircle, mdiClose } from "@mdi/js";
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -26,6 +26,12 @@ export default props => {
     }
   }))();
 
+  const [isOpen, setOpen] = React.useState(true);
+  const close = () => {
+    setOpen(false);
+    setTimeout(props.$destory, 500);
+  }
+
   return (
     <Snackbar
       anchorOrigin={{
@@ -40,7 +46,7 @@ export default props => {
         className={classes.color}
         message={
           <span className={classes.message}>
-            <Icon className={classes.iconVariant} path={mdiCheckCircle} size={1} color='white' />
+            <Icon className={classes.iconVariant} path={mdiCloseCircle} size={1} color='white' />
             {props.context}
           </span>
         }

@@ -15,7 +15,7 @@ export default props => {
   const [isOpen, setOpen] = React.useState(true);
   const close = () => {
     setOpen(false);
-    setTimeout(props.$destory, 300);
+    setTimeout(props.$destory, 500);
   }
 
   return (

@@ -1,6 +1,6 @@
 import { generate } from 'shortid';
 
-export default ({ deal, setState, dispatch, setData, fetch, route, send, handle }) => ({
+export default ({ setState, setData, wait, fetch, route, send, handle, createModel, destoryModel }) => ({
   init: {
     fetching: false
   },
@@ -23,9 +23,11 @@ export default ({ deal, setState, dispatch, setData, fetch, route, send, handle 
     }),
     setState(() => ({ fetching: false })),
     setData(payload => ({ hasLogin: payload.state === 'success', userName: payload.userName, accessToken: payload.accessToken })),
-    deal((payload, dispatch, state, next) => {
-      console.log(payload);
-      next(payload);
-    })
+    destoryModel(payload => ({ name: 'login', id: payload.$id })),
+    wait(2000),
+    createModel(payload =>({
+      name: payload.state === 'success' ? 'successInfoSnackbar' : 'failInfoSnackbar',
+      payload: { context: payload.state === 'success' ? '登录成功！' : '登录失败！' }
+    }))
   ]
 });

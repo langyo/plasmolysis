@@ -50,6 +50,7 @@ for (let type of ['models', 'pages', 'views']) {
       },
       fetch: obj => {
         if (typeof obj !== 'object') throw new Error('You must provide an object!');
+        if(!obj.host) obj.host = '';
         return { type: 'fetch', obj: obj };
       },
       send: func => {
@@ -101,7 +102,7 @@ for (let type of ['models', 'pages', 'views']) {
             if (dealed[action][next]) {
               switch (dealed[action][next].type) {
                 case 'fetch':
-                  prev.fetchObj.fetch = dealed[action][next].func;
+                  prev.fetchObj.fetch = dealed[action][next].obj;
                   return prev;
                 case 'send':
                   prev.fetchObj.send = dealed[action][next].func;
@@ -129,7 +130,6 @@ for (let type of ['models', 'pages', 'views']) {
         switch (task.type) {
           case 'setState':
             subThunks.push(next => (payload, dispatch, state) => {
-              console.log('Executed set state!')
               if (type !== 'models') dispatch({
                 type: 'framework.updateState',
                 payload: {
@@ -186,7 +186,6 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'createModel':
             subThunks.push(next => (payload, dispatch, state) => {
-              console.log('Executed create model!')
               if (task.func) {
                 let ret = task.func(payload);
                 if (!ret.name) throw new Error('You must provide the name of the model!');
@@ -199,10 +198,8 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'destoryModel':
             subThunks.push(next => (payload, dispatch, state) => {
-              console.log('Executed destory model!')
               if (task.func) {
                 let ret = task.func(payload);
-                console.log(ret)
                 if (!ret.name) throw new Error('You must provide the name of the model!');
                 if (!ret.id) throw new Error('You must provide the model id!');
                 dispatch({ type: 'framework.destoryModel', payload: ret });
@@ -213,7 +210,7 @@ for (let type of ['models', 'pages', 'views']) {
             });
             break;
           case 'fetchCombine':
-            subThunks.push(next => (payload, dispatch, state) => fetch((task.fetch.host || '') + task.route.path, {
+            subThunks.push(next => (payload, dispatch, state) => fetch(task.fetch.host + task.route.path, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json',
@@ -224,15 +221,10 @@ for (let type of ['models', 'pages', 'views']) {
             }).then(res => res.json()).then(json => next({ ...json, $id: payload.$id }, dispatch, state)));
             break;
           case 'deal':
-            subThunks.push(next => (payload, dispatch, state) => {
-              task.func(payload, dispatch, state, next);
-            });
+            subThunks.push(next => (payload, dispatch, state) => task.func(payload, dispatch, state, next));
             break;
           case 'wait':
-            subThunks.push(next => (payload, dispatch, state) => {
-              console.log('Executed wait!')
-              setTimeout(() => next(payload, dispatch, state), task.length);
-            })
+            subThunks.push(next => (payload, dispatch, state) => setTimeout(() => next(payload, dispatch, state), task.length));
             break;
           default:
             throw new Error('未知的流动作！');

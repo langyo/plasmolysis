@@ -26,22 +26,28 @@ export default ({ setState, dispatch, togglePage, createModel }) => ({
   ],
 
   openAboutDialog: [
-    createModel('about')
+    createModel('about'),
+    setState({ isOpen: false })
   ],
   openLoginDialog: [
-    createModel('login')
+    createModel('login'),
+    setState({ isOpen: false })
   ],
   openRegisterDialog: [
-    createModel('register')
+    createModel('register'),
+    setState({ isOpen: false })
   ],
 
   openMainPage: [
-    togglePage('main')
+    togglePage('main'),
+    setState({ isOpen: false })
   ],
   openEditPage: [
-    togglePage('noteEdit')
+    togglePage('noteEdit'),
+    setState({ isOpen: false })
   ],
   openShowPage: [
-    togglePage('noteShow')
+    togglePage('noteShow'),
+    setState({ isOpen: false })
   ]
 });
