@@ -1,13 +1,9 @@
 import { generate } from 'shortid';
 
-export default ({ setState, setData, wait, fetch, route, send, handle, createModel, destoryModel }) => ({
-  init: {
-    fetching: false
-  },
+export default ({ setData, fetch, route, send, handle, createModel, destoryModel }) => ({
   submit: [
-    setState({ fetching: true }),
     fetch({}),
-    send((payload, state) => payload),
+    send((payload, state) => ({ name: payload.name, password: payload.password })),
     route({ path: '/api/login' }),
     handle((payload, context, replyFunc) => {
       console.log('接收到登录请求：', payload);
@@ -21,13 +17,11 @@ export default ({ setState, setData, wait, fetch, route, send, handle, createMod
         else replyFunc({ state: 'fail' });
       });
     }),
-    setState(() => ({ fetching: false })),
     setData(payload => ({ hasLogin: payload.state === 'success', userName: payload.userName, accessToken: payload.accessToken })),
-    destoryModel(payload => ({ name: 'login', id: payload.$id })),
-    wait(2000),
     createModel(payload =>({
       name: payload.state === 'success' ? 'successInfoSnackbar' : 'failInfoSnackbar',
       payload: { context: payload.state === 'success' ? '登录成功！' : '登录失败！' }
-    }))
+    })),
+    destoryModel(payload => ({ name: 'login', id: payload.$id }))
   ]
 });

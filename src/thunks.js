@@ -3,6 +3,7 @@ import initData from '../configs/initData';
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };
+let pagePreLoad = {};
 let initStateForModels = {};
 
 for (let type of ['models', 'pages', 'views']) {
@@ -77,8 +78,9 @@ for (let type of ['models', 'pages', 'views']) {
       }
     }
     else initState[type][name] = {};
+    if(type === 'pages' && dealed.preLoad) pagePreLoad[name] = dealed.preLoad;
     dealed = Object.keys(dealed)
-      .filter(name => name !== 'init')
+      .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
     // 对其中每个作为数组存在的元素进行扁平化
@@ -243,4 +245,4 @@ for (let type of ['models', 'pages', 'views']) {
   }
 }
 
-export { thunks, initState, initStateForModels };
+export { thunks, initState, initStateForModels, pagePreLoad };

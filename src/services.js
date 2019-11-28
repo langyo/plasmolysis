@@ -40,7 +40,7 @@ for (let type of ['models', 'pages', 'views']) {
 
     // 去除所有的不用于表达动作的特殊键
     dealed = Object.keys(dealed)
-      .filter(name => name !== 'init')
+      .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
     // 对其中每个作为数组存在的元素进行扁平化

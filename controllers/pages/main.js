@@ -1,3 +1,6 @@
 export default ({ setState, dispatch }) => ({
-    init: {}
+  init: {},
+  preLoad: (context, next) => {
+
+  }
 });

@@ -25,15 +25,14 @@ module.exports = {
       classId: Number
     })),
 
-    accounts: db.model("RootAccount", mongoose.Schema({
+    accounts: db.model("Account", mongoose.Schema({
       name: String,
-      password: String,
-      shortId: Number
+      password: String
     })),
 
     notes: db.model("Note", mongoose.Schema({
       owner: {
-        type: Number,
+        type: String,
         index: true
       },
       title: String,

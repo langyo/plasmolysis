@@ -66,7 +66,6 @@ export default props => {
         <Button
           onClick={close}
           color="primary"
-          disbaled={props.loginState === 'loading'}
         >
           取消
         </Button>
@@ -74,7 +73,6 @@ export default props => {
           disabled={!(name && password)}
           onClick={() => props.submit({ name, password })}
           color="primary"
-          disbaled={props.loginState === 'loading'}
         >
           登录
         </Button>

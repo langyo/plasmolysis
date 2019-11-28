@@ -1,33 +1,21 @@
-import { generate } from 'shortid';
-
-export default ({ setState, setData, fetch, route, send, handle, createModel }) => ({
-  init: {
-    fetching: false
-  },
+export default ({ deal, setData, fetch, route, send, handle, createModel, destoryModel }) => ({
   submit: [
-    setState({ fetching: true }),
     fetch({}),
-    send((payload, state) => payload),
-    route({ path: '/api/login' }),
+    send((payload, state) => ({ name: payload.name, password: payload.password })),
+    route({ path: '/api/register' }),
     handle((payload, context, replyFunc) => {
-      console.log('接收到登录请求：', payload);
-      context.db.accounts.findOne(payload).exec((err, doc) => {
-        if (doc) {
-          let token = generate();
-          doc.accessToken = token;
-          doc.save();
-          replyFunc({ state: 'success', userName: payload.name, accessToken: token });
-        }
-        else replyFunc({ state: 'fail' });
+      console.log('接收到注册请求：', payload);
+      let account = new context.db.accounts(payload);
+      account.save(err => {
+        if(err) replyFunc({ state: 'fail' });
+        else replyFunc({ state: 'success' });
       });
     }),
-    setState(() => ({ fetching: false })),
     setData(payload => ({ hasLogin: payload.state === 'success', userName: payload.userName, accessToken: payload.accessToken })),
-    createModel(payload => ({
+    createModel(payload =>({
       name: payload.state === 'success' ? 'successInfoSnackbar' : 'failInfoSnackbar',
-      payload: {
-        context: payload.state === 'success' ? '登录成功！' : '登陆失败！'
-      }
-    }))
+      payload: { context: payload.state === 'success' ? '注册成功！' : '注册失败！' }
+    })),
+    destoryModel(payload => ({ name: 'register', id: payload.$id }))
   ]
 });
