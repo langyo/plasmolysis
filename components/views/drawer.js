@@ -99,12 +99,6 @@ export default props => {
         </ListItemIcon>
         <ListItemText primary={"主页"} />
       </ListItem>
-      <ListItem button onClick={() => props.openEditPage()}>
-        <ListItemIcon>
-          <Icon path={mdiFileEditOutline} size={1} />
-        </ListItemIcon>
-        <ListItemText primary={"编辑"} />
-      </ListItem>
       <ListItem button onClick={() => props.openShowPage()}>
         <ListItemIcon>
           <Icon path={mdiBookOpenVariant} size={1} />

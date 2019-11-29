@@ -1,17 +1,36 @@
-const path = require('path');
-const express = require('express');
-const compression = require('compression');
-const next = require('next');
-const helmet = require('helmet');
-const log4js = require('log4js');
-const bodyParser = require('body-parser');
+import { join } from 'path';
+import express from 'express';
+import compression from 'compression';
+import next from 'next';
+import helmet from 'helmet';
+import { configure, connectLogger, getLogger, levels } from 'log4js';
+import { json } from 'body-parser';
 
 const port = parseInt(process.env.PORT, 10) || 80;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
-const services = require('./services').default;
+import services from './services';
+
+import { resolve } from 'path';
+import { readdirSync, statSync } from 'fs';
+
+const config = require(resolve('./configs/config'));
+
+const fileReadDir = name => {
+  let files = readdirSync(name);
+  let ret = [];
+  for (let file of files) {
+    if (statSync(`${name}/${file}`).isDirectory())
+      ret.concat(fileReadDir(`${name}/${file}`));
+    else ret.push(/(.+)\.js$/.exec(file)[1]);
+  }
+  return ret;
+};
+
+const pages = fileReadDir(resolve('./components/pages'));
+console.log(pages)
 
 app.prepare().then(() => {
   const server = express();
@@ -21,7 +40,7 @@ app.prepare().then(() => {
 
   console.log('Now it is in the', dev ? 'development' : 'production', 'mode.');
   if(!dev) {
-    log4js.configure({
+    configure({
       appenders: {
         out: { type: 'stdout' },
         app: { type: 'file', filename: +(new Date()) + '.log' }
@@ -30,25 +49,24 @@ app.prepare().then(() => {
         default: { appenders: ['out', 'app'], level: 'debug' }
       }
     });
-    server.use(log4js.connectLogger(log4js.getLogger('normal'), { level: log4js.levels.INFO }));
+    server.use(connectLogger(getLogger('normal'), { level: levels.INFO }));
   }
 
-  server.use('/static', express.static(path.join(__dirname, '../public'), {
+  server.use('/static', express.static(join(__dirname, '../public'), {
     maxAge: '1d',
     immutable: true
   }));
 
-  server.use(bodyParser.json());
+  server.use(json());
 
   services(server);
 
-  server.get('/', (req, res) => {
-    return app.render(req, res, '/index', req.query)
-  });
+  server.get('/', (req, res) => app.render(req, res, `/index`, req.query));
+  server.get('/index', (req, res) => app.render(req, res, `/index`, req.query));
 
-  server.get('/index', (req, res) => {
-    return app.render(req, res, '/index', req.query)
-  });
+  for(let name of pages) {
+    server.get(`/${name}`, (req, res) => app.render(req, res, `/index`, req.query));
+  }
 
   server.get('*', (req, res) => {
     return handle(req, res)

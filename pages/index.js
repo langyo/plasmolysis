@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import configs from '../configs/config';
 import { pages, models, views } from '../src/connector';
 
-export default connect(state => state)(props => {
+let Index = connect(state => state)(props => {
   React.useEffect(() => {
     const jssStyles = document.querySelector('#jss-server-side');
     if (jssStyles) {
@@ -15,6 +15,7 @@ export default connect(state => state)(props => {
   }, []);
 
   let modelsDealed = models();
+  console.log(props);
 
   return ([
     <Head>
@@ -36,3 +37,13 @@ export default connect(state => state)(props => {
     </>
   ]);
 });
+
+Index.getInitialProps = async ({ pathname, query, req }) => {
+  return {
+    renderPage: pathname === '/' ? configs.initPage : pathname.slice(1),
+    renderPageParams: query,
+    headers: req.headers
+  };
+};
+
+export default Index;

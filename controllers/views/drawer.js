@@ -1,4 +1,4 @@
-export default ({ setState, dispatch, togglePage, createModel }) => ({
+export default ({ setState, togglePage, createModel, setData }) => ({
   init: {
     isOpen: false,
 
@@ -22,6 +22,13 @@ export default ({ setState, dispatch, togglePage, createModel }) => ({
   logoutUpdate: [
     setState({
       isLogin: false
+    }),
+    setData({
+      account: {
+        hasLogin: false,
+        userName: '',
+        accessToken: ''
+      }
     })
   ],
 
@@ -42,12 +49,8 @@ export default ({ setState, dispatch, togglePage, createModel }) => ({
     togglePage('main'),
     setState({ isOpen: false })
   ],
-  openEditPage: [
-    togglePage('noteEdit'),
-    setState({ isOpen: false })
-  ],
   openShowPage: [
-    togglePage('noteShow'),
+    togglePage('show'),
     setState({ isOpen: false })
   ]
 });

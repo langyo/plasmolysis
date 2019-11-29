@@ -55,6 +55,5 @@ export default handleActions({
 
   ...thunks
 }, {
-  ...initState,
-  renderPage: configs.initPage
+  ...initState
 });

@@ -44,16 +44,16 @@ controllerViewsReq.keys().forEach(key => {
   controllers.views = dfs(controllers.views, 0);
 });
 
-const componentmodelsReq = require.context('../components/models', true, /\.js$/);
+const componentModelsReq = require.context('../components/models', true, /\.js$/);
 const componentViewsReq = require.context('../components/views', true, /\.js$/);
 const componentPagesReq = require.context('../components/pages', true, /\.js$/);
 
 let components = { models: {}, pages: {}, views: {} };
 
-componentmodelsReq.keys().forEach(key => {
+componentModelsReq.keys().forEach(key => {
   let path = /^\.+\/(.*)\.js$/.exec(key)[1].split('/');
   const dfs = (obj, pos) => {
-    if (pos + 1 === path.length) obj[path[pos]] = componentmodelsReq(key).default;
+    if (pos + 1 === path.length) obj[path[pos]] = componentModelsReq(key).default;
     else {
       if (obj[path[pos]]) obj[path[pos]] = dfs(obj[path[pos]], pos + 1);
       else obj[path[pos]] = dfs({}, pos + 1);
