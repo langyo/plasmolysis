@@ -1,6 +1,4 @@
 export default ({ setState, dispatch }) => ({
   init: {},
-  preLoad: (context, next) => {
-
-  }
+  preLoad: async (context, cookie) => ({ text: 'zzz' })
 });

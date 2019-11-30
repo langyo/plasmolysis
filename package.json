@@ -26,6 +26,7 @@
     "log4js": "^5.2.2",
     "mongoose": "^5.7.5",
     "next": "9.1.1",
+    "node-fetch": "^2.6.0",
     "nodemon": "^1.19.4",
     "react": "16.10.2",
     "react-dom": "16.10.2",

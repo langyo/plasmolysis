@@ -1,6 +1,9 @@
 export default {
-    title: 'I 笔记',
-    icon: '/favicon.ico',
-    initPage: 'main',
-    language: 'zh-cn'
+  title: {
+    main: 'I 笔记',
+    show: payload => `I 笔记 - ${payload.title}`
+  },
+  icon: '/favicon.ico',
+  initPage: 'main',
+  language: 'zh-cn'
 };

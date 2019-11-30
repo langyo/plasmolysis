@@ -10,13 +10,14 @@ const fileReadDir = name => {
   for (let file of files) {
     if (statSync(`${name}/${file}`).isDirectory())
       ret[file] = fileReadDir(`${name}/${file}`);
-    else ret[file] = require(`${name}/${file}`).default;
+    else ret[file.slice(0, file.length - 3)] = require(`${name}/${file}`).default;
   }
 
   return ret;
 };
 
 const controllers = fileReadDir(resolve('./controllers'));
+let pagePreload = {};
 
 let services = {};
 
@@ -39,6 +40,7 @@ for (let type of ['models', 'pages', 'views']) {
     });
 
     // 去除所有的不用于表达动作的特殊键
+    if(type === 'pages') pagePreload[name] = dealed.preLoad || (async () => ({}));
     dealed = Object.keys(dealed)
       .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
@@ -101,5 +103,15 @@ for (let type of ['models', 'pages', 'views']) {
 export default server => {
   for (let path of Object.keys(services)) {
     server.use(path, (req, res) => services[path](context)(req, res));
+  }
+
+  for (let page of Object.keys(pagePreload)) {
+    console.log(`New preload service: ${page}`);
+    server.use(`/preload/${page}`, (req, res) => {
+      pagePreload[page](context, req.cookies).then(data => {
+        res.send(JSON.stringify(data));
+        res.end();
+      });
+    });
   }
 }

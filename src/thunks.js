@@ -3,7 +3,6 @@ import initData from '../configs/initData';
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };
-let pagePreLoad = {};
 let initStateForModels = {};
 
 for (let type of ['models', 'pages', 'views']) {
@@ -78,7 +77,6 @@ for (let type of ['models', 'pages', 'views']) {
       }
     }
     else initState[type][name] = {};
-    if(type === 'pages' && dealed.preLoad) pagePreLoad[name] = dealed.preLoad;
     dealed = Object.keys(dealed)
       .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
@@ -245,4 +243,4 @@ for (let type of ['models', 'pages', 'views']) {
   }
 }
 
-export { thunks, initState, initStateForModels, pagePreLoad };
+export { thunks, initState, initStateForModels };

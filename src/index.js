@@ -30,7 +30,6 @@ const fileReadDir = name => {
 };
 
 const pages = fileReadDir(resolve('./components/pages'));
-console.log(pages)
 
 app.prepare().then(() => {
   const server = express();
