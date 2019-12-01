@@ -13,9 +13,9 @@ for (let type of ['models', 'pages', 'views']) {
         if (!func) throw new Error('You must provide a function!');
         return { type: 'deal', func };
       },
-      togglePage: name => {
+      togglePage: (name, params) => {
         if (Object.keys(controllers.pages).indexOf(name) < 0) throw new Error(`No page named ${name}!`);
-        return { type: 'togglePage', name };
+        return { type: 'togglePage', name, params: params || {} };
       },
       createModel: (obj1, obj2) => {
         if (typeof obj1 === 'function') {
@@ -180,7 +180,7 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'togglePage':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.togglePage', payload: task.name });
+              dispatch({ type: 'framework.togglePage', payload: { name: task.name, params: task.params } });
               next(payload, dispatch, state);
             });
             break;

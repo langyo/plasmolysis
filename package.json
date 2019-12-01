@@ -28,6 +28,7 @@
     "next": "9.1.1",
     "node-fetch": "^2.6.0",
     "nodemon": "^1.19.4",
+    "query-string": "^6.9.0",
     "react": "16.10.2",
     "react-dom": "16.10.2",
     "react-redux": "^7.1.1",
