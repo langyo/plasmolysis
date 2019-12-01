@@ -27,7 +27,7 @@ export default handleActions({
       typeof configs.title[action.payload.name] === 'string'
         ? configs.title[action.payload.name]
         : configs.title[action.payload.name](state.pages[action.payload.name]),
-      `/${action.payload.name}${action.payload.params !== {} ? `?${stringify(action.payload.params)}` : ''}`
+      `/${action.payload.name}${action.payload.params ? `?${stringify(action.payload.params)}` : ''}`
     );
     return {
       ...state,

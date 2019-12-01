@@ -15,7 +15,7 @@ for (let type of ['models', 'pages', 'views']) {
       },
       togglePage: (name, params) => {
         if (Object.keys(controllers.pages).indexOf(name) < 0) throw new Error(`No page named ${name}!`);
-        return { type: 'togglePage', name, params: params || {} };
+        return { type: 'togglePage', name, params };
       },
       createModel: (obj1, obj2) => {
         if (typeof obj1 === 'function') {
