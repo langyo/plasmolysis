@@ -5,16 +5,35 @@ import {
   Dialog,
   Paper,
   Typography,
-  Slide,
   AppBar,
   Toolbar,
-  IconButton
+  IconButton,
+  Divider
 } from "@material-ui/core";
+
+import {
+  ToggleButton,
+  ToggleButtonGroup
+} from "@material-ui/lab";
 
 import Icon from "@mdi/react";
 import {
   mdiContentSave,
-  mdiClose
+  mdiClose,
+  mdiChevronDown,
+  mdiFormatAlignCenter,
+  mdiFormatAlignLeft,
+  mdiFormatAlignRight,
+  mdiFormatBold,
+  mdiFormatItalic,
+  mdiFormatUnderline,
+  mdiFormatColorFill,
+  mdiFormatColorHighlight,
+  mdiFormatAnnotationPlus,
+  mdiFormatAnnotationMinus,
+  mdiFormatListCheckbox,
+  mdiFormatListBulleted,
+  mdiFormatListNumbered
 } from "@mdi/js";
 
 import { Editor, EditorState } from 'draft-js';
@@ -30,7 +49,12 @@ export default props => {
     },
     content: {
       margin: 10,
-      padding: 10
+      padding: 10,
+      height: '100%'
+    },
+    divider: {
+      marginTop: 10,
+      marginBottom: 10
     }
   }))();
 
@@ -62,6 +86,58 @@ export default props => {
         </Toolbar>
       </AppBar>
       <Paper className={classes.content}>
+        <ToggleButtonGroup >
+          <ToggleButton value="left">
+            <Icon path={mdiFormatAlignLeft} size={1} />
+          </ToggleButton>
+          <ToggleButton value="center">
+            <Icon path={mdiFormatAlignCenter} size={1} />
+          </ToggleButton>
+          <ToggleButton value="right">
+            <Icon path={mdiFormatAlignRight} size={1} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup >
+          <ToggleButton value="bold">
+            <Icon path={mdiFormatBold} size={1} />
+          </ToggleButton>
+          <ToggleButton value="italic">
+            <Icon path={mdiFormatItalic} size={1} />
+          </ToggleButton>
+          <ToggleButton value="underlined">
+            <Icon path={mdiFormatUnderline} size={1} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup >
+          <ToggleButton value="fill">
+            <Icon path={mdiFormatColorFill} size={1} />
+            <Icon path={mdiChevronDown} size={1} />
+          </ToggleButton>
+          <ToggleButton value="highlight">
+            <Icon path={mdiFormatColorHighlight} size={1} />
+            <Icon path={mdiChevronDown} size={1} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup >
+          <ToggleButton value="plus">
+            <Icon path={mdiFormatAnnotationPlus} size={1} />
+          </ToggleButton>
+          <ToggleButton value="minus">
+            <Icon path={mdiFormatAnnotationMinus} size={1} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <ToggleButtonGroup >
+          <ToggleButton value="checkbox">
+            <Icon path={mdiFormatListCheckbox} size={1} />
+          </ToggleButton>
+          <ToggleButton value="dot">
+            <Icon path={mdiFormatListBulleted} size={1} />
+          </ToggleButton>
+          <ToggleButton value="numbered">
+            <Icon path={mdiFormatListNumbered} size={1} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <Divider className={classes.divider} />
         <Editor editorState={content} onChange={setContent} />
       </Paper>
     </Dialog>
