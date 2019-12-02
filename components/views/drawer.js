@@ -105,6 +105,12 @@ export default props => {
         </ListItemIcon>
         <ListItemText primary={"展示"} />
       </ListItem>
+      <ListItem button onClick={() => props.openEditDialog()}>
+        <ListItemIcon>
+          <Icon path={mdiBookOpenVariant} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={"打开笔记窗口（测试）"} />
+      </ListItem>
     </List>
   </Drawer>];
 }

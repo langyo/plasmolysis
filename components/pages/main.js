@@ -75,7 +75,7 @@ export default props => {
     <div className={classnames(classes.maxWidth, classes.centerRow)}>
       {props.data.notes.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
         <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
-        <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记' + props.text}</Typography>
+        <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
       </Paper>}
     </div>
   ];
