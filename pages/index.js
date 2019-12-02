@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 
 import configs from '../configs/config';
 import { pages, models, views } from '../src/connector';
-import { initState } from '../src/thunks';
 
 class Index extends React.Component {
   static async getInitialProps({ query, req, asPath }) {
@@ -21,36 +20,33 @@ class Index extends React.Component {
         },
         body: JSON.stringify(req.cookies)
       })).json();
-    console.log(pageData)
 
     return {
       renderPage: pageName,
-      renderPageParams: query,
-      data: {
-        cookies: req.cookies
-      },
+      pageParams: query,
+      cookies: req.cookies,
       headers: req.headers,
-      pages: {
-        [pageName]: {
-          ...pageData,
-          ...initState.pages[pageName]
-        },
-        ...initState.pages
-      },
-      ...initState
+      pageData
     };
   };
 
   componentDidMount() {
-    const jssStyles = document.querySelector('#jss-server-side');
-    if (jssStyles) {
-      jssStyles.parentNode.removeChild(jssStyles);
-    }
+    const { cookies, headers, renderPage, pageParams, pageData } = this.props;
+    this.props.dispatch({ type: 'framework.updateState', payload: {
+      data: {
+        cookies, headers, pageParams
+      },
+      pages: {
+        [renderPage]: {
+          ...pageData
+        }
+      },
+      hasInitialized: true
+    }});
   }
 
   render() {
     let modelsDealed = models();
-    console.log(this.props);
 
     return ([
       <Head>
@@ -74,7 +70,7 @@ class Index extends React.Component {
         ).reduce((prev, next) => prev.concat(next), [])}
       </>,
       <>
-        {React.createElement(pages[this.props.renderPage], { key: this.props.renderPage })}
+        {React.createElement(pages[this.props.renderPage], this.props.hasInitialized ? { key: this.props.renderPage } : { key: this.props.renderPage, ...this.props.pageData })}
       </>
     ]);
   }
