@@ -8,7 +8,9 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Divider
+  Divider,
+  Chip,
+  TextField
 } from "@material-ui/core";
 
 import {
@@ -20,7 +22,7 @@ import Icon from "@mdi/react";
 import {
   mdiContentSave,
   mdiClose,
-  mdiChevronDown,
+  mdiCircle,
   mdiFormatAlignCenter,
   mdiFormatAlignLeft,
   mdiFormatAlignRight,
@@ -50,7 +52,7 @@ export default props => {
     content: {
       margin: 10,
       padding: 10,
-      height: '100%'
+      height: 400
     },
     divider: {
       marginTop: 10,
@@ -68,9 +70,10 @@ export default props => {
 
   return [
     <Dialog
-      fullScreen
       open={isOpen}
       onClose={close}
+      fullWidth
+      maxWidth="xl"
     >
       <AppBar className={classes.appBar}>
         <Toolbar>
@@ -111,11 +114,11 @@ export default props => {
         <ToggleButtonGroup >
           <ToggleButton value="fill">
             <Icon path={mdiFormatColorFill} size={1} />
-            <Icon path={mdiChevronDown} size={1} />
+            <Icon path={mdiCircle} size={1.2} color="#FFF" />
           </ToggleButton>
           <ToggleButton value="highlight">
             <Icon path={mdiFormatColorHighlight} size={1} />
-            <Icon path={mdiChevronDown} size={1} />
+            <Icon path={mdiCircle} size={1.2} />
           </ToggleButton>
         </ToggleButtonGroup>
         <ToggleButtonGroup >
@@ -137,6 +140,13 @@ export default props => {
             <Icon path={mdiFormatListNumbered} size={1} />
           </ToggleButton>
         </ToggleButtonGroup>
+        <Divider className={classes.divider} />
+        <TextField fullWidth />
+        <Divider className={classes.divider} />
+        <Chip
+          label="test"
+          onDelete={() => { }}
+        />
         <Divider className={classes.divider} />
         <Editor editorState={content} onChange={setContent} />
       </Paper>
