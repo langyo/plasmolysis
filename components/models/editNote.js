@@ -23,6 +23,7 @@ import {
   mdiContentSave,
   mdiClose,
   mdiCircle,
+  mdiClock,
   mdiFormatAlignCenter,
   mdiFormatAlignLeft,
   mdiFormatAlignRight,
@@ -35,7 +36,8 @@ import {
   mdiFormatAnnotationMinus,
   mdiFormatListCheckbox,
   mdiFormatListBulleted,
-  mdiFormatListNumbered
+  mdiFormatListNumbered,
+  mdiPlus
 } from "@mdi/js";
 
 import { Editor, EditorState } from 'draft-js';
@@ -57,6 +59,9 @@ export default props => {
     divider: {
       marginTop: 10,
       marginBottom: 10
+    },
+    chip: {
+      marginRight: 4
     }
   }))();
 
@@ -141,14 +146,35 @@ export default props => {
           </ToggleButton>
         </ToggleButtonGroup>
         <Divider className={classes.divider} />
-        <TextField fullWidth />
+        <TextField fullWidth label="标题" />
         <Divider className={classes.divider} />
         <Chip
-          label="test"
-          onDelete={() => { }}
+          avatar={<Icon path={mdiClock} size={1} />}
+          label="2019.12.25 23:33"
+          onClick={() => { }}
+          className={classes.chip}
         />
+        <Chip
+          label="测试标签"
+          onDelete={() => { }}
+          className={classes.chip}
+        />
+        <IconButton size="small">
+          <Icon path={mdiPlus} size={1} />
+        </IconButton>
         <Divider className={classes.divider} />
-        <Editor editorState={content} onChange={setContent} />
+        <Editor
+          editorState={content}
+          onChange={setContent}
+          blockStyleFn={blockName => {
+            switch (blockName.getType()) {
+              case 'blockquote':
+                return 'RichEditor-blockquote';
+              default:
+                return null;
+            }
+          }}
+        />
       </Paper>
     </Dialog>
   ];
