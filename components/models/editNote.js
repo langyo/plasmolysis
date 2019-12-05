@@ -150,7 +150,7 @@ export default props => {
         <Divider className={classes.divider} />
         <Chip
           avatar={<Icon path={mdiClock} size={1} />}
-          label="2019.12.25 23:33"
+          label={"未知时间"}
           onClick={() => { }}
           className={classes.chip}
         />
