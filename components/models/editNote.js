@@ -40,7 +40,7 @@ import {
   mdiPlus
 } from "@mdi/js";
 
-import { Editor, EditorState } from 'draft-js';
+import { Editor, EditorState, RichUtils } from 'draft-js';
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -106,13 +106,13 @@ export default props => {
           </ToggleButton>
         </ToggleButtonGroup>
         <ToggleButtonGroup >
-          <ToggleButton value="bold">
+          <ToggleButton value="bold" onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'BOLD'))}>
             <Icon path={mdiFormatBold} size={1} />
           </ToggleButton>
-          <ToggleButton value="italic">
+          <ToggleButton value="italic" onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'ITALIC'))}>
             <Icon path={mdiFormatItalic} size={1} />
           </ToggleButton>
-          <ToggleButton value="underlined">
+          <ToggleButton value="underlined" onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'UNDERLINE'))}>
             <Icon path={mdiFormatUnderline} size={1} />
           </ToggleButton>
         </ToggleButtonGroup>
@@ -166,6 +166,14 @@ export default props => {
         <Editor
           editorState={content}
           onChange={setContent}
+          handleKeyCommand={(command, editorState) => {
+            const newState = RichUtils.handleKeyCommand(editorState, command);
+            if (newState) {
+              setContent(newState);
+              return 'handled';
+            }
+            return 'not-handled';
+          }}
           blockStyleFn={blockName => {
             switch (blockName.getType()) {
               case 'blockquote':
