@@ -8,6 +8,8 @@ db.once('open', () => {
   console.log('Database has been connected.');
 });
 
+const ObjectId = mongoose.Schema.Types.ObjectId;
+
 module.exports = {
   db: {
     logger: db.model("Log", mongoose.Schema({
@@ -40,7 +42,25 @@ module.exports = {
       date: {
         type: Date,
         index: true
-      }
+      },
+      tags: [{
+        type: ObjectId  
+      }]
+    })),
+
+    tags: db.model("Tag", mongoose.Schema({
+      // 这玩意相当于文件夹，可以包含其它标签或笔记
+      name: String,
+      fullPath: {
+        type: String,
+        index: true
+      },
+      tags: [{
+        type: ObjectId
+      }],
+      notes: [{
+        type: ObjectId
+      }]
     }))
   }
 }
