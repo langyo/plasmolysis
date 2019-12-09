@@ -21,33 +21,33 @@ import Icon from "@mdi/react";
 import {
   mdiContentSave,
   mdiClose,
-  mdiCircle,
   mdiClock,
-  mdiFormatAlignCenter,
-  mdiFormatAlignLeft,
-  mdiFormatAlignRight,
   mdiFormatBold,
   mdiFormatItalic,
   mdiFormatUnderline,
-  mdiFormatColorFill,
-  mdiFormatColorHighlight,
-  mdiFormatAnnotationPlus,
-  mdiFormatAnnotationMinus,
-  mdiFormatListCheckbox,
-  mdiFormatListBulleted,
-  mdiFormatListNumbered,
   mdiPlus
 } from "@mdi/js";
 
 import { Editor, EditorState, RichUtils } from 'draft-js';
-
+import ScrollArea from 'react-scrollbar';
 import dateFormat from 'dateformat';
+import Immutable from 'immutable';
+
+const UnstyledBlock = props => {
+  const classes = makeStyles(theme => ({
+    root: {
+      fontSize: '1.5em'
+    }
+  }))();
+
+  return <div className={classes.root}>{props.children}</div>;
+};
 
 export default props => {
   const classes = makeStyles(theme => ({
     title: {
       margin: theme.spacing(2),
-      marginLeft: theme.spacing(4),
+      marginLeft: theme.spacing(2),
       marginBottom: 0
     },
     spacingRight: {
@@ -56,14 +56,19 @@ export default props => {
       position: 'absolute'
     },
     fab: {
-      right: theme.spacing(3),
-      bottom: theme.spacing(3),
+      right: theme.spacing(6),
+      bottom: theme.spacing(6),
       position: 'absolute'
     },
     content: {
+      marginTop: 0,
       margin: theme.spacing(2),
-      padding: theme.spacing(2),
-      height: 400
+      padding: theme.spacing(1)
+    },
+    textArea: {
+      margin: theme.spacing(1),
+      padding: theme.spacing(1),
+      height: 300
     },
     divider: {
       marginTop: 10,
@@ -99,67 +104,6 @@ export default props => {
         <Icon path={mdiClose} size={1} />
       </IconButton>
       <Paper className={classes.content}>
-        {/* <ToggleButtonGroup >
-          <ToggleButton value="left">
-            <Icon path={mdiFormatAlignLeft} size={1} />
-          </ToggleButton>
-          <ToggleButton value="center">
-            <Icon path={mdiFormatAlignCenter} size={1} />
-          </ToggleButton>
-          <ToggleButton value="right">
-            <Icon path={mdiFormatAlignRight} size={1} />
-          </ToggleButton>
-        </ToggleButtonGroup> */}
-        <ToggleButtonGroup>
-          <ToggleButton
-            value="bold"
-            onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'BOLD'))}
-          >
-            <Icon path={mdiFormatBold} size={1} />
-          </ToggleButton>
-          <ToggleButton
-            value="italic"
-            onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'ITALIC'))}
-          >
-            <Icon path={mdiFormatItalic} size={1} />
-          </ToggleButton>
-          <ToggleButton
-            value="underlined"
-            onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'UNDERLINE'))}
-          >
-            <Icon path={mdiFormatUnderline} size={1} />
-          </ToggleButton>
-        </ToggleButtonGroup>
-        {/* <ToggleButtonGroup >
-          <ToggleButton value="fill">
-            <Icon path={mdiFormatColorFill} size={1} />
-            <Icon path={mdiCircle} size={1.2} color="#FFF" />
-          </ToggleButton>
-          <ToggleButton value="highlight">
-            <Icon path={mdiFormatColorHighlight} size={1} />
-            <Icon path={mdiCircle} size={1.2} />
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <ToggleButtonGroup >
-          <ToggleButton value="plus">
-            <Icon path={mdiFormatAnnotationPlus} size={1} />
-          </ToggleButton>
-          <ToggleButton value="minus">
-            <Icon path={mdiFormatAnnotationMinus} size={1} />
-          </ToggleButton>
-        </ToggleButtonGroup>
-        <ToggleButtonGroup >
-          <ToggleButton value="checkbox">
-            <Icon path={mdiFormatListCheckbox} size={1} />
-          </ToggleButton>
-          <ToggleButton value="dot">
-            <Icon path={mdiFormatListBulleted} size={1} />
-          </ToggleButton>
-          <ToggleButton value="numbered">
-            <Icon path={mdiFormatListNumbered} size={1} />
-          </ToggleButton>
-        </ToggleButtonGroup> */}
-        <Divider className={classes.divider} />
         <TextField fullWidth label="标题" />
         <Divider className={classes.divider} />
         <Chip
@@ -180,34 +124,58 @@ export default props => {
           <Icon path={mdiPlus} size={1} />
         </IconButton>
         <Divider className={classes.divider} />
-        <Editor
-          editorState={content}
-          onChange={setContent}
-          handleKeyCommand={(command, editorState) => {
-            const newState = RichUtils.handleKeyCommand(editorState, command);
-            if (newState) {
-              setContent(newState);
-              return 'handled';
-            }
-            return 'not-handled';
-          }}
-          customStyleMap={{
-            Bold: {
-              fontWeight: '600',
-            },
-            Italic: {
-              fontStyle: 'italic',
-            },
-          }}
-          blockStyleFn={blockName => {
-            switch (blockName.getType()) {
-              case 'blockquote':
-                return 'RichEditor-blockquote';
-              default:
-                return null;
-            }
-          }}
-        />
+        <ToggleButtonGroup>
+          <ToggleButton
+            value="bold"
+            onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'BOLD'))}
+          >
+            <Icon path={mdiFormatBold} size={1} />
+          </ToggleButton>
+          <ToggleButton
+            value="italic"
+            onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'ITALIC'))}
+          >
+            <Icon path={mdiFormatItalic} size={1} />
+          </ToggleButton>
+          <ToggleButton
+            value="underlined"
+            onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'UNDERLINE'))}
+          >
+            <Icon path={mdiFormatUnderline} size={1} />
+          </ToggleButton>
+        </ToggleButtonGroup>
+        <Divider className={classes.divider} />
+        <ScrollArea
+          className={classes.textArea}
+          horizontal={false}
+        >
+          <Editor
+            editorState={content}
+            onChange={setContent}
+            handleKeyCommand={(command, editorState) => {
+              const newState = RichUtils.handleKeyCommand(editorState, command);
+              if (newState) {
+                setContent(newState);
+                return 'handled';
+              }
+              return 'not-handled';
+            }}
+            customStyleMap={{
+              Bold: {
+                fontWeight: '600',
+              },
+              Italic: {
+                fontStyle: 'italic',
+              },
+            }}
+            blockRenderMap={Immutable.Map({
+              unstyled: {
+                element: 'p',
+                wrapper: <UnstyledBlock />
+              }
+            })}
+          />
+        </ScrollArea>
         <Fab className={classes.fab} color="primary" onClick={() => props.submit({
 
         })}>
