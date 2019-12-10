@@ -38,13 +38,13 @@ module.exports = {
         index: true
       },
       title: String,
-      body: String,
+      content: String,
       date: {
         type: Date,
         index: true
       },
       tags: [{
-        type: ObjectId  
+        type: String
       }]
     })),
 

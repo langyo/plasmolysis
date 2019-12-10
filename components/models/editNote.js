@@ -3,6 +3,10 @@ import { makeStyles } from "@material-ui/core/styles";
 
 import {
   Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   Paper,
   Typography,
   IconButton,
@@ -28,8 +32,8 @@ import {
   mdiPlus
 } from "@mdi/js";
 
-import { Editor, EditorState, RichUtils } from 'draft-js';
-import ScrollArea from 'react-scrollbar';
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
+import ScrollArea from 'react-scrollbars-custom';
 import dateFormat from 'dateformat';
 import Immutable from 'immutable';
 
@@ -71,18 +75,22 @@ export default props => {
       height: 300
     },
     divider: {
-      marginTop: 10,
-      marginBottom: 10
+      marginTop: theme.spacing(2),
+      marginBottom: theme.spacing(2)
     },
     chip: {
-      marginRight: 4
+      marginRight: theme.spacing(1),
+      marginBottom: theme.spacing(1)
     }
   }))();
 
   const [content, setContent] = React.useState(EditorState.createEmpty());
   const [title, setTitle] = React.useState(props.title || '');
   const [time, setTime] = React.useState(props.time || Date.now());
-  const [tags, setTags] = React.useState(props.tags || ['默认收藏夹'])
+
+  const [tags, setTags] = React.useState(props.tags || ['默认收藏夹']);
+  const [isAddingTag, setAddingTag] = React.useState(false);
+  const [newTagValue, setNewTagValue] = React.useState('');
 
   const [isOpen, setOpen] = React.useState(true);
   const close = () => {
@@ -104,7 +112,7 @@ export default props => {
         <Icon path={mdiClose} size={1} />
       </IconButton>
       <Paper className={classes.content}>
-        <TextField fullWidth label="标题" />
+        <TextField fullWidth label="标题" value={title} onChange={e => setTitle(e.target.value)} />
         <Divider className={classes.divider} />
         <Chip
           avatar={<Icon path={mdiClock} size={1} />}
@@ -115,14 +123,38 @@ export default props => {
         {
           tags.map((tag, index) => <Chip
             label={tag}
-            onDelete={() => { }}
+            onDelete={() => {
+              let t = [];
+              for(let i = 0; i < tags.length; ++i) {
+                if(i !== index) t.push(tags[i]);
+              }
+              setTags(t);
+            }}
             className={classes.chip}
             key={index}
           />)
         }
-        <IconButton size="small">
+        <IconButton className={classes.chip} size="small" onClick={() => setAddingTag(true)}>
           <Icon path={mdiPlus} size={1} />
         </IconButton>
+        <Dialog open={isAddingTag} onClose={() => setAddingTag(false)}>
+          <DialogTitle>{'添加标签'}</DialogTitle>
+          <DialogContent>
+            <TextField fullWidth label="标签名称" value={newTagValue} onChange={e => setNewTagValue(e.target.value)} />
+          </DialogContent>
+          <DialogActions>
+            <Button variant='outlined' onClick={() => {
+              setAddingTag(false);
+              setNewTagValue('');
+            }}>取消</Button>
+            <Button variant='outlined' onClick={() => {
+              setAddingTag(false);
+              let t = newTagValue;
+              setTags([...tags, t]);
+              setNewTagValue('')
+            }}>确认</Button>
+          </DialogActions>
+        </Dialog>
         <Divider className={classes.divider} />
         <ToggleButtonGroup>
           <ToggleButton
@@ -147,7 +179,7 @@ export default props => {
         <Divider className={classes.divider} />
         <ScrollArea
           className={classes.textArea}
-          horizontal={false}
+          style={{ height: 300 }}
         >
           <Editor
             editorState={content}
@@ -177,7 +209,10 @@ export default props => {
           />
         </ScrollArea>
         <Fab className={classes.fab} color="primary" onClick={() => props.submit({
-
+          id: props.id,
+          title,
+          tags: tags,
+          content: JSON.stringify(convertToRaw(content.getCurrentContent()))
         })}>
           <Icon path={mdiContentSave} size={1} color="#fff" />
         </Fab>

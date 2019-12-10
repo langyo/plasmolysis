@@ -109,6 +109,7 @@ export default server => {
     console.log(`New preload service: ${page}`);
     server.use(`/preload/${page}`, (req, res) => {
       pagePreload[page](context, req.cookies).then(data => {
+        console.log(data)
         res.send(JSON.stringify(data));
         res.end();
       });

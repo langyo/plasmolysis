@@ -73,10 +73,14 @@ export default props => {
       </Paper>
     </div>,
     <div className={classnames(classes.maxWidth, classes.centerRow)}>
-      {props.data.notes.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
+      {props.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
         <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
         <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
       </Paper>}
+      {props.latestPush.length > 0 && props.latestPush.map((n, index) => <Paper key={index} className={classes.margin}>
+        <Typography variant='h6' className={classes.margin}>{n.title}</Typography>
+        <Typography variant='body1' className={classes.margin}>{n.content}</Typography>
+      </Paper>)}
     </div>
   ];
 }
