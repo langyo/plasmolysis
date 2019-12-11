@@ -65,6 +65,11 @@ for (let type of ['models', 'pages', 'views']) {
       wait: length => {
         if (typeof length !== 'number') throw new Error('You must provide an integer!');
         return { type: 'wait', length };
+      },
+      setCookies: obj => {
+        if(typeof obj === 'function') return { type: 'setCookies', func: obj };
+        else if(typeof obj !== 'object') throw new Error('You must provide a function or an object!');
+        return { type: 'setCookies', obj };
       }
     });
 
@@ -82,6 +87,7 @@ for (let type of ['models', 'pages', 'views']) {
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
     // 对其中每个作为数组存在的元素进行扁平化
+    // TODO:  即将加入条件判断
     dealed = Object.keys(dealed).reduce((prev, action) => {
       const dfs = arr => arr.reduce(
         (prev, next) => Array.isArray(next) ? prev.concat(dfs(next)) : [...prev, next],
@@ -127,6 +133,8 @@ for (let type of ['models', 'pages', 'views']) {
       let subThunks = [];
 
       for (let task of dealed[action]) {
+        // TODO:  这里的代码将会被打包成函数，接收的参数有 task，返回一个回调函数 next => (payload, dispatch, state)
+        //        实现条件判断时，subThunks 将会带有层级区分
         switch (task.type) {
           case 'setState':
             subThunks.push(next => (payload, dispatch, state) => {
@@ -225,6 +233,16 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'wait':
             subThunks.push(next => (payload, dispatch, state) => setTimeout(() => next(payload, dispatch, state), task.length));
+            break;
+          case 'setCookies':
+            subThunks.push(next => (payload, dispatch, state) => {
+              dispatch({ type: 'framework.updateState', payload: {
+                data: {
+                  cookies: task.func ? task.func(payload, state.data.cookies, state.data) : task.obj
+                }
+              }});
+              next(payload, dispatch, state);
+            });
             break;
           default:
             throw new Error('未知的流动作！');

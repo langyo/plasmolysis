@@ -36,7 +36,8 @@ for (let type of ['models', 'pages', 'views']) {
       send: () => ({ type: 'send' }),
       route: obj => ({ type: 'route', obj }),
       handle: func => ({ type: 'handle', func }),
-      wait: () => ({ type: 'wait' })
+      wait: () => ({ type: 'wait' }),
+      setCookies: () => ({ type: 'setCookies' })
     });
 
     // 去除所有的不用于表达动作的特殊键

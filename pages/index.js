@@ -32,17 +32,19 @@ class Index extends React.Component {
 
   componentDidMount() {
     const { cookies, headers, renderPage, pageParams, pageData } = this.props;
-    this.props.dispatch({ type: 'framework.updateState', payload: {
-      data: {
-        cookies, headers, pageParams
-      },
-      pages: {
-        [renderPage]: {
-          ...pageData
-        }
-      },
-      hasInitialized: true
-    }});
+    this.props.dispatch({
+      type: 'framework.updateState', payload: {
+        data: {
+          cookies, headers, pageParams
+        },
+        pages: {
+          [renderPage]: {
+            ...pageData
+          }
+        },
+        hasInitialized: true
+      }
+    });
   }
 
   render() {
@@ -60,7 +62,7 @@ class Index extends React.Component {
         <link rel='icon' href={configs.icon} />
       </Head>,
       <>
-        {Object.keys(views).map((n, key) => React.createElement(views[n], { key }))}
+        {Object.keys(views).map((n, key) => n === 'border' ? null : React.createElement(views[n], { key }))}
       </>,
       <>
         {Object.keys(modelsDealed).map(component =>
