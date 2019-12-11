@@ -7,6 +7,9 @@ import { Provider } from 'react-redux';
 import store from '../src/store';
 import { views } from '../src/connector';
 
+import { createMuiTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/styles';
+
 export default class MyApp extends App {
   componentDidMount() {
     // 删除服务端预加载的 CSS
@@ -21,16 +24,16 @@ export default class MyApp extends App {
     return (
       <React.Fragment>
         <Provider store={store}>
-          {views.border && React.createElement(views.border, {
-            children: <>
+            {views.border && React.createElement(views.border, {
+              children: <>
+                <CssBaseline />
+                <Component {...pageProps} />
+              </>
+            })}
+            {!views.border && <>
               <CssBaseline />
               <Component {...pageProps} />
-            </>
-          })}
-          {!views.border && <>
-            <CssBaseline />
-            <Component {...pageProps} />
-          </>}
+            </>}
         </Provider>
       </React.Fragment>
     );

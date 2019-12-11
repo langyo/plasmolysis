@@ -6,7 +6,6 @@ import {
   Paper,
   Typography,
   InputBase,
-  Grid,
   IconButton
 } from "@material-ui/core";
 
@@ -18,6 +17,19 @@ import {
   mdiChevronRight
 } from "@mdi/js";
 
+import redraft from "redraft";
+
+const renderers = {
+  inline: {
+    BOLD: (children, { key }) => <span key={key} style={{ fontWeight: '600' }}>{children}</span>,
+    ITALIC: (children, { key }) => <span key={key} style={{ fontStyle: 'italic' }}>{children}</span>,
+    UNDERLINE: (children, { key }) => <span key={key} style={{ textDecoration: 'underline' }}>{children}</span>
+  },
+  blocks: {
+    unstyled: children => children.map(child => <p>{child}</p>),
+  }
+}
+
 export default props => {
   const classes = makeStyles(theme => ({
     centerRow: {
@@ -26,8 +38,19 @@ export default props => {
       alignItems: "center",
       flexDirection: "row"
     },
+    centerColumn: {
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      flexDirection: "column"
+    },
     maxWidth: {
       width: '100%'
+    },
+    cardListWidth: {
+      width: '60%',
+      marginLeft: 'auto',
+      marginRight: 'auto'
     },
     margin: {
       margin: 10
@@ -72,14 +95,16 @@ export default props => {
         </IconButton>
       </Paper>
     </div>,
-    <div className={classnames(classes.maxWidth, classes.centerRow)}>
+    <div className={classnames(classes.maxWidth, classes.centerColumn, classes.cardListWidth)}>
       {props.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
         <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
         <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
       </Paper>}
       {props.latestPush.length > 0 && props.latestPush.map((n, index) => <Paper key={index} className={classes.margin}>
         <Typography variant='h6' className={classes.margin}>{n.title}</Typography>
-        <Typography variant='body1' className={classes.margin}>{n.content}</Typography>
+        <Typography variant='body1' className={classes.margin}>
+          {redraft(JSON.parse(n.content), renderers)}
+        </Typography>
       </Paper>)}
     </div>
   ];

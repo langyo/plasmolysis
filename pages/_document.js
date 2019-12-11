@@ -1,7 +1,6 @@
 import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheets } from '@material-ui/styles';
-import theme from '../src/theme';
 import config from '../configs/config';
 
 class RenderDocument extends Document {
@@ -14,7 +13,6 @@ class RenderDocument extends Document {
             name="viewport"
             content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
           />
-          <meta name="theme-color" content={theme.palette.primary.main} />
           <style>{`
             body{
               margin: 0px;

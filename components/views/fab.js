@@ -55,13 +55,13 @@ export default props => {
       <SpeedDialAction
         icon={<Icon path={mdiPencil} size={1} />}
         tooltipTitle='随笔'
-        onClick={() => setDialOpen(false)}
+        onClick={props.createNewEditDialog}
       />
-      <SpeedDialAction
+      {/* <SpeedDialAction
         icon={<Icon path={mdiFileOutline} size={1} />}
         tooltipTitle='文档'
         onClick={() => setDialOpen(false)}
-      />
+      /> */}
     </SpeedDial>
   ];
 }

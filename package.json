@@ -36,6 +36,7 @@
     "react-dom": "16.10.2",
     "react-redux": "^7.1.1",
     "react-scrollbars-custom": "^4.0.21",
+    "redraft": "^0.10.2",
     "redux": "^4.0.4",
     "redux-actions": "^2.6.5",
     "redux-devtools-extension": "^2.13.8",

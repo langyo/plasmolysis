@@ -143,11 +143,11 @@ export default props => {
             <TextField fullWidth label="标签名称" value={newTagValue} onChange={e => setNewTagValue(e.target.value)} />
           </DialogContent>
           <DialogActions>
-            <Button variant='outlined' onClick={() => {
+            <Button onClick={() => {
               setAddingTag(false);
               setNewTagValue('');
             }}>取消</Button>
-            <Button variant='outlined' onClick={() => {
+            <Button onClick={() => {
               setAddingTag(false);
               let t = newTagValue;
               setTags([...tags, t]);

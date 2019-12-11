@@ -52,9 +52,5 @@ export default ({ setState, togglePage, createModel, setData }) => ({
   openShowPage: [
     togglePage('show'),
     setState({ isOpen: false })
-  ],
-  
-  openEditDialog: [
-    createModel('editNote')
   ]
 });
