@@ -29,7 +29,8 @@ const models = () => {
             send: () => null,
             route: () => null,
             handle: () => null,
-            wait: () => null
+            wait: () => null,
+            setCookies: () => null
           })).reduce((prev, action) => (action !== 'init' ? ({
             ...prev,
             [action]: (payload => dispatch(thunks[`models.${component}.${action}`]({ ...payload, $id: id })))
@@ -85,7 +86,8 @@ for (let component of Object.keys(components.pages)) {
       send: () => null,
       route: () => null,
       handle: () => null,
-      wait: () => null
+      wait: () => null,
+      setCookies: () => null
     })).reduce((prev, action) => (action !== 'init' ? ({
       ...prev,
       [action]: (payload => dispatch(thunks[`pages.${component}.${action}`](payload)))
@@ -108,7 +110,8 @@ for (let component of Object.keys(components.views)) {
       send: () => null,
       route: () => null,
       handle: () => null,
-      wait: () => null
+      wait: () => null,
+      setCookies: () => null
     })).reduce((prev, action) => (action !== 'init' ? ({
       ...prev,
       [action]: (payload => dispatch(thunks[`views.${component}.${action}`](payload)))

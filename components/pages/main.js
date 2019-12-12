@@ -1,23 +1,23 @@
-import React from "react";
-import classnames from "classnames";
-import { makeStyles } from "@material-ui/core/styles";
+import React from 'react';
+import classnames from 'classnames';
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
   Paper,
   Typography,
   InputBase,
   IconButton
-} from "@material-ui/core";
+} from '@material-ui/core';
 
-import Icon from "@mdi/react";
+import Icon from '@mdi/react';
 
 import {
   mdiGreasePencil,
   mdiMagnify,
   mdiChevronRight
-} from "@mdi/js";
+} from '@mdi/js';
 
-import redraft from "redraft";
+import redraft from 'redraft';
 
 const renderers = {
   inline: {
@@ -33,16 +33,16 @@ const renderers = {
 export default props => {
   const classes = makeStyles(theme => ({
     centerRow: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "row"
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row'
     },
     centerColumn: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "column"
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'column'
     },
     maxWidth: {
       width: '100%'
@@ -59,7 +59,7 @@ export default props => {
       padding: '2px 4px',
       display: 'flex',
       alignItems: 'center',
-      width: "30%",
+      width: '30%',
       minWidth: 300
     },
     input: {
@@ -88,7 +88,7 @@ export default props => {
         </IconButton>
         <InputBase
           className={classes.input}
-          placeholder="搜索"
+          placeholder='搜索'
         />
         <IconButton className={classes.iconButton}>
           <Icon path={mdiMagnify} size={1} />

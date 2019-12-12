@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   Button,
   Grid,
   Divider
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -19,9 +19,9 @@ export default props => {
     }
   }))();
 
-  const [name, setName] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [rePassword, setRePassword] = React.useState("");
+  const [name, setName] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [rePassword, setRePassword] = React.useState('');
 
   const [isOpen, setOpen] = React.useState(true);
   const close = () => {
@@ -39,8 +39,8 @@ export default props => {
             <TextField
               className={classes.inputer}
               autoFocus
-              margin="dense"
-              label="用户名"
+              margin='dense'
+              label='用户名'
               value={name}
               onChange={e => setName(e.target.value)}
             />
@@ -52,9 +52,9 @@ export default props => {
           <Grid item xs={12}>
             <TextField
               className={classes.inputer}
-              margin="dense"
-              label="密码"
-              type="password"
+              margin='dense'
+              label='密码'
+              type='password'
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
@@ -66,9 +66,9 @@ export default props => {
           <Grid item xs={12}>
             <TextField
               className={classes.inputer}
-              margin="dense"
-              label="重复密码"
-              type="password"
+              margin='dense'
+              label='重复密码'
+              type='password'
               value={rePassword}
               onChange={e => setRePassword(e.target.value)}
             />
@@ -80,14 +80,14 @@ export default props => {
       <DialogActions>
         <Button
           onClick={close}
-          color="primary"
+          color='primary'
         >
           取消
         </Button>
         <Button
           disabled={!(name && password && password === rePassword)}
           onClick={() => props.submit({ name, password })}
-          color="primary"
+          color='primary'
         >
           注册
         </Button>

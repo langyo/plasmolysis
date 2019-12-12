@@ -9,8 +9,8 @@ import {
 
 import { red } from '@material-ui/core/colors';
 
-import Icon from "@mdi/react";
-import { mdiCloseCircle, mdiClose } from "@mdi/js";
+import Icon from '@mdi/react';
+import { mdiCloseCircle, mdiClose } from '@mdi/js';
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -47,11 +47,11 @@ export default props => {
         message={
           <span className={classes.message}>
             <Icon className={classes.iconVariant} path={mdiCloseCircle} size={1} color='white' />
-            {props.context}
+            {props.content}
           </span>
         }
         action={
-          <IconButton color="inherit" onClick={close}>
+          <IconButton color='inherit' onClick={close}>
             <Icon path={mdiClose} size={1} color='white' />
           </IconButton>
         }

@@ -1,4 +1,4 @@
-export default ({ setState, togglePage, createModel, setData }) => ({
+export default ({ deal, setState, togglePage, createModel, setData, setCookies }) => ({
   init: {
     isOpen: false,
 
@@ -29,7 +29,9 @@ export default ({ setState, togglePage, createModel, setData }) => ({
         userName: '',
         accessToken: ''
       }
-    })
+    }),
+    setCookies(() => ({ userName: '', accessToken: '' })),
+    createModel('successInfoSnackbar', { content: '已退出登录' })
   ],
 
   openAboutDialog: [

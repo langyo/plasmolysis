@@ -12,7 +12,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 
 module.exports = {
   db: {
-    logger: db.model("Log", mongoose.Schema({
+    logger: db.model('Log', mongoose.Schema({
       date: {
         type: Date,
         index: true
@@ -20,19 +20,19 @@ module.exports = {
       name: String,
       sex: {
         type: String,
-        enum: ["boy", "girl"]
+        enum: ['boy', 'girl']
       },
       reason: String,
       grade: Number,
       classId: Number
     })),
 
-    accounts: db.model("Account", mongoose.Schema({
+    accounts: db.model('Account', mongoose.Schema({
       name: String,
       password: String
     })),
 
-    notes: db.model("Note", mongoose.Schema({
+    notes: db.model('Note', mongoose.Schema({
       owner: {
         type: String,
         index: true
@@ -48,7 +48,7 @@ module.exports = {
       }]
     })),
 
-    tags: db.model("Tag", mongoose.Schema({
+    tags: db.model('Tag', mongoose.Schema({
       // 这玩意相当于文件夹，可以包含其它标签或笔记
       name: String,
       fullPath: {

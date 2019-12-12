@@ -1,16 +1,16 @@
 import React from 'react';
-import classnames from "classnames";
-import { makeStyles } from "@material-ui/core/styles";
+import classnames from 'classnames';
+import { makeStyles } from '@material-ui/core/styles';
 
-import Drawer from "@material-ui/core/Drawer";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/LIstItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import Divider from "@material-ui/core/Divider";
-import CardHeader from "@material-ui/core/CardHeader";
+import Drawer from '@material-ui/core/Drawer';
+import List from '@material-ui/core/List';
+import ListItem from '@material-ui/core/ListItem';
+import ListItemIcon from '@material-ui/core/LIstItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
+import CardHeader from '@material-ui/core/CardHeader';
 
-import Icon from "@mdi/react";
+import Icon from '@mdi/react';
 import {
   mdiAccount,
   mdiInformation,
@@ -20,7 +20,7 @@ import {
   mdiBookOpenVariant,
   mdiFileEditOutline,
   mdiHome
-} from "@mdi/js";
+} from '@mdi/js';
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -32,16 +32,16 @@ export default props => {
       marginBottom: 10
     },
     center: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "column"
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'column'
     },
     centerRow: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      flexDirection: "row"
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexDirection: 'row'
     },
     margin: {
       margin: 10
@@ -49,7 +49,7 @@ export default props => {
   }))();
 
   return [<Drawer
-    anchor="left"
+    anchor='left'
     open={props.isOpen}
     onClose={props.close}
   >
@@ -58,8 +58,8 @@ export default props => {
         avatar={
           <Icon path={mdiAccount} size={1} />
         }
-        title="尚未登录"
-        subheader="登录以获取更多权限"
+        title='尚未登录'
+        subheader='登录以获取更多权限'
       />}
       {props.data.account.hasLogin === true && <CardHeader
         avatar={
@@ -72,38 +72,38 @@ export default props => {
         <ListItemIcon>
           <Icon path={mdiAccountArrowRightOutline} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"登录"} />
+        <ListItemText primary={'登录'} />
       </ListItem>,
       <ListItem button onClick={() => props.openRegisterDialog()}>
         <ListItemIcon>
           <Icon path={mdiAccountMultiplePlusOutline} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"注册"} />
+        <ListItemText primary={'注册'} />
       </ListItem>]}
       {props.data.account.hasLogin === true && <ListItem button onClick={() => props.logoutUpdate()}>
         <ListItemIcon>
           <Icon path={mdiLogin} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"登出"} />
+        <ListItemText primary={'登出'} />
       </ListItem>}
       <ListItem button onClick={() => props.openAboutDialog()}>
         <ListItemIcon>
           <Icon path={mdiInformation} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"关于"} />
+        <ListItemText primary={'关于'} />
       </ListItem>
       <Divider className={classes.divider} />
       <ListItem button onClick={() => props.openMainPage()}>
         <ListItemIcon>
           <Icon path={mdiHome} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"主页"} />
+        <ListItemText primary={'主页'} />
       </ListItem>
       <ListItem button onClick={() => props.openShowPage()}>
         <ListItemIcon>
           <Icon path={mdiBookOpenVariant} size={1} />
         </ListItemIcon>
-        <ListItemText primary={"展示"} />
+        <ListItemText primary={'展示'} />
       </ListItem>
     </List>
   </Drawer>];

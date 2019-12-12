@@ -1,24 +1,24 @@
 import React from 'react';
-import classnames from "classnames";
-import { makeStyles } from "@material-ui/core/styles";
+import classnames from 'classnames';
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
   IconButton
-} from "@material-ui/core";
+} from '@material-ui/core';
 import {
   SpeedDial,
   SpeedDialIcon,
   SpeedDialAction
-} from "@material-ui/lab";
+} from '@material-ui/lab';
 
-import Icon from "@mdi/react";
+import Icon from '@mdi/react';
 import {
   mdiMenu,
   mdiPlus,
   mdiClose,
   mdiPencil,
   mdiFileOutline
-} from "@mdi/js";
+} from '@mdi/js';
 
 export default props => {
   const classes = makeStyles(theme => ({
@@ -43,7 +43,7 @@ export default props => {
       <Icon path={mdiMenu} size={1} />
     </IconButton>,
     <SpeedDial
-      ariaLabel="新建"
+      ariaLabel='新建'
       className={classes.dashboard}
       hidden={false}
       icon={<SpeedDialIcon openIcon={<Icon path={mdiClose} size={1} color='#fff' />} icon={<Icon path={mdiPlus} size={1} color='#fff' />} />}

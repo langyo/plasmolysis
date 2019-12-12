@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from '@material-ui/core/styles';
 
 import {
   Dialog,
@@ -14,14 +14,14 @@ import {
   Chip,
   TextField,
   Fab
-} from "@material-ui/core";
+} from '@material-ui/core';
 
 import {
   ToggleButton,
   ToggleButtonGroup
-} from "@material-ui/lab";
+} from '@material-ui/lab';
 
-import Icon from "@mdi/react";
+import Icon from '@mdi/react';
 import {
   mdiContentSave,
   mdiClose,
@@ -30,7 +30,7 @@ import {
   mdiFormatItalic,
   mdiFormatUnderline,
   mdiPlus
-} from "@mdi/js";
+} from '@mdi/js';
 
 import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw } from 'draft-js';
 import ScrollArea from 'react-scrollbars-custom';
@@ -103,16 +103,16 @@ export default props => {
       open={isOpen}
       onClose={close}
       fullWidth
-      maxWidth="xl"
+      maxWidth='xl'
     >
-      <Typography variant="h6" className={classes.title}>
+      <Typography variant='h6' className={classes.title}>
         编辑笔记
       </Typography>
-      <IconButton color="inherit" onClick={close} className={classes.spacingRight}>
+      <IconButton color='inherit' onClick={close} className={classes.spacingRight}>
         <Icon path={mdiClose} size={1} />
       </IconButton>
       <Paper className={classes.content}>
-        <TextField fullWidth label="标题" value={title} onChange={e => setTitle(e.target.value)} />
+        <TextField fullWidth label='标题' value={title} onChange={e => setTitle(e.target.value)} />
         <Divider className={classes.divider} />
         <Chip
           avatar={<Icon path={mdiClock} size={1} />}
@@ -134,13 +134,13 @@ export default props => {
             key={index}
           />)
         }
-        <IconButton className={classes.chip} size="small" onClick={() => setAddingTag(true)}>
+        <IconButton className={classes.chip} size='small' onClick={() => setAddingTag(true)}>
           <Icon path={mdiPlus} size={1} />
         </IconButton>
         <Dialog open={isAddingTag} onClose={() => setAddingTag(false)}>
           <DialogTitle>{'添加标签'}</DialogTitle>
           <DialogContent>
-            <TextField fullWidth label="标签名称" value={newTagValue} onChange={e => setNewTagValue(e.target.value)} />
+            <TextField fullWidth label='标签名称' value={newTagValue} onChange={e => setNewTagValue(e.target.value)} />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => {
@@ -158,19 +158,19 @@ export default props => {
         <Divider className={classes.divider} />
         <ToggleButtonGroup>
           <ToggleButton
-            value="bold"
+            value='bold'
             onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'BOLD'))}
           >
             <Icon path={mdiFormatBold} size={1} />
           </ToggleButton>
           <ToggleButton
-            value="italic"
+            value='italic'
             onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'ITALIC'))}
           >
             <Icon path={mdiFormatItalic} size={1} />
           </ToggleButton>
           <ToggleButton
-            value="underlined"
+            value='underlined'
             onClick={() => setContent(RichUtils.toggleInlineStyle(content, 'UNDERLINE'))}
           >
             <Icon path={mdiFormatUnderline} size={1} />
@@ -208,13 +208,13 @@ export default props => {
             })}
           />
         </ScrollArea>
-        <Fab className={classes.fab} color="primary" onClick={() => props.submit({
+        <Fab className={classes.fab} color='primary' onClick={() => props.submit({
           id: props.id,
           title,
           tags: tags,
           content: JSON.stringify(convertToRaw(content.getCurrentContent()))
         })}>
-          <Icon path={mdiContentSave} size={1} color="#fff" />
+          <Icon path={mdiContentSave} size={1} color='#fff' />
         </Fab>
       </Paper>
     </Dialog>
