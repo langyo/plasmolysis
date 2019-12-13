@@ -6,7 +6,8 @@ import {
   Paper,
   Typography,
   InputBase,
-  IconButton
+  IconButton,
+  ButtonBase
 } from '@material-ui/core';
 
 import Icon from '@mdi/react';
@@ -64,6 +65,13 @@ export default props => {
       marginLeft: 'auto',
       marginRight: 'auto'
     },
+    previewCardOutside: {
+      width: '60%'
+    },
+    previewCardInside: {
+      width: '100%',
+      textAlign: 'left'
+    },
     margin: {
       margin: 10
     },
@@ -117,12 +125,17 @@ export default props => {
             <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
             <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
           </Paper>}
-          {props.latestPush.length > 0 && props.latestPush.map((n, index) => <Paper key={index} className={classes.margin}>
-            <Typography variant='h6' className={classes.margin}>{n.title}</Typography>
-            <Typography variant='body1' className={classes.margin}>
-              {redraft(JSON.parse(n.content), renderers)}
-            </Typography>
-          </Paper>)}
+          {props.latestPush.length > 0 && props.latestPush.map((n, index) => <ButtonBase
+            key={index} focusRipple
+            className={classnames(classes.margin, classes.previewCardOutside)}
+          >
+            <Paper className={classnames(classes.previewCardInside)}>
+              <Typography variant='h6' className={classes.margin}>{n.title}</Typography>
+              <Typography variant='body1' className={classes.margin}>
+                {redraft(JSON.parse(n.content), renderers)}
+              </Typography>
+            </Paper>
+          </ButtonBase>)}
         </div>
       ]}
     </ScrollArea>

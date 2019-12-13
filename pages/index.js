@@ -32,10 +32,10 @@ class Index extends React.Component {
 
   componentDidMount() {
     const { cookies, headers, renderPage, pageParams, pageData } = this.props;
-    Object.keys(cookies).map(key =>
+    Object.keys(cookies).forEach(key =>
       document.cookie = `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
         escape(JSON.parse(cookies[key])) :
-        escape(cookies[key])}`).join('; ');
+        escape(cookies[key])}`);
     this.props.dispatch({
       type: 'framework.updateState', payload: {
         data: {

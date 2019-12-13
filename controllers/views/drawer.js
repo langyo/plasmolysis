@@ -12,7 +12,7 @@ export default ({ setState, togglePage, createModel, setData, setCookies }) => (
 
   loginUpdate: [
     setCookies(payload => ({
-      userName: payload.name,
+      userName: payload.userName,
       accessToken: payload.accessToken
     }))
   ],

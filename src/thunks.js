@@ -246,10 +246,10 @@ for (let type of ['models', 'pages', 'views']) {
                   }
                 }
               });
-              document.cookie = Object.keys(cookies).map(key =>
-                `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
+              Object.keys(cookies).forEach(key =>
+                document.cookie = `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
                   escape(JSON.parse(cookies[key])) :
-                  escape(cookies[key])}`).join('; ');
+                  escape(cookies[key])}`);
               next(payload, dispatch, state);
             });
             break;
