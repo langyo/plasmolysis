@@ -54,21 +54,21 @@ export default props => {
     onClose={props.close}
   >
     <List className={classes.drawerList}>
-      {props.data.account.hasLogin === false && <CardHeader
+      {props.data.cookies.userName === '' && <CardHeader
         avatar={
           <Icon path={mdiAccount} size={1} />
         }
         title='尚未登录'
         subheader='登录以获取更多权限'
       />}
-      {props.data.account.hasLogin === true && <CardHeader
+      {props.data.cookies.userName !== '' && <CardHeader
         avatar={
           <Icon path={mdiAccount} size={1} />
         }
-        title={props.data.account.userName}
+        title={props.data.cookies.userName}
       />}
       <Divider className={classes.divider} />
-      {props.data.account.hasLogin === false && [<ListItem button onClick={() => props.openLoginDialog()}>
+      {props.data.cookies.userName === '' && [<ListItem button onClick={() => props.openLoginDialog()}>
         <ListItemIcon>
           <Icon path={mdiAccountArrowRightOutline} size={1} />
         </ListItemIcon>
@@ -80,7 +80,7 @@ export default props => {
         </ListItemIcon>
         <ListItemText primary={'注册'} />
       </ListItem>]}
-      {props.data.account.hasLogin === true && <ListItem button onClick={() => props.logoutUpdate()}>
+      {props.data.cookies.userName !== '' && <ListItem button onClick={() => props.logoutUpdate()}>
         <ListItemIcon>
           <Icon path={mdiLogin} size={1} />
         </ListItemIcon>

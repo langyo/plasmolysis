@@ -18,6 +18,7 @@ import {
 } from '@mdi/js';
 
 import redraft from 'redraft';
+import ScrollArea from 'react-scrollbars-custom';
 
 const renderers = {
   inline: {
@@ -32,6 +33,12 @@ const renderers = {
 
 export default props => {
   const classes = makeStyles(theme => ({
+    root: {
+      width: '100%',
+      height: '100%',
+      position: 'absolute',
+      overflow: 'hidden'
+    },
     centerRow: {
       display: 'flex',
       justifyContent: 'center',
@@ -55,6 +62,9 @@ export default props => {
     margin: {
       margin: 10
     },
+    marginTop: {
+      marginTop: 10
+    },
     searchBar: {
       padding: '2px 4px',
       display: 'flex',
@@ -74,7 +84,8 @@ export default props => {
     }
   }))();
 
-  return [
+  return <div className={classes.root}>
+    {[
     <div className={classnames(classes.maxWidth, classes.centerRow)}>
       <Icon path={mdiGreasePencil} size={3} className={classes.margin} color='#3399cc' />
     </div>,
@@ -95,17 +106,20 @@ export default props => {
         </IconButton>
       </Paper>
     </div>,
-    <div className={classnames(classes.maxWidth, classes.centerColumn, classes.cardListWidth)}>
-      {props.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
-        <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
-        <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
-      </Paper>}
-      {props.latestPush.length > 0 && props.latestPush.map((n, index) => <Paper key={index} className={classes.margin}>
-        <Typography variant='h6' className={classes.margin}>{n.title}</Typography>
-        <Typography variant='body1' className={classes.margin}>
-          {redraft(JSON.parse(n.content), renderers)}
-        </Typography>
-      </Paper>)}
+    <div className={classnames(classes.maxWidth, classes.centerColumn, classes.cardListWidth, classes.marginTop)}>
+      <ScrollArea mobileNative style={{ width: 400, height: 500 }}>
+        {props.latestPush.length < 1 && <Paper className={classnames(classes.margin, classes.textAlignCenter)}>
+          <Typography variant='body1' className={classes.margin}>{'空空如也'}</Typography>
+          <Typography variant='body1' className={classes.margin}>{'点击右下角的按钮以添加笔记'}</Typography>
+        </Paper>}
+        {props.latestPush.length > 0 && props.latestPush.map((n, index) => <Paper key={index} className={classes.margin}>
+          <Typography variant='h6' className={classes.margin}>{n.title}</Typography>
+          <Typography variant='body1' className={classes.margin}>
+            {redraft(JSON.parse(n.content), renderers)}
+          </Typography>
+        </Paper>)}
+      </ScrollArea>
     </div>
-  ];
+    ]}
+  </div>;
 }

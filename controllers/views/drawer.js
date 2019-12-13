@@ -1,9 +1,6 @@
-export default ({ deal, setState, togglePage, createModel, setData, setCookies }) => ({
+export default ({ setState, togglePage, createModel, setData, setCookies }) => ({
   init: {
-    isOpen: false,
-
-    isLogin: false,
-    userName: ''
+    isOpen: false
   },
 
   open: [
@@ -14,22 +11,12 @@ export default ({ deal, setState, togglePage, createModel, setData, setCookies }
   ],
 
   loginUpdate: [
-    setState(payload => ({
-      isLogin: true,
-      userName: payload.name
+    setCookies(payload => ({
+      userName: payload.name,
+      accessToken: payload.accessToken
     }))
   ],
   logoutUpdate: [
-    setState({
-      isLogin: false
-    }),
-    setData({
-      account: {
-        hasLogin: false,
-        userName: '',
-        accessToken: ''
-      }
-    }),
     setCookies(() => ({ userName: '', accessToken: '' })),
     createModel('successInfoSnackbar', { content: '已退出登录' })
   ],

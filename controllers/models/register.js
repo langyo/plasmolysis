@@ -14,7 +14,7 @@ export default ({ deal, setData, fetch, route, send, handle, createModel, destor
     setData(payload => ({ hasLogin: payload.state === 'success', userName: payload.userName, accessToken: payload.accessToken })),
     createModel(payload =>({
       name: payload.state === 'success' ? 'successInfoSnackbar' : 'failInfoSnackbar',
-      payload: { context: payload.state === 'success' ? '注册成功！' : '注册失败！' }
+      payload: { content: payload.state === 'success' ? '注册成功！' : '注册失败！' }
     })),
     destoryModel(payload => ({ name: 'register', id: payload.$id }))
   ]

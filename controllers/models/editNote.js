@@ -44,7 +44,7 @@ export default ({ setState, fetch, route, send, handle, createModel, destoryMode
     destoryModel(payload => ({ name: 'editNote', id: payload.$id })),
     createModel(payload =>({
       name: payload.state === 'success' ? 'successInfoSnackbar' : 'failInfoSnackbar',
-      payload: { context: payload.state === 'success' ? '已保存' : payload.reason }
+      payload: { content: payload.state === 'success' ? '已保存' : payload.reason }
     }))
   ]
 })

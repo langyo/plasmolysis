@@ -24,23 +24,25 @@ class Index extends React.Component {
     return {
       renderPage: pageName,
       pageParams: query,
-      cookies: req.cookies,
+      cookies: pageData.cookies,
       headers: req.headers,
-      pageData
+      pageData: pageData.data
     };
   };
 
   componentDidMount() {
     const { cookies, headers, renderPage, pageParams, pageData } = this.props;
+    Object.keys(cookies).map(key =>
+      document.cookie = `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
+        escape(JSON.parse(cookies[key])) :
+        escape(cookies[key])}`).join('; ');
     this.props.dispatch({
       type: 'framework.updateState', payload: {
         data: {
           cookies, headers, pageParams
         },
         pages: {
-          [renderPage]: {
-            ...pageData
-          }
+          [renderPage]: pageData
         },
         hasInitialized: true
       }
@@ -50,31 +52,33 @@ class Index extends React.Component {
   render() {
     let modelsDealed = models();
 
-    return ([
-      <Head>
-        <title>{
-          typeof configs.title === 'string' ?
-            configs.title :
-            typeof configs.title[this.props.renderPage] === 'string' ?
-              configs.title[this.props.renderPage] :
-              configs.title[this.props.renderPage](this.props.pages[this.props.renderPage])
-        }</title>
-        <link rel='icon' href={configs.icon} />
-      </Head>,
-      <>
-        {Object.keys(views).map((n, key) => n === 'border' ? null : React.createElement(views[n], { key }))}
-      </>,
-      <>
-        {Object.keys(modelsDealed).map(component =>
-          Object.keys(modelsDealed[component]).map(id =>
-            React.createElement(modelsDealed[component][id], { key: id })
-          )
-        ).reduce((prev, next) => prev.concat(next), [])}
-      </>,
-      <>
-        {React.createElement(pages[this.props.renderPage], this.props.hasInitialized ? { key: this.props.renderPage } : { key: this.props.renderPage, ...this.props.pageData })}
-      </>
-    ]);
+    return (<>
+      {this.props.hasInitialized && [
+        <Head>
+          <title>{
+            typeof configs.title === 'string' ?
+              configs.title :
+              typeof configs.title[this.props.renderPage] === 'string' ?
+                configs.title[this.props.renderPage] :
+                configs.title[this.props.renderPage](this.props.pages[this.props.renderPage])
+          }</title>
+          <link rel='icon' href={configs.icon} />
+        </Head>,
+        <>
+          {Object.keys(views).map((n, key) => n === 'border' ? null : React.createElement(views[n], { key }))}
+        </>,
+        <>
+          {Object.keys(modelsDealed).map(component =>
+            Object.keys(modelsDealed[component]).map(id =>
+              React.createElement(modelsDealed[component][id], { key: id })
+            )
+          ).reduce((prev, next) => prev.concat(next), [])}
+        </>,
+        <>
+          {React.createElement(pages[this.props.renderPage], this.props.hasInitialized ? { key: this.props.renderPage } : { key: this.props.renderPage, ...this.props.pageData })}
+        </>
+      ]}
+    </>);
   }
 }
 

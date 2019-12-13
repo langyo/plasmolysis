@@ -7,9 +7,6 @@ import { Provider } from 'react-redux';
 import store from '../src/store';
 import { views } from '../src/connector';
 
-import { createMuiTheme } from '@material-ui/core/styles';
-import { ThemeProvider } from '@material-ui/styles';
-
 export default class MyApp extends App {
   componentDidMount() {
     // 删除服务端预加载的 CSS

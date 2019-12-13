@@ -1,6 +1,8 @@
 import { controllers } from './require';
 import initData from '../configs/initData';
 
+import * as cookies from 'cookie';
+
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };
 let initStateForModels = {};
@@ -50,7 +52,7 @@ for (let type of ['models', 'pages', 'views']) {
       },
       fetch: obj => {
         if (typeof obj !== 'object') throw new Error('You must provide an object!');
-        if(!obj.host) obj.host = '';
+        if (!obj.host) obj.host = '';
         return { type: 'fetch', obj: obj };
       },
       send: func => {
@@ -67,8 +69,8 @@ for (let type of ['models', 'pages', 'views']) {
         return { type: 'wait', length };
       },
       setCookies: obj => {
-        if(typeof obj === 'function') return { type: 'setCookies', func: obj };
-        else if(typeof obj !== 'object') throw new Error('You must provide a function or an object!');
+        if (typeof obj === 'function') return { type: 'setCookies', func: obj };
+        else if (typeof obj !== 'object') throw new Error('You must provide a function or an object!');
         return { type: 'setCookies', obj };
       }
     });
@@ -236,11 +238,18 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'setCookies':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.updateState', payload: {
-                data: {
-                  cookies: task.func ? task.func(payload, state.data.cookies, state.data) : task.obj
+              let cookies = task.func ? task.func(payload, state.data.cookies, state.data) : task.obj;
+              dispatch({
+                type: 'framework.updateState', payload: {
+                  data: {
+                    cookies
+                  }
                 }
-              }});
+              });
+              document.cookie = Object.keys(cookies).map(key =>
+                `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
+                  escape(JSON.parse(cookies[key])) :
+                  escape(cookies[key])}`).join('; ');
               next(payload, dispatch, state);
             });
             break;

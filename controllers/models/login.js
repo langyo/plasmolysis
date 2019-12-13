@@ -1,6 +1,6 @@
 import { generate } from 'shortid';
 
-export default ({ setData, fetch, route, send, handle, createModel, destoryModel, setCookies }) => ({
+export default ({ dispatch, setData, fetch, route, send, handle, createModel, destoryModel, setCookies }) => ({
   submit: [
     fetch({}),
     send((payload, state) => ({ name: payload.name, password: payload.password })),
@@ -18,11 +18,17 @@ export default ({ setData, fetch, route, send, handle, createModel, destoryModel
       });
     }),
     setData(payload => ({ account: { hasLogin: payload.state === 'success', userName: payload.userName, accessToken: payload.accessToken } })),
-    createModel(payload =>({
+    createModel(payload => ({
       name: payload.state === 'success' ? 'successInfoSnackbar' : 'failInfoSnackbar',
       payload: { content: payload.state === 'success' ? '登录成功！' : '登录失败！' }
     })),
     destoryModel(payload => ({ name: 'login', id: payload.$id })),
-    setCookies((payload, cookies, data) => ({ userName: payload.userName, accessToken: payload.accessToken }))
+    dispatch(payload => ({
+      type: 'views.drawer.loginUpdate',
+      payload: {
+        userName: payload.userName,
+        accessToken: payload.accessToken
+      }
+    }))
   ]
 });

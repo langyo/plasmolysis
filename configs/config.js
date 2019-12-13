@@ -5,5 +5,9 @@ export default {
   },
   icon: '/favicon.ico',
   initPage: 'main',
+  initCookies: {
+    userName: '',
+    accessToken: ''
+  },
   language: 'zh-cn'
 };

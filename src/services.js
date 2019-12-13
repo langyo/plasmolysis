@@ -1,4 +1,5 @@
 import context from '../server/context';
+import config from '../configs/config';
 
 import { readdirSync, statSync } from 'fs';
 import { resolve } from 'path';
@@ -110,7 +111,13 @@ export default server => {
     console.log(`New preload service: ${page}`);
     server.use(`/preload/${page}`, (req, res) => {
       pagePreload[page](context, req.cookies).then(data => {
-        res.send(JSON.stringify(data));
+        res.send(JSON.stringify({
+          data,
+          cookies: {
+            ...config.initCookies,
+            ...req.cookies
+          }
+        }));
         res.end();
       });
     });
