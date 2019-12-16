@@ -35,6 +35,7 @@
     "query-string": "^6.9.0",
     "react": "16.10.2",
     "react-dom": "16.10.2",
+    "react-pure-lifecycle": "^3.0.0",
     "react-redux": "^7.1.1",
     "react-scrollbars-custom": "^4.0.21",
     "redraft": "^0.10.2",

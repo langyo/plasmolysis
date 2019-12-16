@@ -1,3 +1,3 @@
 export default ({ setState, dispatch }) => ({
-    init: {}
+  init: payload => payload
 });

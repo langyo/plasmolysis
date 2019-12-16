@@ -5,6 +5,9 @@ import store from './store';
 
 let pages = {}, views = {};
 
+// TODO:  添加对未创建 controller 的 component 的默认 dispatch 支持
+//        现在虽然已经写了一部分有关于此的代码，但似乎不能正常工作
+
 const models = () => {
   let ret = {};
   for (let component of Object.keys(components.models)) {
@@ -16,7 +19,7 @@ const models = () => {
           data: state.data,
           $id: id
         })),
-        (dispatch => ({
+        controllers.models[component] && (dispatch => ({
           ...(Object.keys(controllers.models[component]({
             deal: () => null,
             togglePage: () => null,
@@ -64,7 +67,7 @@ const models = () => {
               id
             }
           })
-        })),
+        })) || (dispatch => ({}))
       )(components.models[component]);
     }
   }
@@ -74,7 +77,7 @@ const models = () => {
 for (let component of Object.keys(components.pages)) {
   pages[component] = connect(
     (state => ({ ...state.pages[component], data: state.data })),
-    (dispatch => Object.keys(controllers.pages[component]({
+    controllers.pages[component] && (dispatch => Object.keys(controllers.pages[component]({
       deal: () => null,
       togglePage: () => null,
       createModel: () => null,
@@ -91,14 +94,14 @@ for (let component of Object.keys(components.pages)) {
     })).reduce((prev, action) => (action !== 'init' ? ({
       ...prev,
       [action]: (payload => dispatch(thunks[`pages.${component}.${action}`](payload)))
-    }) : (prev)), {}))
+    }) : (prev)), {})) || (dispatch => ({}))
   )(components.pages[component]);
 }
 
 for (let component of Object.keys(components.views)) {
   views[component] = connect(
     (state => ({ ...state.views[component], data: state.data })),
-    (dispatch => Object.keys(controllers.views[component]({
+    controllers.views[component] && (dispatch => Object.keys(controllers.views[component]({
       deal: () => null,
       togglePage: () => null,
       createModel: () => null,
@@ -115,7 +118,7 @@ for (let component of Object.keys(components.views)) {
     })).reduce((prev, action) => (action !== 'init' ? ({
       ...prev,
       [action]: (payload => dispatch(thunks[`views.${component}.${action}`](payload)))
-    }) : (prev)), {}))
+    }) : (prev)), {})) || (dispatch => ({}))
   )(components.views[component]);
 }
 

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 
 import configs from '../configs/config';
 import { pages, models, views } from '../src/connector';
+import { initState } from '../src/thunks';
 
 class Index extends React.Component {
   static async getInitialProps({ query, req, asPath }) {
@@ -42,7 +43,7 @@ class Index extends React.Component {
           cookies, headers, pageParams
         },
         pages: {
-          [renderPage]: pageData
+          [renderPage]: typeof initState.pages[renderPage] === 'function' ? initState.pages[renderPage](pageData) : pageData
         },
         hasInitialized: true
       }

@@ -1,8 +1,6 @@
 import { controllers } from './require';
 import initData from '../configs/initData';
 
-import * as cookies from 'cookie';
-
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };
 let initStateForModels = {};
@@ -15,9 +13,10 @@ for (let type of ['models', 'pages', 'views']) {
         if (!func) throw new Error('You must provide a function!');
         return { type: 'deal', func };
       },
-      togglePage: (name, params) => {
-        if (Object.keys(controllers.pages).indexOf(name) < 0) throw new Error(`No page named ${name}!`);
-        return { type: 'togglePage', name, params };
+      togglePage: (obj, params) => {
+        if (typeof obj === 'function') return { type: 'togglePage', func: obj };
+        if (Object.keys(controllers.pages).indexOf(obj) < 0) throw new Error(`No page named ${obj}!`);
+        return { type: 'togglePage', name: obj, params };
       },
       createModel: (obj1, obj2) => {
         if (typeof obj1 === 'function') {
@@ -190,7 +189,7 @@ for (let type of ['models', 'pages', 'views']) {
             break;
           case 'togglePage':
             subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.togglePage', payload: { name: task.name, params: task.params } });
+              dispatch({ type: 'framework.togglePage', payload: task.func ? task.func(payload, state.data) : { name: task.name, params: task.params } });
               next(payload, dispatch, state);
             });
             break;
@@ -228,7 +227,10 @@ for (let type of ['models', 'pages', 'views']) {
               },
               ...task.fetch,
               body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
-            }).then(res => res.json()).then(json => next({ ...json, $id: payload.$id }, dispatch, state)));
+            }).then(res => res.json()).then(json => {
+              console.log('payload track', payload)
+              next({ ...json, $id: payload && payload.$id || null }, dispatch, state);
+            }));
             break;
           case 'deal':
             subThunks.push(next => (payload, dispatch, state) => task.func(payload, dispatch, state, next));

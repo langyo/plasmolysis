@@ -24,26 +24,40 @@ export default handleActions({
   'framework.togglePage': (state, action) => {
     history.pushState(
       {},
-      typeof configs.title[action.payload.name] === 'string'
+      configs.title[action.payload.name] ? (typeof configs.title[action.payload.name] === 'string'
         ? configs.title[action.payload.name]
         : configs.title[action.payload.name](state.pages[action.payload.name]),
-      `/${action.payload.name}${action.payload.params ? `?${stringify(action.payload.params)}` : ''}`
+        `/${action.payload.name}${action.payload.params ? `?${stringify(action.payload.params)}` : ''}`) : 'Unknown Title'
     );
+    let params = initState.pages[action.payload.name] && typeof
+      initState.pages[action.payload.name] === 'function'
+      ? initState.pages[action.payload.name](action.payload.params, state.data)
+      : { ...initState.pages[action.payload.name], ...action.payload.params } || action.payload.params || {};
+    // TODO: 从客户端请求 preLoad 函数；这并不是必须要加载得，可通过 config 下配置决定各个页面是否要执行
     return {
       ...state,
-      renderPage: action.payload.name,
-      renderPageParams: action.payload.params
+      pages: {
+        ...state.pages,
+        [action.payload.name]: {
+          ...state.pages[action.payload.name],
+          ...params
+        }
+      },
+      renderPage: action.payload.name
     };
   },
 
   'framework.createModel': (state, action) => {
     let id = generate();
+    let params = initStateForModels[action.payload.name] && typeof
+      initStateForModels[action.payload.name] === 'function'
+      ? initStateForModels[action.payload.name](action.payload.payload)
+      : { ...initStateForModels[action.payload.name], ...action.payload.payload } || action.payload.payload || {};
     return merge(state, {
       models: {
         [action.payload.name]: {
           [id]: {
-            ...action.payload.payload,
-            ...initStateForModels[action.payload.name],
+            ...params,
             $id: id
           }
         }

@@ -66,7 +66,8 @@ export default props => {
       marginRight: 'auto'
     },
     previewCardOutside: {
-      width: '60%'
+      width: '60%',
+      minWidth: 400
     },
     previewCardInside: {
       width: '100%',
@@ -128,6 +129,7 @@ export default props => {
           {props.latestPush.length > 0 && props.latestPush.map((n, index) => <ButtonBase
             key={index} focusRipple
             className={classnames(classes.margin, classes.previewCardOutside)}
+            onClick={() => props.toShowPage(n)}
           >
             <Paper className={classnames(classes.previewCardInside)}>
               <Typography variant='h6' className={classes.margin}>{n.title}</Typography>

@@ -1,7 +1,8 @@
 export default {
   title: {
     main: 'I 笔记',
-    show: payload => `I 笔记 - ${payload.title}`
+    show: payload => `${payload.title} - I 笔记`,
+    edit: payload => `编辑 - ${payload.title} - I 笔记`
   },
   icon: '/favicon.ico',
   initPage: 'main',

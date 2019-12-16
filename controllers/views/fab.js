@@ -1,11 +1,27 @@
-export default ({ dispatch, createModel }) => ({
-  init: {},
-  
+export default ({ dispatch, setState, togglePage }) => ({
+  init: {
+    showFab: 'create'
+  },
+
   openDrawer: [
-    dispatch(payload => ({ type: 'views.drawer.open' }))
+    dispatch({ type: 'views.drawer.open' })
   ],
 
-  createNewEditDialog: [
-    createModel('editNote')
+  createNewEditor: [
+    setState({ showFab: 'save' }),
+    togglePage('edit', { })
+  ],
+  saveEditContent: [
+    dispatch({ type: 'pages.edit.submit' })
+  ],
+
+  toggleToCreateFab: [
+    setState({ showFab: 'create' })
+  ],
+  toggleToEditFab: [
+    setState({ showFab: 'edit' })
+  ],
+  toggleToSaveFab: [
+    setState({ showFab: 'save' })
   ]
 })

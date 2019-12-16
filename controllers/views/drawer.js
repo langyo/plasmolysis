@@ -1,4 +1,4 @@
-export default ({ setState, togglePage, createModel, setData, setCookies }) => ({
+export default ({ setState, togglePage, createModel, setData, setCookies, dispatch }) => ({
   init: {
     isOpen: false
   },
@@ -36,10 +36,12 @@ export default ({ setState, togglePage, createModel, setData, setCookies }) => (
 
   openMainPage: [
     togglePage('main'),
-    setState({ isOpen: false })
+    setState({ isOpen: false }),
+    dispatch({ type: 'views.fab.toggleToCreateFab' })
   ],
   openShowPage: [
     togglePage('show'),
-    setState({ isOpen: false })
+    setState({ isOpen: false }),
+    dispatch({ type: 'views.fab.toggleToEditFab' })
   ]
 });
