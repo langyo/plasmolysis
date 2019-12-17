@@ -6,7 +6,11 @@ import {
   Paper,
   Typography,
   Grid,
-  IconButton
+  IconButton,
+  Menu,
+  MenuItem,
+  Divider,
+  Chip
 } from '@material-ui/core';
 
 import redraft from 'redraft';
@@ -46,8 +50,17 @@ export default props => {
     },
     padding: {
       padding: theme.spacing(2)
+    },
+    chip: {
+      margin: theme.spacing(1),
+      marginRight: 0
+    },
+    menu: {
+      width: 100
     }
   }))();
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
   return <div className={classnames(classes.centerColumn, classes.root)}>
     <ScrollArea mobileNative className={classes.rootScroll}>
@@ -62,17 +75,36 @@ export default props => {
           >
             {props.content && <>
               <Grid container>
-                <Grid item xs={11}>
+                <Grid item xs={10}>
                   <Typography className={classes.margin} variant='h6'>
                     {props.title}
                   </Typography>
                 </Grid>
-                <Grid item xs={1}>
-                  <IconButton>
+                <Grid item xs={2}>
+                  <IconButton onClick={e => setAnchorEl(e.currentTarget)}>
                     <Icon path={mdiDotsVertical} size={1} />
                   </IconButton>
+                  <Menu
+                    anchorEl={anchorEl}
+                    keepMounted
+                    open={Boolean(anchorEl)}
+                    onClose={() => setAnchorEl(null)}>
+                    <MenuItem
+                      className={classes.menu}
+                      onClick={() => setAnchorEl(null)}
+                    >
+                      {"删除"}
+                    </MenuItem>
+                  </Menu>
                 </Grid>
               </Grid>
+              <Divider className={classes.margin} />
+              {props.tags.map((n, index) => <Chip
+                key={index}
+                className={classes.chip}
+                label={n}
+              />)}
+              <Divider className={classes.margin} />
               <Typography className={classes.margin} variant='body1'>
                 {redraft(JSON.parse(props.content), renderers)}
               </Typography>

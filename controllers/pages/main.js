@@ -6,7 +6,7 @@ export default ({ togglePage, dispatch }) => ({
   preLoad: async (context, cookies, params) => {
     try{
       let docs = await context.db.notes.find({}).sort({ date: -1 }).limit(10);
-      return { latestPush: docs.map(({ title, content }) => ({ title, content })), latestPushState: 'success' };
+      return { latestPush: docs, latestPushState: 'success' };
     } catch(e) {
       return { latestPush: [], latestPushState: 'fail' };
     }
