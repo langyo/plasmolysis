@@ -5,6 +5,130 @@ let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };
 let initStateForModels = {};
 
+const actionTypes = {
+  setState: task => async (payload, dispatch, state, type, name) => {
+    if (type !== 'models') dispatch({
+      type: 'framework.updateState',
+      payload: {
+        [type]: {
+          [name]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
+        }
+      }
+    });
+    else dispatch({
+      type: 'framework.updateState',
+      payload: {
+        [type]: {
+          [name]: {
+            [payload.$id]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
+          }
+        }
+      }
+    });
+    return payload;
+  },
+  setData: task => async (payload, dispatch, state, type, name) => {
+    dispatch({
+      type: 'framework.updateState',
+      payload: {
+        data: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
+      }
+    });
+    return payload;
+  },
+  dispatch: task => async (payload, dispatch, state, type, name) => {
+    let ret = typeof task.obj === 'function' ? task.obj(payload, state) : task.obj;
+    if (/^framework\./.test(ret.type)) {
+      if (['togglePage, updateState, createModel, destoryModel'].indexOf(ret.type) < 0)
+        throw new Error(`There is no action named ${ret.payload}!`);
+      dispatch({ ...ret });
+    }
+    else {
+      if (Object.keys(thunks).indexOf(ret.type) < 0)
+        throw new Error(`There is no action named ${ret.payload}!`);
+      dispatch(thunks[ret.type](ret.payload));
+    };
+    return payload;
+  },
+  togglePage: task => async (payload, dispatch, state, type, name) => {
+    dispatch({ type: 'framework.togglePage', payload: task.func ? task.func(payload, state.data) : { name: task.name, params: task.params } });
+    return payload;
+  },
+  createModel: task => async (payload, dispatch, state, type, name) => {
+    if (task.func) {
+      let ret = task.func(payload);
+      if (!ret.name) throw new Error('You must provide the name of the model!');
+      dispatch({ type: 'framework.createModel', payload: ret });
+    } else {
+      dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload } });
+    }
+    return payload;
+  },
+  destoryModel: task => async (payload, dispatch, state, type, name) => {
+    if (task.func) {
+      let ret = task.func(payload);
+      if (!ret.name) throw new Error('You must provide the name of the model!');
+      if (!ret.id) throw new Error('You must provide the model id!');
+      dispatch({ type: 'framework.destoryModel', payload: ret });
+    } else {
+      dispatch({ type: 'framework.destoryModel', payload: { name: task.name, id: task.id } });
+    }
+    return payload;
+  },
+  fetchCombine: task => async (payload, dispatch, state, type, name) => fetch(task.fetch.host + task.route.path, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    ...task.fetch,
+    body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
+  }).then(res => res.json()).then(json => {
+    console.log('payload track', payload)
+    next({ ...json, $id: payload && payload.$id || null }, dispatch, state);
+  }),
+  deal: task => async (payload, dispatch, state, type, name) => await (new Promise(resolve => task.func(payload, dispatch, state, resolve))),
+  wait: task => async (payload, dispatch, state, type, name) => await (new Promise(resolve => setTimeout(() => resolve(payload, dispatch, state), task.length))),
+  setCookies: task => async (payload, dispatch, state, type, name) => {
+    let cookies = task.func ? task.func(payload, state.data.cookies, state.data) : task.obj;
+    dispatch({
+      type: 'framework.updateState', payload: {
+        data: {
+          cookies
+        }
+      }
+    });
+    Object.keys(cookies).forEach(key =>
+      document.cookie = `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
+        escape(JSON.parse(cookies[key])) :
+        escape(cookies[key])}`);
+    return payload;
+  }
+};
+
+const createTasks = (test, tasks, path, type, name) => async (payload, dispatch, state) => {
+  if (!test(payload, state[type][name], state.data)) {
+    console.log(`The action ${path} has been skiped.`);
+    return payload;
+  }
+  console.log(`The action ${path} will be executed`);
+  for (let i = 0; i < tasks.length; ++i) {
+    if (!Array.isArray(tasks[i])) {
+      try {
+        let payload = await actionTypes[tasks[i].type](tasks[i])(payload, dispatch, state, type, name);
+        console.log(`The action ${path} has runned to step ${i}, the payload is`, payload);
+      } catch (e) {
+        console.error(`The action ${path} failed to execute, because`, e);
+        throw e;
+      }
+    } else {
+      let payload = await createTasks(tasks[i][0], tasks[i].slice(1), `${path}[${i}]`, type, name)(payload, dispatch, state);
+      console.log(`The action ${path}[${i}] has been executed.`);
+    }
+    return payload;
+  }
+};
+
 for (let type of ['models', 'pages', 'views']) {
   for (let name of Object.keys(controllers[type])) {
     // 生成动作表
@@ -87,19 +211,6 @@ for (let type of ['models', 'pages', 'views']) {
       .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
-    // 对其中每个作为数组存在的元素进行扁平化
-    // TODO:  即将加入条件判断
-    dealed = Object.keys(dealed).reduce((prev, action) => {
-      const dfs = arr => arr.reduce(
-        (prev, next) => Array.isArray(next) ? prev.concat(dfs(next)) : [...prev, next],
-        []
-      );
-      return ({
-        ...prev,
-        [action]: dfs(dealed[action])
-      });
-    }, {});
-
     // 整合所有的 fetch
     dealed = Object.keys(dealed).reduce((prev, action) => {
       if (dealed[action]) {
@@ -131,142 +242,10 @@ for (let type of ['models', 'pages', 'views']) {
     }, {});
 
     for (let action of Object.keys(dealed)) {
-      let subThunks = [];
-
-      for (let task of dealed[action]) {
-        // TODO:  这里的代码将会被打包成函数，接收的参数有 task，返回一个回调函数 next => (payload, dispatch, state)
-        //        实现条件判断时，subThunks 将会带有层级区分
-        switch (task.type) {
-          case 'setState':
-            subThunks.push(next => (payload, dispatch, state) => {
-              if (type !== 'models') dispatch({
-                type: 'framework.updateState',
-                payload: {
-                  [type]: {
-                    [name]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
-                  }
-                }
-              });
-              else dispatch({
-                type: 'framework.updateState',
-                payload: {
-                  [type]: {
-                    [name]: {
-                      [payload.$id]: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
-                    }
-                  }
-                }
-              });
-              next(payload, dispatch, state);
-            });
-            break;
-          case 'setData':
-            subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({
-                type: 'framework.updateState',
-                payload: {
-                  data: typeof task.obj === 'function' ? task.obj(payload, state) : task.obj
-                }
-              });
-              next(payload, dispatch, state);
-            })
-            break;
-          case 'dispatch':
-            subThunks.push(next => (payload, dispatch, state) => {
-              let ret = typeof task.obj === 'function' ? task.obj(payload, state) : task.obj;
-              if (/^framework\./.test(ret.type)) {
-                if (['togglePage, updateState, createModel, destoryModel'].indexOf(ret.type) < 0)
-                  throw new Error(`There is no action named ${ret.payload}!`);
-                dispatch({ ...ret });
-              }
-              else {
-                if (Object.keys(thunks).indexOf(ret.type) < 0)
-                  throw new Error(`There is no action named ${ret.payload}!`);
-                dispatch(thunks[ret.type](ret.payload));
-              };
-              next(payload, dispatch, state);
-            });
-            break;
-          case 'togglePage':
-            subThunks.push(next => (payload, dispatch, state) => {
-              dispatch({ type: 'framework.togglePage', payload: task.func ? task.func(payload, state.data) : { name: task.name, params: task.params } });
-              next(payload, dispatch, state);
-            });
-            break;
-          case 'createModel':
-            subThunks.push(next => (payload, dispatch, state) => {
-              if (task.func) {
-                let ret = task.func(payload);
-                if (!ret.name) throw new Error('You must provide the name of the model!');
-                dispatch({ type: 'framework.createModel', payload: ret });
-              } else {
-                dispatch({ type: 'framework.createModel', payload: { name: task.name, payload: task.payload } });
-              }
-              next(payload, dispatch, state);
-            });
-            break;
-          case 'destoryModel':
-            subThunks.push(next => (payload, dispatch, state) => {
-              if (task.func) {
-                let ret = task.func(payload);
-                if (!ret.name) throw new Error('You must provide the name of the model!');
-                if (!ret.id) throw new Error('You must provide the model id!');
-                dispatch({ type: 'framework.destoryModel', payload: ret });
-              } else {
-                dispatch({ type: 'framework.destoryModel', payload: { name: task.name, id: task.id } });
-              }
-              next(payload, dispatch, state);
-            });
-            break;
-          case 'fetchCombine':
-            subThunks.push(next => (payload, dispatch, state) => fetch(task.fetch.host + task.route.path, {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              },
-              ...task.fetch,
-              body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
-            }).then(res => res.json()).then(json => {
-              console.log('payload track', payload)
-              next({ ...json, $id: payload && payload.$id || null }, dispatch, state);
-            }));
-            break;
-          case 'deal':
-            subThunks.push(next => (payload, dispatch, state) => task.func(payload, dispatch, state, next));
-            break;
-          case 'wait':
-            subThunks.push(next => (payload, dispatch, state) => setTimeout(() => next(payload, dispatch, state), task.length));
-            break;
-          case 'setCookies':
-            subThunks.push(next => (payload, dispatch, state) => {
-              let cookies = task.func ? task.func(payload, state.data.cookies, state.data) : task.obj;
-              dispatch({
-                type: 'framework.updateState', payload: {
-                  data: {
-                    cookies
-                  }
-                }
-              });
-              Object.keys(cookies).forEach(key =>
-                document.cookie = `${key}=${typeof cookies[key] === 'object' || Array.isArray(cookies[key]) ?
-                  escape(JSON.parse(cookies[key])) :
-                  escape(cookies[key])}`);
-              next(payload, dispatch, state);
-            });
-            break;
-          default:
-            throw new Error('未知的流动作！');
-        }
-      }
-
-      let combine = subThunks[subThunks.length - 1](() => console.log('The action', `${type}.${name}.${action}`, 'has been executed.'));
-      for (let i = subThunks.length - 2; i >= 0; --i) {
-        combine = subThunks[i](combine);
-      }
       thunks[`${type}.${name}.${action}`] = payload => (dispatch, getState) => {
-        console.log('The action', `${type}.${name}.${action}`, 'will be executed.')
-        combine(payload, dispatch, getState());
+        createTasks(() => true, dealed[action], `${type}.${name}.${action}`, type, name)
+          (payload, dispatch, getState(), type, name)
+          .then(() => console.log(`The action ${type}.${name}.${action} has been executed`));
       };
     }
   }
