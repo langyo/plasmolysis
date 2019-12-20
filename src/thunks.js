@@ -7,6 +7,7 @@ let initStateForModels = {};
 
 const actionTypes = {
   setState: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at setState:', payload);
     if (type !== 'models') dispatch({
       type: 'framework.updateState',
       payload: {
@@ -28,6 +29,7 @@ const actionTypes = {
     return payload;
   },
   setData: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at setData:', payload);
     dispatch({
       type: 'framework.updateState',
       payload: {
@@ -37,6 +39,7 @@ const actionTypes = {
     return payload;
   },
   dispatch: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at dispatch:', payload);
     let ret = typeof task.obj === 'function' ? task.obj(payload, state) : task.obj;
     if (/^framework\./.test(ret.type)) {
       if (['togglePage, updateState, createModel, destoryModel'].indexOf(ret.type) < 0)
@@ -51,10 +54,12 @@ const actionTypes = {
     return payload;
   },
   togglePage: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at togglePage:', payload);
     dispatch({ type: 'framework.togglePage', payload: task.func ? task.func(payload, state.data) : { name: task.name, params: task.params } });
     return payload;
   },
   createModel: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at createModel:', payload);
     if (task.func) {
       let ret = task.func(payload);
       if (!ret.name) throw new Error('You must provide the name of the model!');
@@ -65,6 +70,7 @@ const actionTypes = {
     return payload;
   },
   destoryModel: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at destoryModel:', payload);
     if (task.func) {
       let ret = task.func(payload);
       if (!ret.name) throw new Error('You must provide the name of the model!');
@@ -75,21 +81,23 @@ const actionTypes = {
     }
     return payload;
   },
-  fetchCombine: task => async (payload, dispatch, state, type, name) => fetch(task.fetch.host + task.route.path, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-    },
-    ...task.fetch,
-    body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
-  }).then(res => res.json()).then(json => {
-    console.log('payload track', payload)
-    next({ ...json, $id: payload && payload.$id || null }, dispatch, state);
-  }),
+  fetchCombine: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at fetchCombine:', payload);
+    let ret = await (await fetch(task.fetch.host + task.route.path, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      ...task.fetch,
+      body: task.send ? JSON.stringify(task.send(payload, state)) : '{}'
+    })).json();
+    return ({ ...ret, $id: payload && payload.$id || null }, dispatch, state);
+  },
   deal: task => async (payload, dispatch, state, type, name) => await (new Promise(resolve => task.func(payload, dispatch, state, resolve))),
   wait: task => async (payload, dispatch, state, type, name) => await (new Promise(resolve => setTimeout(() => resolve(payload, dispatch, state), task.length))),
   setCookies: task => async (payload, dispatch, state, type, name) => {
+    console.log('Get payload at setCookies:', payload);
     let cookies = task.func ? task.func(payload, state.data.cookies, state.data) : task.obj;
     dispatch({
       type: 'framework.updateState', payload: {
@@ -111,8 +119,10 @@ const createTasks = (test, tasks, path, type, name) => async (payload, dispatch,
     console.log(`The action ${path} has been skiped.`);
     return payload;
   }
+  console.log('Get payload', payload);
   console.log(`The action ${path} will be executed`);
   for (let i = 0; i < tasks.length; ++i) {
+    console.log('middle process', tasks[i], 'at', i, ', the total length is', tasks.length);
     if (!Array.isArray(tasks[i])) {
       try {
         let payload = await actionTypes[tasks[i].type](tasks[i])(payload, dispatch, state, type, name);
@@ -125,8 +135,8 @@ const createTasks = (test, tasks, path, type, name) => async (payload, dispatch,
       let payload = await createTasks(tasks[i][0], tasks[i].slice(1), `${path}[${i}]`, type, name)(payload, dispatch, state);
       console.log(`The action ${path}[${i}] has been executed.`);
     }
-    return payload;
   }
+  return payload;
 };
 
 for (let type of ['models', 'pages', 'views']) {
