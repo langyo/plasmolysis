@@ -125,14 +125,14 @@ const createTasks = (test, tasks, path, type, name) => async (payload, dispatch,
     console.log('middle process', tasks[i], 'at', i, ', the total length is', tasks.length);
     if (!Array.isArray(tasks[i])) {
       try {
-        let payload = await actionTypes[tasks[i].type](tasks[i])(payload, dispatch, state, type, name);
+        payload = await actionTypes[tasks[i].type](tasks[i])(payload, dispatch, state, type, name);
         console.log(`The action ${path} has runned to step ${i}, the payload is`, payload);
       } catch (e) {
         console.error(`The action ${path} failed to execute, because`, e);
         throw e;
       }
     } else {
-      let payload = await createTasks(tasks[i][0], tasks[i].slice(1), `${path}[${i}]`, type, name)(payload, dispatch, state);
+      payload = await createTasks(tasks[i][0], tasks[i].slice(1), `${path}[${i}]`, type, name)(payload, dispatch, state);
       console.log(`The action ${path}[${i}] has been executed.`);
     }
   }
