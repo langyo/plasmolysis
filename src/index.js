@@ -16,8 +16,6 @@ import services from './services';
 import { resolve } from 'path';
 import { readdirSync, statSync } from 'fs';
 
-const config = require(resolve('./configs/config'));
-
 const fileReadDir = name => {
   let files = readdirSync(name);
   let ret = [];

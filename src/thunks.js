@@ -1,4 +1,4 @@
-import { controllers } from './require';
+const { controllers } = require(process.env.DEMO ? './require_demo' : './require');
 import initData from '../configs/initData';
 
 let thunks = {};

@@ -1,6 +1,5 @@
-import { components, controllers } from './require';
+const { components, controllers } = require(process.env.DEMO ? './require_demo' : './require');
 import { connect } from 'react-redux';
-import { thunks } from './thunks';
 import store from './store';
 
 let pages = {}, views = {};

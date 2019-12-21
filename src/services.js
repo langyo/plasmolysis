@@ -1,8 +1,7 @@
-import context from '../server/context';
-import config from '../configs/config';
+import context from '../../server/context';
+import config from '../../configs/config';
 
 import { readdirSync, statSync } from 'fs';
-import { resolve } from 'path';
 
 const fileReadDir = name => {
   let files = readdirSync(name);
@@ -17,7 +16,7 @@ const fileReadDir = name => {
   return ret;
 };
 
-const controllers = fileReadDir(resolve('./controllers'));
+const controllers = fileReadDir('../../controllers/');
 let pagePreload = {};
 
 let services = {};
