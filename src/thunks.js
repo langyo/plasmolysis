@@ -1,5 +1,5 @@
-const { controllers } = require(process.env.DEMO ? './require_demo' : './require');
-import initData from '../configs/initData';
+import { controllers} from './require';
+import initData from '../../../configs/initData';
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: initData };

@@ -2,7 +2,7 @@
   "name": "neon",
   "scripts": {
     "test": "jest --watch",
-    "start": "nodemon -w src -w server --exec \"babel-node --config-file ../.babelrc src/index.js\"",
+    "start": "nodemon -w src -w server --exec \"babel-node --config-file ./.babelrc src/index.js\"",
     "build": "set NODE_ENV=production && next build",
     "serve": "set NODE_ENV=production && node server/index.js"
   },

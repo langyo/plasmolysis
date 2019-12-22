@@ -1,6 +1,6 @@
-const controllerModelsReq = require.context('../../controllers/models', true, /\.js$/);
-const controllerPagesReq = require.context('../../controllers/pages', true, /\.js$/);
-const controllerViewsReq = require.context('../../controllers/views', true, /\.js$/);
+const controllerModelsReq = require.context('../../../controllers/models', true, /\.js$/);
+const controllerPagesReq = require.context('../../../controllers/pages', true, /\.js$/);
+const controllerViewsReq = require.context('../../../controllers/views', true, /\.js$/);
 
 let controllers = { models: {}, pages: {}, views: {} };
 
@@ -44,9 +44,9 @@ controllerViewsReq.keys().forEach(key => {
   controllers.views = dfs(controllers.views, 0);
 });
 
-const componentModelsReq = require.context('../../components/models', true, /\.js$/);
-const componentViewsReq = require.context('../../components/views', true, /\.js$/);
-const componentPagesReq = require.context('../../components/pages', true, /\.js$/);
+const componentModelsReq = require.context('../../../components/models', true, /\.js$/);
+const componentViewsReq = require.context('../../../components/views', true, /\.js$/);
+const componentPagesReq = require.context('../../../components/pages', true, /\.js$/);
 
 let components = { models: {}, pages: {}, views: {} };
 

@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Demo",
   "scripts": {
-    "start": "set DEMO=1 && cd ../ && npm start",
+    "start": "cd ./node_modules/neon && npm start",
     "watch": "node auto_copy.js"
   },
   "dependencies": {

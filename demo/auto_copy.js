@@ -29,10 +29,8 @@ function copyDir(src, target) {
 copyDir('../src', './node_modules/neon/src', function (err) {
   if (err) throw err;
 });
-copyDir('../bin', './node_modules/neon/bin', function (err) {
-  if (err) throw err;
-});
 copyFile('../package.json', './node_modules/neon/package.json');
+copyFile('../.babelrc', './node_modules/neon/.babelrc');
 console.log('The core library has been copied to the modules\' folder.')
 
 // 安装依赖

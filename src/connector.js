@@ -1,4 +1,4 @@
-const { components, controllers } = require(process.env.DEMO ? './require_demo' : './require');
+import { components, controllers } from './require';
 import { connect } from 'react-redux';
 import store from './store';
 
