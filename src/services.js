@@ -77,7 +77,7 @@ export default server => {
   Object.entries(pagePreload)
     .map(([page, callback]) => {
       console.log(`New preload service: ${page}`);
-      server.use(`/preload/${page}`, (req, res) => {
+      return [`/preload/${page}`, (req, res) => {
         callback(context, req.cookies).then(data => {
           res.send(JSON.stringify({
             data,
@@ -88,6 +88,7 @@ export default server => {
           }));
           res.end();
         });
-      });
+      }];
     })
+    .forEach((params) => server.use(...params))
 }
