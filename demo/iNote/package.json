@@ -4,8 +4,7 @@
   "version": "0.1.0",
   "description": "Demo",
   "scripts": {
-    "start": "cd ./node_modules/neon && npm start",
-    "watch": "node auto_copy.js"
+    "start": "cd ../../ && set DEMO 1 && npm start"
   },
   "dependencies": {
     "@material-ui/core": "^4.7.0",
