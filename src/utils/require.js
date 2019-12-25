@@ -1,12 +1,13 @@
-import { readDir } from './fileUtil';
+import { watchDir, readFile } from './fileUtil';
 
-const isDemo = process.env.DEMO != null;
+const isDemo = process.env.DEMO;
 
-let controllers = isDemo ? readDir('../../demo/controllers') : readDir('../../../controllers');
-let components = isDemo ? readDir('../../demo/components') : readDir('../../../components');
+let controllers = {};
+watchDir(isDemo ? `../../demo/${isDemo(}/controllers` : '../../../controllers', (src, type, path) => type !== 'delete' && controllers[src] = readFile(src)) : watchDir('../../../controllers');
+
+let components = {};
+watchDir(isDemo ? `../../demo/${isDemo(}/components` : '../../../components', (src, type, path) => type !== 'delete' && components[src] = readFile(src)) : watchDir('../../../components');
 
 let types = readDir('../types');
-
-// DEMO: Watch the files.
 
 export { controllers, components, types };

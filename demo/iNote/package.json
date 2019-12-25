@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Demo",
   "scripts": {
-    "start": "cd ../../ && set DEMO 1 && npm start"
+    "start": "cd ../../ && set DEMO iNote && npm start"
   },
   "dependencies": {
     "@material-ui/core": "^4.7.0",

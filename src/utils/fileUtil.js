@@ -18,10 +18,12 @@ export const readDir = src => {
   let ret = {};
   for (let file of files) {
     if (fs.statSync(`${src}/${file}`).isDirectory()) ret[file] = readDir(`${src}/${file}`);
-    else ret[file] = fs.readFileSync(`${src}/${file}`);
+    else ret[file] = fs.readFileSync(`${src}/${file}`, { encoding: 'utf8' });
   }
   return ret;
 }
+
+export const readFile = src => fs.readFileSync(src, { encoding: 'utf8' });
 
 export const watchDir = (src, callback, path = '.') => {
   let files = fs.readdirSync(src);
@@ -42,9 +44,12 @@ export const watchDir = (src, callback, path = '.') => {
         }
       })
     }
-    else fs.watchFile(`${src}/${file}`, (cur, prev) => {
-      callback(`${src}/${file}`, 'update', `${path}.${file}`.substr(1));
-    });
+    else {
+      fs.watchFile(`${src}/${file}`, (cur, prev) => {
+        callback(`${src}/${file}`, 'update', `${path}.${file}`.substr(1));
+      });
+      callback(`${src}/${file}`, 'init', `${path}.${file}`.substr(1));
+    }
   }
   return files;
 };
