@@ -18,12 +18,12 @@ export const readDir = src => {
   let ret = {};
   for (let file of files) {
     if (fs.statSync(`${src}/${file}`).isDirectory()) ret[file] = readDir(`${src}/${file}`);
-    else ret[file] = fs.readFileSync(`${src}/${file}`, { encoding: 'utf8' });
+    else ret[file] = fs.readFileSync(`${src}/${file}`, 'utf-8');
   }
   return ret;
 }
 
-export const readFile = src => fs.readFileSync(src, { encoding: 'utf8' });
+export const readFile = src => fs.readFileSync(src, 'utf-8');
 
 export const watchDir = (src, callback, path = '.') => {
   let files = fs.readdirSync(src);
