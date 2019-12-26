@@ -25,6 +25,8 @@ export const readDir = src => {
 
 export const readFile = src => fs.readFileSync(src, 'utf-8');
 
+export const writeFile = (data, path) => fs.writeFileSync(path, data, 'utf-8');
+
 export const watchDir = (src, callback, path = '.') => {
   let files = fs.readdirSync(src);
   for (let file of files) {
