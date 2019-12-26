@@ -9,7 +9,7 @@ const makePackage = (obj, path) => {
       .map(key => `'${key}': ${obj[key]}`)
       .reduce((p, n) => `${p},\n${n}`)}
   };`;
-  writeFile(bundled, path);
+  writeFile(packager(bundled), path);
 }
 
 let controllers = {};
