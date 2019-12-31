@@ -12,7 +12,13 @@ import CardHeader from '@material-ui/core/CardHeader';
 
 import Icon from '@mdi/react';
 import {
+  mdiAccount,
   mdiInformation,
+  mdiLogin,
+  mdiAccountMultiplePlusOutline,
+  mdiAccountArrowRightOutline,
+  mdiBookOpenVariant,
+  mdiFileEditOutline,
   mdiHome
 } from '@mdi/js';
 
@@ -48,6 +54,38 @@ export default props => {
     onClose={props.close}
   >
     <List className={classes.drawerList}>
+      {props.data.cookies.userName === '' && <CardHeader
+        avatar={
+          <Icon path={mdiAccount} size={1} />
+        }
+        title='尚未登录'
+        subheader='登录以获取更多权限'
+      />}
+      {props.data.cookies.userName !== '' && <CardHeader
+        avatar={
+          <Icon path={mdiAccount} size={1} />
+        }
+        title={props.data.cookies.userName}
+      />}
+      <Divider className={classes.divider} />
+      {props.data.cookies.userName === '' && [<ListItem button onClick={() => props.openLoginDialog()}>
+        <ListItemIcon>
+          <Icon path={mdiAccountArrowRightOutline} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={'登录'} />
+      </ListItem>,
+      <ListItem button onClick={() => props.openRegisterDialog()}>
+        <ListItemIcon>
+          <Icon path={mdiAccountMultiplePlusOutline} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={'注册'} />
+      </ListItem>]}
+      {props.data.cookies.userName !== '' && <ListItem button onClick={() => props.logoutUpdate()}>
+        <ListItemIcon>
+          <Icon path={mdiLogin} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={'登出'} />
+      </ListItem>}
       <ListItem button onClick={() => props.openAboutDialog()}>
         <ListItemIcon>
           <Icon path={mdiInformation} size={1} />
@@ -55,6 +93,18 @@ export default props => {
         <ListItemText primary={'关于'} />
       </ListItem>
       <Divider className={classes.divider} />
+      <ListItem button onClick={() => props.openMainPage()}>
+        <ListItemIcon>
+          <Icon path={mdiHome} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={'主页'} />
+      </ListItem>
+      <ListItem button onClick={() => props.openShowPage()}>
+        <ListItemIcon>
+          <Icon path={mdiBookOpenVariant} size={1} />
+        </ListItemIcon>
+        <ListItemText primary={'展示'} />
+      </ListItem>
     </List>
   </Drawer>];
 }

@@ -23,7 +23,7 @@ export default props => {
       <DialogTitle>关于</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          <Typography component={'span'} variant='body1'>这是一个模板。</Typography>
+          <Typography component={'span'} variant='body1'>这是一个示例项目，演示了一个简单的笔记存储服务，包含账户系统。</Typography>
         </DialogContentText>
       </DialogContent>
       <DialogActions>

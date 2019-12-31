@@ -55,3 +55,7 @@ export const watchDir = (src, callback, path = '.') => {
   }
   return files;
 };
+
+export const watchFile = (src, callback) => {
+  fs.watch(src, callback);
+};

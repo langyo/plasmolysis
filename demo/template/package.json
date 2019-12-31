@@ -1,5 +1,5 @@
 {
-  "name": "template",
+  "name": "nickelcat-demo-note",
   "private": true,
   "version": "0.1.0",
   "description": "Demo",
@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.7.0",
+    "@material-ui/lab": "^4.0.0-alpha.32",
     "@mdi/js": "^4.5.95",
     "@mdi/react": "^1.2.1",
     "@mdi/svg": "^4.5.95",
@@ -15,22 +16,26 @@
     "classnames": "^2.2.6",
     "cookie": "^0.4.0",
     "dateformat": "^3.0.3",
+    "draft-js": "^0.11.3",
     "helmet": "^3.21.1",
     "immutable": "^4.0.0-rc.12",
     "localforage": "^1.7.3",
+    "mongoose": "^5.7.5",
+    "nodemon": "^1.19.4",
     "query-string": "^6.9.0",
     "react": "16.10.2",
     "react-dom": "16.10.2",
     "react-pure-lifecycle": "^3.0.0",
     "react-scrollbars-custom": "^4.0.21",
+    "redraft": "^0.10.2",
     "shortid": "^2.2.15"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/langyo/neon.git"
+    "url": "git+https://github.com/langyo/nickelcat.git"
   },
   "keywords": [
-    "neon",
+    "nickelcat",
     "javascript",
     "react",
     "redux",
@@ -41,7 +46,7 @@
   "author": "langyo",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/langyo/neon/issues"
+    "url": "https://github.com/langyo/nickelcat/issues"
   },
-  "homepage": "https://github.com/langyo/neon#readme"
+  "homepage": "https://github.com/langyo/nickelcat#readme"
 }
