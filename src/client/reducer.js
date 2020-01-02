@@ -2,7 +2,9 @@ import { handleActions } from 'redux-actions';
 import { thunks, initState, initStateForModels } from './thunks';
 import { generate } from 'shortid';
 import { stringify } from 'query-string';
-import { configs } from '../utils/require';
+import { configsPath } from '../../paths';
+
+const configs = require(configsPath);
 
 const merge = (obj1, obj2) => {
   let ret = { ...obj1 };

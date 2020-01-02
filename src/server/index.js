@@ -13,8 +13,9 @@ const handle = app.getRequestHandler();
 import services from './services';
 import { readDir } from '../utils/fileUtil';
 
-const envDemo = process.env.DEMO;
-const pages = readDir(envDemo ? `${__dirname}/demo/${envDemo}/components/pages` : `${__dirname}/components/pages`);
+const envDemo = process.env.DEMO.trim();
+
+const pages = readDir(envDemo ? `${process.cwd().split('\\').join('/')}/demo/${envDemo}/components/pages/` : `${process.cwd().split('\\').join('/')}/components/pages/`);
 
 app.prepare().then(() => {
   const server = express();
@@ -36,7 +37,7 @@ app.prepare().then(() => {
     server.use(connectLogger(getLogger('normal'), { level: levels.INFO }));
   }
 
-  server.use('/static', express.static(envDemo ? `${__dirname}/demo/${envDemo}/static/` : `${__dirname}/static/`), {
+  server.use('/static', express.static(envDemo ? `${process.cwd().split('\\').join('/')}/demo/${envDemo}/static/` : `${process.cwd().split('\\').join('/')}/static/`), {
     maxAge: '1d',
     immutable: true
   });

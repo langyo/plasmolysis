@@ -26,9 +26,6 @@ export default {
         secondary: {
           main: '#66CCFF',
         },
-        error: {
-          main: red.A400,
-        },
         background: {
           default: '#fff',
         }

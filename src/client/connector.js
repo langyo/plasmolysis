@@ -1,4 +1,4 @@
-import { componentsPath, controllersPath, typesPath } from './require';
+import { componentsPath, controllersPath, typesPath } from '../../paths';
 const components = require(componentsPath);
 const controllers = require(controllersPath);
 const types = require(typesPath);
@@ -30,7 +30,7 @@ const models = () => {
             [action]: (payload => dispatch(thunks[`models.${component}.${action}`]({ ...payload, $id: id })))
           }) : (prev)), {})),
           $swap: newIndex => {
-            // 搜索新索引编号对应 model 的 id
+            // Search for the id of the model corresponding to the new index number.
             let components = store.getState().models[component];
             let oldIndex = store.getState().models[component][id].$index;
             for(let i of Object.keys(components)) {

@@ -2,7 +2,7 @@ import React from 'react';
 import Document, { Head, Main, NextScript } from 'next/document';
 import { ServerStyleSheets } from '@material-ui/styles';
 
-import { configsPath } from '../utils/require';
+import { configsPath } from '../../paths';
 const configs = require(configsPath);
 
 class RenderDocument extends Document {

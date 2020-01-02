@@ -27,11 +27,13 @@ export const readFile = src => fs.readFileSync(src, 'utf-8');
 
 export const writeFile = (data, path) => fs.writeFileSync(path, data, 'utf-8');
 
+export const makeDir = src => (!fs.statSync(src).isDirectory()) && fs.mkdirSync(src);
+
 export const watchDir = (src, callback, path = '.') => {
   let files = fs.readdirSync(src);
   for (let file of files) {
     if (fs.statSync(`${src}/${file}`).isDirectory()) {
-      let subFiles = watchDir(`${src}/${file}`, `${target}/${file}`, `${path}.${file}`);
+      let subFiles = watchDir(`${src}/${file}`, callback, `${path}.${file}`);
       fs.watch(`${src}/${file}/`, (type, name) => {
         if (type === 'rename') {
           if(subFiles.indexOf(name) < 0) {

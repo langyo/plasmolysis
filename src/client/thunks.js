@@ -1,6 +1,7 @@
-import { controllersPath, types } from './require';
-import { configs } from '../utils/require';
+import { controllersPath, typesPath, configsPath } from '../../paths';
 const controllers = require(controllersPath);
+const types = require(typesPath);
+const configs = require(configsPath);
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: configs.initData || {} };

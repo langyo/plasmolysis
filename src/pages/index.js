@@ -3,7 +3,7 @@ import Head from 'next/head';
 
 import { connect } from 'react-redux';
 
-import { configsPath } from '../utils/require';
+import { configsPath } from '../../paths';
 const configs = require(configsPath);
 
 import { pages, models, views } from '../client/connector';
