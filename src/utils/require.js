@@ -2,7 +2,9 @@ import { EventEmitter } from 'events';
 import { resolve } from 'path';
 import { makeDir, watchDir, watchFile, writeFile } from './fileUtil';
 
-const envDemo = process.env.DEMO.trim();
+const envDemo = process.env.DEMO;
+
+let fileEmitter = new EventEmitter();
 
 const makePackagedFile = (obj, path) => {
   const dfs = obj => `{
@@ -20,7 +22,7 @@ let controllers = { pages: {}, views: {}, models: {} };
 let controllersEmitter = new EventEmitter();
 
 // Pages
-watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/controllers/pages` : `${process.cwd()}/controllers/pages`, (src, type) => {
+watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/controllers` : `${process.cwd()}/controllers`, (src, type) => {
   console.log(src, type)
   switch (type) {
     case 'delete':
@@ -29,6 +31,7 @@ watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/controllers/pages` : `${pro
       makePackagedFile(controllers, envDemo ? `${process.cwd()}/demo/${envDemo}/dist/controllers.js` : `${process.cwd()}/dist/controllers.js`);
       break;
     case 'init':
+      controllers[path] = src;
       break;
     case 'update':
       controllersEmitter.emit('update', path, controllers[src]);
@@ -135,13 +138,6 @@ export const controllersPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/
 export const componentsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/components.js` : `${process.cwd()}/dist/components.js`;
 export const typesPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/types.js` : `${process.cwd()}/dist/types.js`;
 
-writeFile(`
-  export const configsPath = '${configsPath.split('\\').join('/')}';
-  export const controllersPath = '${controllersPath.split('\\').join('/')}';
-  export const componentsPath = '${componentsPath.split('\\').join('/')}';
-  export const typesPath = '${typesPath.split('\\').join('/')}';
-`, resolve(__dirname, '../../paths.js'));
-
 let configs = require(configsPath);
 let configsEmitter = new EventEmitter();
 watchFile(configsPath, () => {
@@ -149,7 +145,6 @@ watchFile(configsPath, () => {
   configsEmitter.emit('update', configs);
 });
 
-export const controllersPkg = { package: controllers, listener: controllersEmitter };
-export const configsPkg = { package: configs, listener: configsEmitter };
-export const typesPkg = { package: types, listener: typesEmitter };
+export { fileEmitter };
+
 export const context = require(envDemo ? `${process.cwd()}/demo/${envDemo}/server/context.js` : `${process.cwd()}/server/context.js`);
