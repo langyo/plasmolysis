@@ -1,28 +1,24 @@
 import { EventEmitter } from 'events';
 import { resolve } from 'path';
+import { watch, readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+
 import { makeDir, watchDir, watchFile, writeFile } from './fileUtil';
 
 const envDemo = process.env.DEMO;
 
+export const configsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/nickel.config.js` : `${process.cwd()}/nickel.config.js`;                                     export const controllersPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/controllers.js` : `${process.cwd()}/dist/controllers.js`;                           export const componentsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/components.js` : `${process.cwd()}/dist/components.js`;                              export const typesPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/types.js` : `${process.cwd()}/dist/types.js`;
+
 let fileEmitter = new EventEmitter();
 
-const makePackagedFile = (obj, path) => {
-  const dfs = obj => `{
-      ${Object.keys(obj)
-      .map(key => `'${key}': require('${obj[key]}')`)
-      .reduce((p, n) => `${p},
-        ${n}`, '')}
-    }`;
-  writeFile(`export default ${dfs(obj)};`, path);
-};
+export { fileEmitter };                                                           export const context = require(envDemo ? `${process.cwd()}/demo/${envDemo}/server/context.js` : `${process.cwd()}/server/context.js`);
 
-makeDir(envDemo ? `${process.cwd()}/demo/${envDemo}/dist` : `${process.cwd()}/dist/`)
+const distDirPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist` : `${process.cwd()}/dist/`;
+if(!existsSync(distDirPath)) mkdirSync(distDirPath);
 
 let controllers = { pages: {}, views: {}, models: {} };
 let controllersEmitter = new EventEmitter();
 
-// Pages
-watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/controllers` : `${process.cwd()}/controllers`, (src, type) => {
+watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/controllers` : `${process.cwd()}/controllers`, (src, type, path) => {
   console.log(src, type)
   switch (type) {
     case 'delete':
@@ -133,11 +129,6 @@ watchDir(resolve(__dirname, '../controllers'), (src, type, path) => {
   }
 });
 
-export const configsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/nickel.config.js` : `${process.cwd()}/nickel.config.js`;
-export const controllersPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/controllers.js` : `${process.cwd()}/dist/controllers.js`;
-export const componentsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/components.js` : `${process.cwd()}/dist/components.js`;
-export const typesPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/types.js` : `${process.cwd()}/dist/types.js`;
-
 let configs = require(configsPath);
 let configsEmitter = new EventEmitter();
 watchFile(configsPath, () => {
@@ -145,6 +136,3 @@ watchFile(configsPath, () => {
   configsEmitter.emit('update', configs);
 });
 
-export { fileEmitter };
-
-export const context = require(envDemo ? `${process.cwd()}/demo/${envDemo}/server/context.js` : `${process.cwd()}/server/context.js`);

@@ -1,39 +1,32 @@
-import fs from 'fs';
+import { readdirSync, statSync, watch } from 'fs';
+import { resolve } from 'path';
 
-export const copyFile = (src, target) => {
-  fs.writeFileSync(target, fs.readFileSync(src));
-};
-
-export const copyDir = (src, target) => {
-  if (!fs.existsSync(target)) fs.mkdirSync(target);
-  let files = fs.readdirSync(src);
-  for (let file of files) {
-    if (fs.statSync(`${src}/${file}`).isDirectory()) copyDir(`${src}/${file}`, `${target}/${file}`);
-    else copyFile(`${src}/${file}`, `${target}/${file}`);
-  }
-};
-
-export const readDir = src => {
-  let files = fs.readdirSync(src);
+// 功能为初始化项目而进行完整扫描，并提供文件路径对应
+export const scanDir = src => {
   let ret = {};
-  for (let file of files) {
-    if (fs.statSync(`${src}/${file}`).isDirectory()) ret[file] = readDir(`${src}/${file}`);
-    else ret[file] = fs.readFileSync(`${src}/${file}`, 'utf-8');
+  const dfs = (src, path) => {
+    for (let file of readdirSync(src)) {
+      const name = /^(.+)\.js$/.exec(file)[1];
+      if (statSync(resolve(src, file)).isDirectory()) dfs(resolve(src, file), `${path}.${name}`);
+      if (!name) continue;
+      else ret[`${path}.${name}`] = resolve(src, file);
+    }
+  };
+  for (let file of readdirSync(src)) {       const name = /^(.+)\.js$/.exec(file)[1];
+    if (statSync(resolve(src, file)).isDirectory()) dfs(resolve(src, file), `${name}`);
+    if (!name) continue;
+    else ret[name] = resolve(src, file);
   }
   return ret;
 }
 
-export const readFile = src => fs.readFileSync(src, 'utf-8');
-
-export const writeFile = (data, path) => fs.writeFileSync(path, data, 'utf-8');
-
-export const makeDir = src => !(fs.accessSync(src) && fs.statSync(src).isDirectory()) && fs.mkdirSync(src);
-
-export const watchDir = (src, callback, path = '.') => {
-  let files = fs.readdirSync(src);
-  for (let file of files) {
-    if (fs.statSync(`${src}/${file}`).isDirectory()) {
-      let subFiles = watchDir(`${src}/${file}`, callback, `${path}.${file}`);
+// 功能为监视文件夹，包括新建、删除与更新文件
+export const watchDir = (src, callback) => {
+  const dfs;
+  // Developing
+  for (let file of readdirSync(src)) {
+    if (statSync(resolve(src, file)).isDirectory()) {
+      let subFiles = '';
       fs.watch(`${src}/${file}/`, (type, name) => {
         if (type === 'rename') {
           if(subFiles.indexOf(name) < 0) {
@@ -58,6 +51,3 @@ export const watchDir = (src, callback, path = '.') => {
   return files;
 };
 
-export const watchFile = (src, callback) => {
-  fs.watch(src, callback);
-};
