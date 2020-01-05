@@ -1,14 +1,11 @@
-import { controllersPath, typesPath, configsPath } from '../../paths';
-const controllers = require(controllersPath);
-const types = require(typesPath);
-const configs = require(configsPath);
+import { controllers, actions, configs } from '../utils/staticRequire';
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: configs.initData || {} };
 let initStateForModels = {};
 
-const actionTypes = Object.keys(types).reduce((obj, key) => (types[key].client ? { ...obj, [key]: types[key].client } : obj));
-const actionCreators = Object.keys(types).reduce((obj, key) => ({ ...obj, [key]: types[key].$ }));
+const actionTypes = Object.keys(actions).reduce((obj, key) => (actions[key].client ? { ...obj, [key]: actions[key].client } : obj));
+const actionCreators = Object.keys(actions).reduce((obj, key) => ({ ...obj, [key]: actions[key].$ }));
 
 const createTasks = (test, tasks, path, type, name) => async (payload, dispatch, state) => {
   if (!test(payload, state[type][name], state.data)) {

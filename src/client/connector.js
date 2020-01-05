@@ -1,14 +1,11 @@
-import { componentsPath, controllersPath, typesPath } from '../../paths';
-const components = require(componentsPath);
-const controllers = require(controllersPath);
-const types = require(typesPath);
+import { components, controllers, actions } from '../utils/staticRequire';
+
 import { connect } from 'react-redux';
 import store from './store';
 
 let pages = {}, views = {};
 
-const virtualActions = Object.keys(types.client)
-                        .reduce((arr, key) => arr.indexOf(key) < 0 ? [key, ...arr] : arr, Object.keys(types.server))
+const virtualActions = Object.keys(actions.client)
                         .reduce((obj, key) => ({ ...obj, [key]: () => null }), {});
 
 const models = () => {

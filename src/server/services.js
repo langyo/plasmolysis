@@ -1,25 +1,68 @@
-import { context, configsPkg, controllersPkg, typesPkg } from '../utils/require';
+import { context, fileEmitter, serverRequirePaths } from '../utils/require';
+import { EventEmitter } from 'events';
 
-let configs = configsPkg.package;
-let controllers = controllersPkg.package;
-let types = typesPkg.package;
+let configs = require(serverRequirePaths.configs).default;
+let controllers = { 
+  views: Object.keys(serverRequirePaths.controllers.views).reduce((obj, key) => ({
+    ...obj,
+    [key]: require(serverRequirePaths.controllers.views[key]).default
+  }), {}),
+  pages: Object.keys(serverRequirePaths.controllers.pages).reduce((obj, key) => ({
+    ...obj,
+    [key]: require(serverRequirePaths.controllers.pages[key]).default
+  }), {}),
+  models: Object.keys(serverRequirePaths.controllers.models).reduce((obj, key) => ({
+    ...obj,
+    [key]: require(serverRequirePaths.controllers.models[key]).default
+  }), {})
+};
+let actions = Object.keys(serverRequirePaths.actions).reduce((obj, key) => ({
+  ...obj,
+  [key]: require(serverRequirePaths.actions[key])
+}), {});
+let actionTypes = Object.keys(actions).reduce((obj, key) => (actions[key].server ? { ...obj, [key]: actions[key].server } : obj), {});
+let actionCreators = Object.keys(actions).reduce((obj, key) => ({ ...obj, [key]: actions[key].$ }), {});
 
-configsPkg.listener.on('update', n => configs = n);
-controllersPkg.listener.on('update', (src, controller) => {
-  controllers[src] = controller;
-});
-controllersPkg.listener.on('delete', src => delete controllers[src]);
-typesPkg.listener.on('update', t => types = t);
+let serviceUpdater = new EventEmitter();
 
-let actionTypes = Object.keys(types).reduce((obj, key) => (types[key].server ? { ...obj, [key]: types[key].server } : obj));
-let actionCreators = Object.keys(types).reduce((obj, key) => ({ ...obj, [key]: types[key].$ }));
-typesPkg.listener.on(
-  'update',
-  () => {
-    actionTypes = Object.keys(types).reduce((obj, key) => (types[key].server ? { ...obj, [key]: types[key].server } : obj));
-    actionCreators = Object.keys(types).reduce((obj, key) => ({ ...obj, [key]: types[key].$ }));
+fileEmitter.on('create', (type, subType, path, src) => {
+  switch(type) {
+    case 'controllers':
+      controllers[subType][path] = require(src);
+      serviceUpdater.emit('create', subType, path);
+      break;
+    default:
+      break;
   }
-);
+});
+fileEmitter.on('delete', (type, subType, path, src) => {
+  switch(type) {
+    case 'controllers':
+      delete controllers[subType][path];
+      serviceUpdater.emit('delete', subType, path);
+      break;
+    default:
+      break;
+  }
+});
+fileEmitter.on('createAction', (path, src) => {
+  let required = require(src);
+  if(required.server) {
+    actionTypes[path] = required.server;
+    actionCreators[path] = required.$;
+  }
+});
+fileEmitter.on('updateAction', (path, src) => {
+  let required = require(src);
+  if(required.server) {
+    actionTypes[path] = required.server;
+    actionCreators[path] = required.$;
+  }
+});
+fileEmitter.on('deleteAction', path => {
+  if(actionTypes[path]) delete actionTypes[path];
+  if(actionCreators[path]) delete actionCreators[path];
+});
 
 let preloadServices = {};
 let apiServices = {};
@@ -47,10 +90,9 @@ for (let type of ['models', 'pages', 'views']) {
 
 export default server => {
   for (let path of Object.keys(apiServices)) {
-    console.log(`New api service: ${path}`)
+    console.log(`New api service: ${path}`);
     server.use(`/api/${path}`, (req, res) => apiServices[path](req, res));
   }
-
   for (let pageName of Object.keys(preloadServices)) {
     console.log(`New preload service: ${pageName}`);
     server.use(`/preload/${pageName}`, (req, res) => {
@@ -66,4 +108,11 @@ export default server => {
       });
     });
   }
+
+  serviceUpdater.on('create', (subType, path) => {
+    // TODO: Update the preload service and api service.
+  });
+  serviceUpdater.on('delete', (subType, path) => {
+    // TODO: Update the preload service and api service.
+  })
 }

@@ -3,8 +3,7 @@ import Head from 'next/head';
 
 import { connect } from 'react-redux';
 
-import { configsPath } from '../../paths';
-const configs = require(configsPath);
+import { configs } from '../utils/staticRequire';
 
 import { pages, models, views } from '../client/connector';
 import { initState } from '../client/thunks';

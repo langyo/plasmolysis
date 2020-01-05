@@ -1,10 +1,10 @@
 {
   "name": "nickelcat",
+  "version": "0.1.0",
   "scripts": {
     "test": "jest --watch",
-    "start": "nodemon --exec \"babel-node --config-file ./.babelrc src/server/index.js\"",
-    "build": "set NODE_ENV=production && next build",
-    "serve": "set NODE_ENV=production && node server/index.js"
+    "start": "nodemon --ignore src/utils/staticRequire.js --exec \"babel-node --config-file ./.babelrc src/server/index.js\"",
+    "serve": "set NODE_ENV=production && babel-node --config-file ./.babelrc src/server/index.js"
   },
   "bin": {
     "start": "./bin/start"
@@ -16,6 +16,7 @@
     "@babel/plugin-proposal-class-properties": "^7.7.0",
     "@babel/preset-env": "^7.7.1",
     "@babel/preset-react": "^7.7.0",
+    "@material-ui/core": "^4.8.2",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "helmet": "^3.21.1",

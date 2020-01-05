@@ -1,138 +1,150 @@
 import { EventEmitter } from 'events';
 import { resolve } from 'path';
-import { watch, readFileSync, writeFileSync, mkdirSync, existsSync } from 'fs';
+import { watch, accessSync, writeFile } from 'fs';
 
-import { makeDir, watchDir, watchFile, writeFile } from './fileUtil';
+import { scanDir, watchDir } from './fileUtil';
 
 const envDemo = process.env.DEMO;
 
-export const configsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/nickel.config.js` : `${process.cwd()}/nickel.config.js`;                                     export const controllersPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/controllers.js` : `${process.cwd()}/dist/controllers.js`;                           export const componentsPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/components.js` : `${process.cwd()}/dist/components.js`;                              export const typesPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/types.js` : `${process.cwd()}/dist/types.js`;
+export const workDirPath = resolve(envDemo ? `${process.cwd()}/demo/${envDemo}` : `${process.cwd()}`);
+export const distPath = resolve(__dirname, './staticRequire.js');
 
 let fileEmitter = new EventEmitter();
+export { fileEmitter };
 
-export { fileEmitter };                                                           export const context = require(envDemo ? `${process.cwd()}/demo/${envDemo}/server/context.js` : `${process.cwd()}/server/context.js`);
+export const context = require(envDemo ? `${process.cwd()}/demo/${envDemo}/server/context.js` : `${process.cwd()}/server/context.js`);
 
-const distDirPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist` : `${process.cwd()}/dist/`;
-if(!existsSync(distDirPath)) mkdirSync(distDirPath);
+let componentViews = scanDir(resolve(workDirPath, './components/views'));
+let componentPages = scanDir(resolve(workDirPath, './components/pages'));
+let componentModels = scanDir(resolve(workDirPath, './components/models'));
 
-let controllers = { pages: {}, views: {}, models: {} };
-let controllersEmitter = new EventEmitter();
+let controllerViews = scanDir(resolve(workDirPath, './controllers/views'));
+let controllerPages = scanDir(resolve(workDirPath, './controllers/pages'));
+let controllerModels = scanDir(resolve(workDirPath, './controllers/models'));
 
-watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/controllers` : `${process.cwd()}/controllers`, (src, type, path) => {
-  console.log(src, type)
-  switch (type) {
-    case 'delete':
-      delete controllers.pages[path];
-      controllersEmitter.emit('delete', path);
-      makePackagedFile(controllers, envDemo ? `${process.cwd()}/demo/${envDemo}/dist/controllers.js` : `${process.cwd()}/dist/controllers.js`);
-      break;
-    case 'init':
-      controllers[path] = src;
-      break;
-    case 'update':
-      controllersEmitter.emit('update', path, controllers[src]);
-      break;
-    case 'create':
-      controllers[path] = src;
-      controllersEmitter.emit('update', path, controllers[src]);
-      makePackagedFile(controllers, envDemo ? `${process.cwd()}/demo/${envDemo}/dist/controllers.js` : `${process.cwd()}/dist/controllers.js`);
-      break;
-    default:
-      throw new Error(`Unknown file status type: ${type}`);
-  }
-  console.log('controllers', controllers);
-}, 'pages');
+let actions = scanDir(resolve(__dirname, '../actions'));
 
-let components = { pages: {}, views: {}, models: {} };
-watchDir(envDemo ? `${process.cwd()}/demo/${envDemo}/components` : `${process.cwd()}/components/`, (src, type, path) => {
-  switch (type) {
-    case 'delete':
-      delete components[path];
-      makePackagedFile(controllers, envDemo ? `${process.cwd()}/demo/${envDemo}/dist/components.js` : `${process.cwd()}/dist/components.js`);
-      break;
-    case 'init':
-    case 'update':
-      break;
-    case 'create':
-      components[path] = src;
-      makePackagedFile(controllers, envDemo ? `${process.cwd()}/demo/${envDemo}/dist/components.js` : `${process.cwd()}/dist/components.js`);
-      break;
-    default:
-      throw new Error(`Unknown file status type: ${type}`);
-  }
-});
+try {
+  accessSync(resolve(workDirPath, 'nickel.config.js'));
+} catch (e) {
+  throw new Error('You must provide a configuration file.');
+}
 
-let types = { client: {}, server: {}, $: {}, src: {} };
-const typesDistPath = envDemo ? `${process.cwd()}/demo/${envDemo}/dist/types.js` : `${process.cwd()}/dist/types.js`;
-let typesEmitter = new EventEmitter();
+let serverRequirePaths = {
+  components: {
+    views: componentViews,
+    pages: componentPages,
+    models: componentModels
+  },
+  controllers: {
+    views: controllerViews,
+    pages: controllerPages,
+    models: controllerModels
+  },
+  actions: actions,
+  configs: resolve(workDirPath, 'nickel.config.js')
+};
+export { serverRequirePaths };
 
-const makeTypesPackagedFile = () => {
-  let packaged = `export default {
-      client: {
-        ${Object.keys(types.client)
-      .map(key => `'${key}': require('${types.src[key]}').client`)
-      .reduce((p, n) => `${p},
-          ${n}`)}
-      },
-      $: {
-        ${Object.keys(types.$)
-      .map(key => `'${key}': require('${types.src[key]}').$`)
-      .reduce((p, n) => `${p},
-            ${n}`)}
-      }
-    }
-  }`;
-  writeFile(packaged, typesDistPath);
+const packageBundle = () => writeFile(distPath,
+  `// Unless you know what you are doing now, DON'T modify this file!
+export const components = {
+  views: { ${
+  Object.keys(componentViews)
+    .map(key => `'${key}': require(\`${resolve(componentViews[key]).split('\\').join('/')}\`).default, `)
+    .join('')
+  } },
+  pages: { ${
+  Object.keys(componentPages)
+    .map(key => `'${key}': require(\`${resolve(componentPages[key]).split('\\').join('/')}\`).default, `)
+    .join('')
+  } },
+  models: { ${
+  Object.keys(componentModels)
+    .map(key => `'${key}': require(\`${resolve(componentModels[key]).split('\\').join('/')}\`).default, `)
+    .join('')
+  } }
 };
 
-watchDir(resolve(__dirname, '../controllers'), (src, type, path) => {
-  let required;
-  switch (type) {
-    case 'delete':
-      if (types.client[path]) delete types.client[path];
-      if (types.server[path]) delete types.server[path];
-      if (types.$[path]) delete types.$[path];
-      typesEmitter.emit('delete', path);
-      makeTypesPackagedFile();
-      break;
-    case 'init':
-      required = require(src);
-      if (required.client) {
-        if (typeof required.client !== 'function') throw new Error(`You must provide a function as a client loader: ${src}`);
-        types.client[path] = required.client;
-      }
-      if (required.server) {
-        if (typeof required.server !== 'function') throw new Error(`You must provide a function as a server loader: ${src}`);
-        types.server[path] = required.server;
-      }
-      if ((!required.$) || typeof required.$ !== 'function') throw new Error(`You must provide a function as an action parser: ${src}`);
-      types.$[path] = required.$;
-      types.src[path] = src;
-      makeTypesPackagedFile();
-      break;
-    case 'update':
-    case 'create':
-      required = require(src);
-      if (required.client) {
-        if (typeof required.client !== 'function') throw new Error(`You must provide a function as a client loader: ${src}`);
-        types.client[path] = required.client;
-      }
-      if (required.server) {
-        if (typeof required.server !== 'function') throw new Error(`You must provide a function as a server loader: ${src}`);
-        types.server[path] = required.server;
-      }
-      if ((!required.$) || typeof required.$ !== 'function') throw new Error(`You must provide a function as an action parser: ${src}`);
-      types.$[path] = required.$;
-      typesEmitter.emit('update', path, types);
-      makeTypesPackagedFile();
-      break;
-  }
-});
+export const controllers = {
+  views: { ${
+  Object.keys(controllerViews)
+    .map(key => `'${key}': require(\`${resolve(controllerViews[key]).split('\\').join('/')}\`).default, `)
+    .join('')
+  } },
+  pages: { ${
+  Object.keys(controllerPages)
+    .map(key => `'${key}': require(\`${resolve(controllerPages[key]).split('\\').join('/')}\`).default, `)
+    .join('')
+  } },
+  models: { ${
+  Object.keys(controllerModels)
+    .map(key => `'${key}': require(\`${resolve(controllerModels[key]).split('\\').join('/')}\`).default, `)
+    .join('')
+  } }
+};
 
-let configs = require(configsPath);
-let configsEmitter = new EventEmitter();
-watchFile(configsPath, () => {
-  configs = require(configsPath);
-  configsEmitter.emit('update', configs);
-});
+export const actions = {
+  client: { ${
+  // 记得处理未定义 client 键的情况！
+  Object.keys(actions)
+    .map(key => `'${key}': require(\`${resolve(actions[key]).split('\\').join('/')}\`).client,`)
+    .join('')
+  } },
+  \$: { ${
+  Object.keys(actions)
+    .map(key => `'${key}': require(\`${resolve(actions[key]).split('\\').join('/')}\`).$,`)
+    .join('')
+  } }
+};
 
+export const configs = require(\`${resolve(workDirPath, 'nickel.config.js').split('\\').join('/')}\`).default;
+`,
+  'utf-8',
+  () => {}
+);
+
+let componentViewsEmitter = watchDir(resolve(workDirPath, './components/views'));
+let componentPagesEmitter = watchDir(resolve(workDirPath, './components/pages'));
+let componentModelsEmitter = watchDir(resolve(workDirPath, './components/models'));
+
+let controllerViewsEmitter = watchDir(resolve(workDirPath, './controllers/views'));
+let controllerPagesEmitter = watchDir(resolve(workDirPath, './controllers/pages'));
+let controllerModelsEmitter = watchDir(resolve(workDirPath, './controllers/models'));
+
+let actionsEmitter = watchDir(resolve(__dirname, '../actions'));
+
+componentViewsEmitter.on('create', (path, src) => fileEmitter.emit('create', 'components', 'views', path, src), packageBundle());
+componentPagesEmitter.on('create', (path, src) => fileEmitter.emit('create', 'components', 'pages', path, src), packageBundle());
+componentModelsEmitter.on('create', (path, src) => fileEmitter.emit('create', 'components', 'models', path, src), packageBundle());
+
+controllerViewsEmitter.on('create', (path, src) => fileEmitter.emit('create', 'controllers', 'views', path, src), packageBundle());
+controllerPagesEmitter.on('create', (path, src) => fileEmitter.emit('create', 'controllers', 'pages', path, src), packageBundle());
+controllerModelsEmitter.on('create', (path, src) => fileEmitter.emit('create', 'controllers', 'models', path, src), packageBundle());
+
+actionsEmitter.on('create', (path, src) => fileEmitter.emit('createAction', path, src), packageBundle());
+
+componentViewsEmitter.on('update', (path, src) => fileEmitter.emit('update', 'components', 'views', path, src));
+componentPagesEmitter.on('update', (path, src) => fileEmitter.emit('update', 'components', 'pages', path, src));
+componentModelsEmitter.on('update', (path, src) => fileEmitter.emit('update', 'components', 'models', path, src));
+
+controllerViewsEmitter.on('update', (path, src) => fileEmitter.emit('update', 'controllers', 'views', path, src));
+controllerPagesEmitter.on('update', (path, src) => fileEmitter.emit('update', 'controllers', 'pages', path, src));
+controllerModelsEmitter.on('update', (path, src) => fileEmitter.emit('update', 'controllers', 'models', path, src));
+
+actionsEmitter.on('update', (path, src) => fileEmitter.emit('updateAction', path, src));
+
+componentViewsEmitter.on('delete', path => fileEmitter.emit('delete', 'components', 'views', path), packageBundle());
+componentPagesEmitter.on('delete', path => fileEmitter.emit('delete', 'components', 'pages', path), packageBundle());
+componentModelsEmitter.on('delete', path => fileEmitter.emit('delete', 'components', 'models', path), packageBundle());
+
+controllerViewsEmitter.on('delete', path => fileEmitter.emit('delete', 'controllers', 'views', path), packageBundle());
+controllerPagesEmitter.on('delete', path => fileEmitter.emit('delete', 'controllers', 'pages', path), packageBundle());
+controllerModelsEmitter.on('delete', path => fileEmitter.emit('delete', 'controllers', 'models', path), packageBundle());
+
+actionsEmitter.on('delete', path => fileEmitter.emit('deleteAction', path), packageBundle())
+
+watch(resolve(workDirPath, 'nickel.config.js'), type => {
+  if (type === 'update') fileEmitter.emit('updateConfigs');
+  else throw new Error('You must provide a configuration file.');
+});

@@ -57,6 +57,7 @@ export const watchDir = src => {
       }
     });
   };
+  let files = readdirSync(src);
   for (let file of files) {
     if (statSync(resolve(src, file)).isDirectory()) {
       dfs(resolve(src, file), file);

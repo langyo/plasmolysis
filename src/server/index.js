@@ -5,17 +5,19 @@ import helmet from 'helmet';
 import { configure, connectLogger, getLogger, levels } from 'log4js';
 import { json } from 'body-parser';
 
+import { resolve } from 'path';
+
 const port = parseInt(process.env.PORT, 10) || 80;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
 import services from './services';
-import { readDir } from '../utils/fileUtil';
+import { scanDir } from '../utils/fileUtil';
+import { workDirPath, fileEmitter } from '../utils/require';
 
-const envDemo = process.env.DEMO.trim();
-
-const pages = readDir(envDemo ? `${process.cwd().split('\\').join('/')}/demo/${envDemo}/components/pages/` : `${process.cwd().split('\\').join('/')}/components/pages/`);
+// TODO: It will be updated when the folder has something change.
+const pages = Object.keys(scanDir(resolve(workDirPath, './controllers/pages')));
 
 app.prepare().then(() => {
   const server = express();
@@ -37,8 +39,8 @@ app.prepare().then(() => {
     server.use(connectLogger(getLogger('normal'), { level: levels.INFO }));
   }
 
-  server.use('/static', express.static(envDemo ? `${process.cwd().split('\\').join('/')}/demo/${envDemo}/static/` : `${process.cwd().split('\\').join('/')}/static/`), {
-    maxAge: '1d',
+  server.use('/static', express.static(resolve(workDirPath, 'static')), {
+    maxAge: '1t',
     immutable: true
   });
 
@@ -54,7 +56,7 @@ app.prepare().then(() => {
   }
 
   server.get('*', (req, res) => {
-    return handle(req, res)
+    return handle(req, res);
   });
 
   server.listen(port, () => {
