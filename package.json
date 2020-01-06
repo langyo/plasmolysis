@@ -4,7 +4,7 @@
   "scripts": {
     "test": "jest --watch",
     "start": "nodemon --ignore src/utils/staticRequire.js --exec \"babel-node --config-file ./.babelrc src/server/index.js\"",
-    "serve": "set NODE_ENV=production && babel-node --config-file ./.babelrc src/server/index.js"
+    "serve": "set NODE_ENV=production && now babel-node --config-file ./.babelrc src/server/index.js"
   },
   "bin": {
     "start": "./bin/start"
@@ -22,9 +22,9 @@
     "helmet": "^3.21.1",
     "immutable": "^4.0.0-rc.12",
     "log4js": "^6.1.0",
-    "next": "9.1.1",
     "node-fetch": "^2.6.0",
     "nodemon": "^1.19.4",
+    "now": "^16.7.1",
     "query-string": "^6.9.0",
     "react": "16.10.2",
     "react-dom": "16.10.2",

@@ -1,23 +1,17 @@
 import express from 'express';
 import compression from 'compression';
-import next from 'next';
 import helmet from 'helmet';
 import { configure, connectLogger, getLogger, levels } from 'log4js';
 import { json } from 'body-parser';
 
+import ReactDom from 'react-dom';
 import { resolve } from 'path';
 
 const port = parseInt(process.env.PORT, 10) || 80;
 const dev = process.env.NODE_ENV !== 'production';
-const app = next({ dev });
-const handle = app.getRequestHandler();
 
 import services from './services';
-import { scanDir } from '../utils/fileUtil';
 import { workDirPath, fileEmitter } from '../utils/require';
-
-// TODO: It will be updated when the folder has something change.
-const pages = Object.keys(scanDir(resolve(workDirPath, './controllers/pages')));
 
 app.prepare().then(() => {
   const server = express();
@@ -46,14 +40,7 @@ app.prepare().then(() => {
 
   server.use(json());
 
-  services(server);
-
-  server.get('/', (req, res) => app.render(req, res, resolve(`../../pages/index.js`), req.query));
-  server.get('/index', (req, res) => app.render(req, res, resolve(`../../pages/index.js`), req.query));
-
-  for(let name of pages) {
-    server.get(`/${name}`, (req, res) => app.render(req, res, resolve(`../../pages/index.js`), req.query));
-  }
+  // services(server);
 
   server.get('*', (req, res) => {
     return handle(req, res);
