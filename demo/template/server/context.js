@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-let db = mongoose.createConnection('mongodb://localhost/i-note');
+let db = mongoose.createConnection('mongodb://localhost/i-note', { useNewUrlParser: true, useUnifiedTopology: true });
 
 db.on('error', e => (console.error(e), process.exit()));
 

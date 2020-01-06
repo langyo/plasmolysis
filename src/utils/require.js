@@ -146,5 +146,4 @@ actionsEmitter.on('delete', path => fileEmitter.emit('deleteAction', path), pack
 
 watch(resolve(workDirPath, 'nickel.config.js'), type => {
   if (type === 'update') fileEmitter.emit('updateConfigs');
-  else throw new Error('You must provide a configuration file.');
 });

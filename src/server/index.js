@@ -39,20 +39,20 @@ app.prepare().then(() => {
     server.use(connectLogger(getLogger('normal'), { level: levels.INFO }));
   }
 
-  server.use('/static', express.static(resolve(workDirPath, 'static')), {
+  server.use('/static', express.static(resolve(workDirPath, 'static'), {
     maxAge: '1t',
     immutable: true
-  });
+  }));
 
   server.use(json());
 
   services(server);
 
-  server.get('/', (req, res) => app.render(req, res, `../pages/index`, req.query));
-  server.get('/index', (req, res) => app.render(req, res, `../pages/index`, req.query));
+  server.get('/', (req, res) => app.render(req, res, resolve(`../../pages/index.js`), req.query));
+  server.get('/index', (req, res) => app.render(req, res, resolve(`../../pages/index.js`), req.query));
 
   for(let name of pages) {
-    server.get(`/${name}`, (req, res) => app.render(req, res, `../pages/index`, req.query));
+    server.get(`/${name}`, (req, res) => app.render(req, res, resolve(`../../pages/index.js`), req.query));
   }
 
   server.get('*', (req, res) => {

@@ -4,8 +4,8 @@ import App from 'next/app';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { Provider } from 'react-redux';
-import store from '../client/store';
-import { views } from '../client/connector';
+import store from '../src/client/store';
+import { views } from '../src/client/connector';
 
 export default class MyApp extends App {
   componentDidMount() {

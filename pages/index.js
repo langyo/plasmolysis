@@ -3,10 +3,10 @@ import Head from 'next/head';
 
 import { connect } from 'react-redux';
 
-import { configs } from '../utils/staticRequire';
+import { configs } from '../src/utils/staticRequire';
 
-import { pages, models, views } from '../client/connector';
-import { initState } from '../client/thunks';
+import { pages, models, views } from '../src/client/connector';
+import { initState } from '../src/client/thunks';
 
 class Index extends React.Component {
   static async getInitialProps({ query, req, asPath }) {
