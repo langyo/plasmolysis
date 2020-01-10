@@ -1,4 +1,4 @@
-import { controllers, actions, configs } from '../utils/staticRequire';
+import { controllers, actions, configs } from '../staticRequire';
 
 let thunks = {};
 let initState = { models: {}, pages: {}, views: {}, data: configs.initData || {} };

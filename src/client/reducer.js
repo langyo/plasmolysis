@@ -3,7 +3,7 @@ import { thunks, initState, initStateForModels } from './thunks';
 import { generate } from 'shortid';
 import { stringify } from 'query-string';
 
-import { configs } from '../utils/staticRequire';
+import { configs } from '../staticRequire';
 
 const merge = (obj1, obj2) => {
   let ret = { ...obj1 };
@@ -19,7 +19,7 @@ const merge = (obj1, obj2) => {
   return ret;
 }
 
-export default handleActions({
+export default preload => handleActions({
   'framework.updateState': (state, action) => merge(state, action.payload),
 
   'framework.togglePage': (state, action) => {
@@ -81,5 +81,5 @@ export default handleActions({
 
   ...thunks
 }, {
-  ...initState
+  ...merge(initState, preload || {})
 });

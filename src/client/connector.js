@@ -1,4 +1,4 @@
-import { components, controllers, actions } from '../utils/staticRequire';
+import { components, controllers, actions } from '../staticRequire';
 
 import { connect } from 'react-redux';
 import store from './store';

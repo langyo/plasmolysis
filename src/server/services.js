@@ -1,24 +1,24 @@
-import { context, fileEmitter, serverRequirePaths } from '../utils/require';
+import { context, fileEmitter, packages } from '../utils/require';
 import { EventEmitter } from 'events';
 
-let configs = require(serverRequirePaths.configs).default;
+let configs = require(packages.configs).default;
 let controllers = { 
-  views: Object.keys(serverRequirePaths.controllers.views).reduce((obj, key) => ({
+  views: Object.keys(packages.controllers.views).reduce((obj, key) => ({
     ...obj,
-    [key]: require(serverRequirePaths.controllers.views[key]).default
+    [key]: require(packages.controllers.views[key]).default
   }), {}),
-  pages: Object.keys(serverRequirePaths.controllers.pages).reduce((obj, key) => ({
+  pages: Object.keys(packages.controllers.pages).reduce((obj, key) => ({
     ...obj,
-    [key]: require(serverRequirePaths.controllers.pages[key]).default
+    [key]: require(packages.controllers.pages[key]).default
   }), {}),
-  models: Object.keys(serverRequirePaths.controllers.models).reduce((obj, key) => ({
+  models: Object.keys(packages.controllers.models).reduce((obj, key) => ({
     ...obj,
-    [key]: require(serverRequirePaths.controllers.models[key]).default
+    [key]: require(packages.controllers.models[key]).default
   }), {})
 };
-let actions = Object.keys(serverRequirePaths.actions).reduce((obj, key) => ({
+let actions = Object.keys(packages.actions).reduce((obj, key) => ({
   ...obj,
-  [key]: require(serverRequirePaths.actions[key])
+  [key]: require(packages.actions[key])
 }), {});
 let actionTypes = Object.keys(actions).reduce((obj, key) => (actions[key].server ? { ...obj, [key]: actions[key].server } : obj), {});
 let actionCreators = Object.keys(actions).reduce((obj, key) => ({ ...obj, [key]: actions[key].$ }), {});

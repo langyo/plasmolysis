@@ -30,3 +30,4 @@ yarn.lock
 *.log
 
 /paths.js
+/src/staticRequire.js
