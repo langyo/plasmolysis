@@ -5,11 +5,11 @@ import { hydrate } from 'react-dom';
 import { configs } from '../staticRequire';
 import store from './store';
 import { pages, models, views } from './connector';
-import { initState } from './thunks';
 
 export default () => {
   if(window.__renderMode === 'spa') return;
   window.__renderMode = 'ssr';
+  window.__store = store(window.__initState);
 
   const { renderPage } = window.__init; 
   

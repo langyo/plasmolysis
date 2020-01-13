@@ -1,68 +1,73 @@
-import { context, fileEmitter, packages } from '../utils/require';
-import { EventEmitter } from 'events';
+import { resolve } from 'path';
+import workDirPath from '../utils/workDirPath';
+import { create } from 'watchr';
+import scanDir from 'klaw-sync';
 
-let configs = require(packages.configs).default;
-let controllers = { 
-  views: Object.keys(packages.controllers.views).reduce((obj, key) => ({
+// TODO: It will be a child process in the future.
+export const context = require(resolve(workDirPath, 'server/context'));
+
+let configs = require(resolve(workDirPath, 'nickel.config.js')).default;
+let controllers = {
+  views: scanDir(resolve(workDirPath, 'controllers/views')).reduce((obj, { path }) => ({
     ...obj,
-    [key]: require(packages.controllers.views[key]).default
+    [path.substr(resolve(workDirPath, 'controllers/views').length + 1, path.lastIndexOf('.') - resolve(workDirPath, 'controllers/views').length - 1).split(/[\\\/]/).join('.')]: require(path).default
   }), {}),
-  pages: Object.keys(packages.controllers.pages).reduce((obj, key) => ({
+  pages: scanDir(resolve(workDirPath, 'controllers/pages')).reduce((obj, { path }) => ({
     ...obj,
-    [key]: require(packages.controllers.pages[key]).default
+    [path.substr(resolve(workDirPath, 'controllers/pages').length + 1, path.lastIndexOf('.') - resolve(workDirPath, 'controllers/pages').length - 1).split(/[\\\/]/).join('.')]: require(path).default
   }), {}),
-  models: Object.keys(packages.controllers.models).reduce((obj, key) => ({
+  models: scanDir(resolve(workDirPath, 'controllers/models')).reduce((obj, { path }) => ({
     ...obj,
-    [key]: require(packages.controllers.models[key]).default
-  }), {})
+    [path.substr(resolve(workDirPath, 'controllers/models').length + 1, path.lastIndexOf('.') - resolve(workDirPath, 'controllers/models').length - 1).split(/[\\\/]/).join('.')]: require(path).default
+  }), {}),
+  global: require(resolve(workDirPath, 'controllers/global.js')).default
 };
-let actions = Object.keys(packages.actions).reduce((obj, key) => ({
+let actions = scanDir(resolve(__dirname, '../actions')).reduce((obj, { path }) => ({
   ...obj,
-  [key]: require(packages.actions[key])
+  [path.substr(resolve(__dirname, '../actions').length + 1, path.lastIndexOf('.') - resolve(__dirname, '../actions').length - 1).split(/[\\\/]/).join('.')]: require(path)
 }), {});
+
+let stalkers = [
+  create(resolve(workDirPath, 'controllers')).on('change', (type, fullPath) => {
+    const rootPath = resolve(workDirPath, 'controllers');
+    const pathArr = fullPath.substr(rootPath.length + 1).split(/[\/\\]/);
+
+    // Filter unused folders and files.
+    if (['views', 'pages', 'models', 'global.js'].indexOf(pathArr[0]) < 0) return;
+
+    switch (type) {
+      case 'create':
+      case 'update':
+        controllers[pathArr[0]][pathArr.splice(1).join('.')] = require(fullPath).default;
+        break;
+      case 'delete':
+        delete controllers[pathArr[0]][pathArr.splice(1).join('.')];
+        break;
+    }
+  }),
+  create(resolve(__dirname, '../actions')).on('change', (type, fullPath) => {
+    const rootPath = resolve(__dirname, '../actions');
+    const path = fullPath.substr(rootPath.length + 1).split(/[\/\\]/).join('.');
+
+    switch (type) {
+      case 'create':
+      case 'update':
+        actions[path] = require(fullPath);
+        break;
+      case 'delete':
+        delete actions[path];
+        break;
+    }
+  }),
+  create(resolve(workDirPath, 'nickel.config.js')).on('change', type => {
+    if (type === 'delete') throw new Error('You must provide a configuration file.');
+    configs = require(resolve(workDirPath, 'nickel.config.js'));
+  })
+];
+process.on('close', () => stalkers.forEach(e => e.close()));
+
 let actionTypes = Object.keys(actions).reduce((obj, key) => (actions[key].server ? { ...obj, [key]: actions[key].server } : obj), {});
 let actionCreators = Object.keys(actions).reduce((obj, key) => ({ ...obj, [key]: actions[key].$ }), {});
-
-let serviceUpdater = new EventEmitter();
-
-fileEmitter.on('create', (type, subType, path, src) => {
-  switch(type) {
-    case 'controllers':
-      controllers[subType][path] = require(src);
-      serviceUpdater.emit('create', subType, path);
-      break;
-    default:
-      break;
-  }
-});
-fileEmitter.on('delete', (type, subType, path, src) => {
-  switch(type) {
-    case 'controllers':
-      delete controllers[subType][path];
-      serviceUpdater.emit('delete', subType, path);
-      break;
-    default:
-      break;
-  }
-});
-fileEmitter.on('createAction', (path, src) => {
-  let required = require(src);
-  if(required.server) {
-    actionTypes[path] = required.server;
-    actionCreators[path] = required.$;
-  }
-});
-fileEmitter.on('updateAction', (path, src) => {
-  let required = require(src);
-  if(required.server) {
-    actionTypes[path] = required.server;
-    actionCreators[path] = required.$;
-  }
-});
-fileEmitter.on('deleteAction', path => {
-  if(actionTypes[path]) delete actionTypes[path];
-  if(actionCreators[path]) delete actionCreators[path];
-});
 
 let preloadServices = {};
 let apiServices = {};
@@ -88,7 +93,7 @@ for (let type of ['models', 'pages', 'views']) {
   }
 }
 
-export default server => {
+export const createServer = server => {
   for (let path of Object.keys(apiServices)) {
     console.log(`New api service: ${path}`);
     server.use(`/api/${path}`, (req, res) => apiServices[path](req, res));
@@ -108,11 +113,4 @@ export default server => {
       });
     });
   }
-
-  serviceUpdater.on('create', (subType, path) => {
-    // TODO: Update the preload service and api service.
-  });
-  serviceUpdater.on('delete', (subType, path) => {
-    // TODO: Update the preload service and api service.
-  })
 }
