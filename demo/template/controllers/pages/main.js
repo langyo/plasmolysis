@@ -5,7 +5,7 @@ export default ({ togglePage, dispatch }) => ({
   },
   preLoad: async (context, cookies, params) => {
     try{
-      let docs = await context.db.notes.find({}).sort({ date: -1 }).limit(10);
+      let docs = context.db.get('notes').sortBy('date', n => 2147483647 - n.date).take(10);
       return { latestPush: docs, latestPushState: 'success' };
     } catch(e) {
       return { latestPush: [], latestPushState: 'fail' };

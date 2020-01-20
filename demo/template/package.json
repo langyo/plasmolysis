@@ -7,7 +7,7 @@
     "start": "cd ../../ && cross-env DEMO=template npm start"
   },
   "dependencies": {
-    "@material-ui/core": "^4.7.0",
+    "@material-ui/core": "^4.8.3",
     "@material-ui/lab": "^4.0.0-alpha.32",
     "@mdi/js": "^4.5.95",
     "@mdi/react": "^1.2.1",
@@ -17,6 +17,7 @@
     "dateformat": "^3.0.3",
     "draft-js": "^0.11.3",
     "localforage": "^1.7.3",
+    "lowdb": "^1.0.0",
     "nodemon": "^1.19.4",
     "query-string": "^6.9.0",
     "react": "16.10.2",
@@ -24,7 +25,10 @@
     "react-pure-lifecycle": "^3.0.0",
     "react-scrollbars-custom": "^4.0.21",
     "redraft": "^0.10.2",
-    "shortid": "^2.2.15"
+    "schema-typed": "^1.4.0",
+    "sha.js": "^2.4.11",
+    "shortid": "^2.2.15",
+    "yaml": "^1.7.2"
   },
   "repository": {
     "type": "git",

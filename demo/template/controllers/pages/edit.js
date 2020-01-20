@@ -1,4 +1,6 @@
+import { SchemaModel, StringType, NumberType, ArrayType } from 'schema-typed';
 import { EditorState, convertToRaw, convertFromRaw } from 'draft-js';
+import { generate as generateID } from 'shortid';
 
 export default ({ setState, fetch, route, send, handle, createModel, destoryModel, togglePage, dispatch, deal }) => ({
   init: payload => ({
@@ -26,39 +28,49 @@ export default ({ setState, fetch, route, send, handle, createModel, destoryMode
         content: JSON.stringify(state.pages.edit.content)
       }),
       (payload, context, replyFunc) => {
-        console.log('接收到笔记：', payload);
-        if (payload.id) {
-          db.notes.findById(payload.id, (err, doc) => {
-            if (err) {
-              console.log(err);
-              replyFunc({ state: 'fail', reason: '笔记不存在' });
-              return;
-            }
-            doc.tags = payload.tags;
-            doc.content = payload.content;
-            doc.title = payload.title;
-            doc.tags = payload.tags;
-            doc.save();
-            replyFunc({ state: 'success', id: payload.id });
-          });
-        } else {
-          if (!payload.tags || !payload.content || !payload.title) {
-            replyFunc({ state: 'fail', reason: '请求不完整！' });
+        console.log('Got note: ', payload);
+
+        // Verify
+        const schema = SchemaModel({
+          id: NumberType(),
+          owner: StringType().isRequired(),
+          title: StringType().isRequired(),
+          content: StringType().isRequired(),
+          tags: ArrayType().of(StringType()),
+          date: NumberType()
+        });
+        const schemaResult = schema.check(payload);
+        for (let key of Object.keys(schemaResult)) {
+          if (schemaResult[key].hasError) {
+            replyFunc({ state: 'fail', reason: 'Illegal data' });
             return;
           }
-          let note = new context.db.notes({
+        }
+
+        // Write
+        if (payload.id) {
+          let note = db.get('notes').find({ id: payload.id }).value();
+          if (!note) {
+            replyFunc({ state: 'fail', reason: 'Note does not exist' });
+            return;
+          }
+          db.get('notes').find({ id: payload.id }).assign({ 
             tags: payload.tags,
             content: payload.content,
             title: payload.title
-          });
-          note.save((err, doc) => {
-            if (err) {
-              console.log(err);
-              replyFunc({ state: 'fail', reason: '储存失败' });
-              return;
-            }
-            replyFunc({ state: 'success', id: doc.id });
-          })
+          }).write().then(() => replyFunc({ state: 'success', id: payload.id })
+          );
+        } else {
+          let id = generateID();
+          context.db.get('notes').push({
+            id,
+            tags: payload.tags,
+            content: payload.content,
+            title: payload.title,
+            owner: payload.owner
+          }).write().then(() =>
+            replyFunc({ state: 'success', id })
+          );
         }
       }
     ),
