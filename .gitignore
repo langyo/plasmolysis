@@ -28,6 +28,7 @@ package-lock.json
 yarn.lock
 
 *.log
+*.swp
 
 /paths.js
 /src/staticRequire.js

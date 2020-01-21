@@ -49,19 +49,26 @@ import workDirPath from '../utils/workDirPath';
 import scanDir from 'klaw-sync';
 import { create as createWatcher } from 'watchr';
 
-exec(`babel-node ${resolve('packagerSSR.js')}`, (err, stdout, stderr) => {
-  if (err) console.error('[SSR packager] ERR', err);
-  if (stdout) console.log('[SSR packager]', stdout);
-  if (stderr) console.error('[SSR packager]', stderr);
+import { EventEmitter } from 'events';
+let staticPackagerReadyEmitter = new EventEmitter();
+staticPackagerReadyEmitter.once('ready', () => {
+  exec(`babel-node ${resolve(__dirname, 'packagerSSR.js')}`, (err, stdout, stderr) => {
+    if (err) console.error('[SSR packager] ERR', err);
+    if (stdout) console.log('[SSR packager]', stdout);
+    if (stderr) console.error('[SSR packager]', stderr);
+  });
+  exec(`babel-node ${resolve(__dirname, 'packagerSPA.js')}`, (err, stdout, stderr) => {
+    if (err) console.error('[SPA packager] ERR', err);
+    if (stdout) console.log('[SPA packager]', stdout);
+    if (stderr) console.error('[SPA packager]', stderr);
+  });
 });
-exec(`babel-node ${resolve('packagerSPA.js')}`, (err, stdout, stderr) => {
-  if (err) console.error('[SPA packager] ERR', err);
-  if (stdout) console.log('[SPA packager]', stdout);
-  if (stderr) console.error('[SPA packager]', stderr);
-});
-exec(`babel-node ${resolve('staticPackager.js')}`, (err, stdout, stderr) => {
+exec(`babel-node ${resolve(__dirname, 'staticPackager.js')}`, (err, stdout, stderr) => {
   if (err) console.error('[Static packager] ERR', err);
-  if (stdout) console.log('[Static packager]', stdout);
+  if (stdout) {
+    staticPackagerReadyEmitter.emit('ready');
+    console.log('[Static packager]', stdout);
+  }
   if (stderr) console.error('[Static packager]', stderr);
 });
 

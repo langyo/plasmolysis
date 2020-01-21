@@ -2,3 +2,6 @@
 /demo
 /docs
 /paths.js
+
+*.log
+*.swp
