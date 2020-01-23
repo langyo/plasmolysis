@@ -1,9 +1,9 @@
 import { resolve } from 'path';
 import { create } from 'watchr';
 import { accessSync, writeFile } from 'fs';
-import workDirPath from '../utils/workDirPath';
 import scanDir from 'klaw-sync';
 
+const workDirPath = process.env.WORKDIR;
 const distPath = resolve(__dirname, '../staticRequire.js');
 
 const packageBundle = () => {
@@ -69,7 +69,7 @@ export const configs = require(\`${resolve(workDirPath, 'nickel.config.js').spli
 try {
   accessSync(resolve(workDirPath, 'nickel.config.js'));
 } catch (e) {
-  throw new Error('You must provide a configuration file.');
+  throw new Error(`You must provide a configuration file. At: ${resolve(workDirPath, 'nickel.config.js')}`);
 }
 packages.configs = require(resolve(workDirPath, 'nickel.config.js')).default;
 

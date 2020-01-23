@@ -24,20 +24,20 @@ import { resolve } from 'path';
 
 // Create the child process.
 import { exec } from 'child_process';
-exec(`babel-node ${resolve('packagerSSR.js')}`, (err, stdout, stderr) => {
-  if (err) console.error('[SSR packager] ERR', err);
-  if (stdout) console.log('[SSR packager]', stdout);
-  if (stderr) console.error('[SSR packager]', stderr);
+exec(`cross-env WORKDIR=${workDirPath} babel-node ${resolve(__dirname, 'packagerSSR.js')}`, (err, stdout, stderr) => {
+  if (err) console.error('[SSR packager ERR]', err);
+  if (stdout) console.log('[SSR packager OUT]', stdout);
+  if (stderr) console.error('[SSR packager ERR]', stderr);
 });
-exec(`babel-node ${resolve('packagerSPA.js')}`, (err, stdout, stderr) => {
-  if (err) console.error('[SPA packager] ERR', err);
-  if (stdout) console.log('[SPA packager]', stdout);
-  if (stderr) console.error('[SPA packager]', stderr);
+exec(`cross-env WORKDIR=${workDirPath} babel-node ${resolve(__dirname, 'packagerSPA.js')}`, (err, stdout, stderr) => {
+  if (err) console.error('[SPA packager ERR]', err);
+  if (stdout) console.log('[SPA packager OUT]', stdout);
+  if (stderr) console.error('[SPA packager ERR]', stderr);
 });
-exec(`babel-node ${resolve('staticPackager.js')}`, (err, stdout, stderr) => {
-  if (err) console.error('[Static packager] ERR', err);
-  if (stdout) console.log('[Static packager]', stdout);
-  if (stderr) console.error('[Static packager]', stderr);
+exec(`cross-env WORKDIR=${workDirPath} babel-node ${resolve(__dirname, 'staticPackager.js')}`, (err, stdout, stderr) => {
+  if (err) console.error('[Static packager ERR]', err);
+  if (stdout) console.log('[Static packager OUT]', stdout);
+  if (stderr) console.error('[Static packager ERR]', stderr);
 });
 
 const port = parseInt(process.env.PORT, 10) || 80;
@@ -53,23 +53,23 @@ import { EventEmitter } from 'events';
 let staticPackagerReadyEmitter = new EventEmitter();
 staticPackagerReadyEmitter.once('ready', () => {
   exec(`babel-node ${resolve(__dirname, 'packagerSSR.js')}`, (err, stdout, stderr) => {
-    if (err) console.error('[SSR packager] ERR', err);
-    if (stdout) console.log('[SSR packager]', stdout);
-    if (stderr) console.error('[SSR packager]', stderr);
+    if (err) console.error('[SSR packager ERR]', err);
+    if (stdout) console.log('[SSR packager OUT]', stdout);
+    if (stderr) console.error('[SSR packager ERR]', stderr);
   });
   exec(`babel-node ${resolve(__dirname, 'packagerSPA.js')}`, (err, stdout, stderr) => {
-    if (err) console.error('[SPA packager] ERR', err);
-    if (stdout) console.log('[SPA packager]', stdout);
-    if (stderr) console.error('[SPA packager]', stderr);
+    if (err) console.error('[SPA packager ERR]', err);
+    if (stdout) console.log('[SPA packager OUT]', stdout);
+    if (stderr) console.error('[SPA packager ERR]', stderr);
   });
 });
 exec(`babel-node ${resolve(__dirname, 'staticPackager.js')}`, (err, stdout, stderr) => {
-  if (err) console.error('[Static packager] ERR', err);
+  if (err) console.error('[Static packager ERR]', err);
   if (stdout) {
     staticPackagerReadyEmitter.emit('ready');
-    console.log('[Static packager]', stdout);
+    console.log('[Static packager OUT]', stdout);
   }
-  if (stderr) console.error('[Static packager]', stderr);
+  if (stderr) console.error('[Static packager ERR]', stderr);
 });
 
 // Watch the files' change.

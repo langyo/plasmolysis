@@ -1,6 +1,7 @@
 import webpack from 'webpack';
-import { workDirPath } from '../staticRequire';
 import { resolve } from 'path';
+
+const workDirPath = process.env.WORKDIR;
 
 let listener = webpack({
   entry: resolve('../indexSPA'),
@@ -12,8 +13,8 @@ let listener = webpack({
   aggregateTimeout: 300,
   poll: undefined
 }, (err, stats) => {
-  if(err) console.error(err)
-  else console.log(stats);
+  if(err) console.error(err);
+  else console.log('The SPA bundle file has been updated, hash:', stats.hash)
 });
 
 process.on('exit', () => {

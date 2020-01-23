@@ -1,8 +1,9 @@
 import webpack from 'webpack';
 import { create } from 'watchr';
-import { workDirPath } from '../staticRequire';
 import { resolve } from 'path';
 import scanDir from 'klaw-sync';
+
+const workDirPath = process.env.WORKDIR;
 
 let pages = scanDir(resolve(workDirPath, 'components/pages')).map(n => n.path).reduce((obj, path) => ({
   ...obj,

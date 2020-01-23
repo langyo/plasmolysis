@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "scripts": {
     "test": "jest --watch",
-    "start": "nodemon --ignore src/utils/staticRequire.js --exec \"babel-node --config-file ./.babelrc src/server/index.js\"",
-    "serve": "set NODE_ENV=production && now babel-node --config-file ./.babelrc src/server/index.js"
+    "start": "cross-env PORT=3000 nodemon --ignore src/utils/staticRequire.js --exec \"babel-node --config-file ./.babelrc src/server/index.js\"",
+    "serve": "cross-env NODE_ENV=production now babel-node --config-file ./.babelrc src/server/index.js"
   },
   "bin": {
     "start": "./bin/start"
