@@ -3,10 +3,10 @@ import { create } from 'watchr';
 import { accessSync, writeFile } from 'fs';
 import scanDir from 'klaw-sync';
 
-const workDirPath = process.env.WORKDIR;
+import workDirPath from '../utils/workDirPath';
 const distPath = resolve(__dirname, '../staticRequire.js');
 
-const packageBundle = () => {
+const bundler = () => {
   writeFile(distPath,
     `// Unless you know what you are doing now, DON'T modify this file!
 export const components = {
@@ -111,6 +111,27 @@ let packages = {
   configs: resolve(workDirPath, 'nickel.config.js')
 };
 
+// Export functions for server side.
+export const require = path => {
+  // When decomposing paths, note that the third and subsequent items of the path array need to be combined and separated by periods.
+  let paths = path.split('.');
+  if (paths.length > 3) paths = [paths[0], paths[1], paths.splice(2).join('.')];
+
+  const dfs = (paths, packages) => {
+    if (packages[paths[0]]) {
+      if(typeof packages[paths[0]] === 'object' && paths.length > 1) {
+        return dfs(paths.splice(1), packages[paths[0]]);
+      } else if(paths.length === 1) {
+        let required = require(packages[paths[0]]);
+        return required.default || required;
+      } else throw new Error('Unknown path!');
+    } else throw new Error('Unknown path!');
+  };
+};
+
+export const getPackages = () => packages;
+
+// Watch the files.
 let stalkers = [
   create(resolve(workDirPath, 'components')).on('change', (type, fullPath) => {
     const rootPath = resolve(workDirPath, 'components');
@@ -128,7 +149,7 @@ let stalkers = [
         delete packages.components[pathArr[0]][pathArr.splice(1).join('.')];
         break;
     }
-    packageBundle();
+    bundler();
   }),
   create(resolve(workDirPath, 'controllers')).on('change', (type, fullPath) => {
     const rootPath = resolve(workDirPath, 'controllers');
@@ -146,7 +167,7 @@ let stalkers = [
         delete packages.components[pathArr[0]][pathArr.splice(1).join('.')];
         break;
     }
-    packageBundle();
+    bundler();
   }),
   create(resolve(__dirname, '../actions')).on('change', (type, fullPath) => {
     const rootPath = resolve(__dirname, '../actions');
@@ -161,12 +182,13 @@ let stalkers = [
         delete packages.actions[path];
         break;
     }
-    packageBundle();
+    bundler();
   }),
   create(resolve(workDirPath, 'nickel.config.js')).on('change', type => {
     if (type === 'delete') throw new Error('You must provide a configuration file.');
     packages.configs = resolve(workDirPath, 'nickel.config.js');
-    packageBundle();
+    bundler();
   })
 ];
+
 process.on('close', () => stalkers.forEach(e => e.close()));

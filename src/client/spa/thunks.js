@@ -15,7 +15,7 @@ const createTasks = (test, tasks, path, type, name) => async (payload, dispatch,
   console.log('Get payload', payload);
   console.log(`The action ${path} will be executed`);
   for (let i = 0; i < tasks.length; ++i) {
-    console.log('middle process', tasks[i], 'at', i, ', the total length is', tasks.length);
+    console.log('Middle process', tasks[i], 'at', i, ', the total length is', tasks.length);
     if (!Array.isArray(tasks[i])) {
       try {
         payload = await actionTypes[tasks[i].type](tasks[i])(payload, dispatch, state, type, name);
@@ -46,6 +46,7 @@ for (let type of ['models', 'pages', 'views']) {
       }
     }
     else initState[type][name] = {};
+
     dealed = Object.keys(dealed)
       .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
@@ -59,5 +60,7 @@ for (let type of ['models', 'pages', 'views']) {
     }
   }
 }
+
+// TODO global.initialize global.initializeFail
 
 export { thunks, initState, initStateForModels };

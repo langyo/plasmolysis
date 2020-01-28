@@ -3,8 +3,9 @@ import workDirPath from '../utils/workDirPath';
 import { create } from 'watchr';
 import scanDir from 'klaw-sync';
 
-// TODO: It will be a child process in the future.
-export const context = require(resolve(workDirPath, 'server/context'));
+// TODO: It will has a file watcher in the future.
+let context = require(resolve(workDirPath, 'server/context'));
+export const getContext = () => context;
 
 let configs = require(resolve(workDirPath, 'nickel.config.js')).default;
 let controllers = {

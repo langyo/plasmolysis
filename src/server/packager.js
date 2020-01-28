@@ -1,10 +1,9 @@
 import webpack from 'webpack';
 import { resolve } from 'path';
-
-const workDirPath = process.env.WORKDIR;
+import workDirPath from '../utils/workDirPath';
 
 let listener = webpack({
-  entry: resolve('../indexSPA'),
+  entry: resolve('../client/spa/index.js'),
   output: {
     path: resolve(workDirPath, 'dist'),
     filename: 'spa.js'
@@ -14,9 +13,9 @@ let listener = webpack({
   poll: undefined
 }, (err, stats) => {
   if(err) console.error(err);
-  else console.log('The SPA bundle file has been updated, hash:', stats.hash)
+  else console.log('The bundled file has been updated, hash:', stats.hash)
 });
 
 process.on('exit', () => {
-  listener.close(() => console.log('The watcher has been closed.'));
+  listener.close(() => console.log('Bundler has been closed.'));
 });
