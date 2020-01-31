@@ -20,15 +20,16 @@ import { express as userAgentParser } from 'express-useragent';
 
 import React, { createElement } from 'react';
 import ReactDomServer from 'react-dom/server';
-import { Provider } from 'react-redux';
+import { connect } from 'react-redux';
 import { resolve } from 'path';
 
 const port = parseInt(process.env.PORT, 10) || 80;
 const dev = process.env.NODE_ENV !== 'production';
 
-import { createServer, getContext() } from './services';
+import workDirPath from '../utils/workDirPath';
+import { createServer, getContext } from './services';
 import packager from './packager';
-import { require, getPackages } from './watcher';
+import { requirePackage, getPackages } from './watcher';
 import render from '../client/ssr/index';
 
 // Create the server.
@@ -66,7 +67,7 @@ createServer(server);
 
 // Create the page services.
 server.get('*', (req, res) => {
-  const renderPage = req.url === '/' ? configs.initPage : req.url.substr(1, Math.min(req.url.indexOf('/', 2), req.url.indexOf('?', 2)));
+  const renderPage = req.url === '/' ? requirePackage(`configs`).initPage : req.url.substr(1, Math.min(req.url.indexOf('/', 2), req.url.indexOf('?', 2)));
   if (Object.keys(getPackages().components.pages).indexOf(renderPage) < 0) {
     res.send(`No page named ${renderPage}!`);
     res.end();
@@ -75,17 +76,33 @@ server.get('*', (req, res) => {
 
   // Get rendered page string.
   let {
-    str, head 
+    str, head
   } = render({
     renderPage,
-    pagePreloader: require(`controllers.pages.${renderPage}`).preload || {},
-    globalPreloader: getPackages().components.global ? require(`controllers.global`).preload || {},
+    pagePreloader: requirePackage(`controllers.pages.${renderPage}`).preload || {},
+    globalPreloader: getPackages().components.global ? requirePackage(`controllers.global`).preload : {},
     Page: <>{
       getPackages().components.views.border ?
-        createElement(require(`components.views.border`), { children: createElement(require(`components.pages.${renderPage}`)) }) :
-        createElement(require(`components.pages.${renderPage}`))
+        createElement(connect(
+          (state => ({ ...state.views.border, data: state.data })),
+          (dispatch => ({}))
+        )(requirePackage(`components.views.border`)), {
+          children: createElement(connect(
+            (state => ({ ...state.pages[renderPage], data: state.data })),
+            (dispatch => ({}))
+          )(requirePackage(`components.pages.${renderPage}`)))
+        }) :
+        createElement(connect(
+          (state => ({ ...state.pages[renderPage], data: state.data })),
+          (dispatch => ({}))
+        )(requirePackage(`components.pages.${renderPage}`)))
     }</>,
-    Views: Object.keys(getPackages().components.views).filter(n => n !== 'border').map(key => createElement(require(`components.views.${key}`))),
+    Views: Object.keys(getPackages().components.views)
+      .filter(n => n !== 'border')
+      .map(key => createElement(connect(
+        (state => ({ ...state.views[key], data: state.data })),
+        (dispatch => ({}))
+      )(requirePackage(`components.views.${key}`)))),
     context: getContext(),
     cookies: req.cookies,
     pageParam: req.query,
@@ -93,7 +110,7 @@ server.get('*', (req, res) => {
   });
 
   res.send(`<!DOCTYPE html>
-<html lang=${configs.language || 'en'}>
+<html lang=${requirePackage(`configs`).language || 'en'}>
 <head>
   <meta charSet='utf-8' />
   <meta
@@ -108,13 +125,13 @@ server.get('*', (req, res) => {
   }</style>
   ${head || ''}
   <title>${
-typeof configs.title === 'string' ?
-  configs.title :
-  (typeof configs.title[renderPage] === 'string' ?
-    configs.title[renderPage] :
-    configs.title[renderPage](renderPage))
-}</title>
-  ${configs.icon ? `<link rel='icon' href=${configs.icon} />` : ''}
+    typeof requirePackage(`configs`).title === 'string' ?
+      requirePackage(`configs`).title :
+      (typeof requirePackage(`configs`).title[renderPage] === 'string' ?
+        requirePackage(`configs`).title[renderPage] :
+        requirePackage(`configs`).title[renderPage](renderPage))
+    }</title>
+  ${requirePackage(`configs`).icon ? `<link rel='icon' href=${requirePackage(`configs`).icon} />` : ''}
 </head>
 <body>
   <noscript>

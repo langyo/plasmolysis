@@ -1,14 +1,12 @@
-import { controllers, actions, configs } from '../staticRequire';
+import { getPackages, requirePackage } from '../../server/watcher';
 
-let initState = {  pages: {}, views: {}, models: {}, data: configs.initData || {} };
-
-const actionTypes = Object.keys(actions).reduce((obj, key) => (actions[key].client ? { ...obj, [key]: actions[key].client } : obj));
-const actionCreators = Object.keys(actions).reduce((obj, key) => ({ ...obj, [key]: actions[key].$ }));
+let initState = {  pages: {}, views: {}, models: {}, data: requirePackage(`configs`).initData || {} };
+const actionCreators = Object.keys(getPackages().actions).reduce((obj, key) => ({ ...obj, [key]: requirePackage(`actions.${key}`).$ }), {});
 
 for (let type of ['pages', 'views']) {
-  for (let name of Object.keys(controllers[type])) {
+  for (let name of Object.keys(getPackages().controllers[type])) {
     // Create the actions' map.
-    let dealed = controllers[type][name](actionCreators);
+    let dealed = requirePackage(`controllers.${type}.${name}`)(actionCreators);
 
     // Get the initialize state.
     if (dealed.init) initState[type][name] = dealed.init;
@@ -16,7 +14,7 @@ for (let type of ['pages', 'views']) {
   }
 }
 
-for (let name of Object.keys(controllers.models)) {
+for (let name of Object.keys(getPackages().controllers.models)) {
   initState.models[name] = {};
 }
 

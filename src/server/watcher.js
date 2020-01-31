@@ -71,7 +71,6 @@ try {
 } catch (e) {
   throw new Error(`You must provide a configuration file. At: ${resolve(workDirPath, 'nickel.config.js')}`);
 }
-packages.configs = require(resolve(workDirPath, 'nickel.config.js')).default;
 
 // Initial the packages what will be exported.
 let packages = {
@@ -112,7 +111,7 @@ let packages = {
 };
 
 // Export functions for server side.
-export const require = path => {
+export const requirePackage = path => {
   // When decomposing paths, note that the third and subsequent items of the path array need to be combined and separated by periods.
   let paths = path.split('.');
   if (paths.length > 3) paths = [paths[0], paths[1], paths.splice(2).join('.')];
@@ -127,6 +126,8 @@ export const require = path => {
       } else throw new Error('Unknown path!');
     } else throw new Error('Unknown path!');
   };
+
+  return dfs(paths, packages);
 };
 
 export const getPackages = () => packages;

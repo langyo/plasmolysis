@@ -7,13 +7,11 @@ export default (renderPage, {headers, cookies}) => handleActions({
   'framework.updateState': (state, action) => merge(state, action.payload),
 }, {
   pages: {
-    [renderPage]: typeof initState.pages[renderPage] === 'function' ? initState.pages[renderPage](preload) : {
-      ...(typeof initState.pages[renderPage] === 'function' ? {} : initState.pages[renderPage])
-    }
+    [renderPage]: typeof initState.pages[renderPage] === 'function' ? {} : initState.pages[renderPage]
   },
   views: Object.keys(initState.views).reduce((obj, key) => ({
     ...obj,
-    [key]: typeof initState.views[key] === 'function' ? initState.views[key](preload) : initState.views[key]
+    [key]: typeof initState.views[key] === 'function' ? {} : initState.views[key]
   }), {}),
   data: {
     cookies,

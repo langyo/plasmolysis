@@ -1,4 +1,4 @@
-export default (obj1, obj2) => {
+const merge = (obj1, obj2) => {
   let ret = { ...obj1 };
   for (let i of Object.keys(obj2)) {
     if (Array.isArray(obj2[i])) {
@@ -10,5 +10,6 @@ export default (obj1, obj2) => {
     else ret[i] = obj2[i];
   };
   return ret;
-}
+};
 
+export default merge;

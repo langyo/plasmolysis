@@ -1,19 +1,17 @@
-import React, { createElement } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
-import { renderToString } from 'react-dom';
-
-import { pages, views } from './connector';
+import { renderToString } from 'react-dom/server';
 
 export default ({ store, Page, Views, extraBodyString }) => `
 ${extraBodyString || ''}
 <div id="nickelcat-pages">
 ${renderToString(<Provider store={store}>
-  <PageComponent />
+  {Page}
 </Provider>)}
 </div>
 <div id="nickelcat-views">
 ${renderToString(<Provider store={store}>
-  <ViewComponents />
+  {Views}
 </Provider>)}
 </div>
 <div id="nickelcat-models"></div>

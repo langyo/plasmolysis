@@ -1,5 +1,5 @@
 import React from 'react';
-import { Provider } from '
+import { Provider } from 'react-redux';
 
 import storeCreator from './store';
 import componentToString from './component';
@@ -16,7 +16,7 @@ export default async ({ renderPage, pagePreloader, globalPreloader, Page, Views,
       }
     }
   });
-  let { preload as globalPreload, extraHeadString, extraBodyString } = typeof globalPreloader === 'function' ? await globalPreloader(context, cookies, pageParams, { Page, Views }, headers) : globalPreloader;
+  let { preload: globalPreload, extraHeadString, extraBodyString } = typeof globalPreloader === 'function' ? await globalPreloader(context, cookies, pageParams, { Page, Views }, headers) : globalPreloader;
   store.dispatch({
     type: 'framework.updateState',
     payload: {
