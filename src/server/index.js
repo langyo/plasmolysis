@@ -86,23 +86,23 @@ server.get('*', (req, res) => {
         createElement(connect(
           (state => ({ ...state.views.border, data: state.data })),
           (dispatch => ({}))
-        )(requirePackage(`components.views.border`)), {
+        )(() => requirePackage(`components.views.border`)), {
           children: createElement(connect(
             (state => ({ ...state.pages[renderPage], data: state.data })),
             (dispatch => ({}))
-          )(requirePackage(`components.pages.${renderPage}`)))
+          )(() => requirePackage(`components.pages.${renderPage}`)))
         }) :
         createElement(connect(
           (state => ({ ...state.pages[renderPage], data: state.data })),
           (dispatch => ({}))
-        )(requirePackage(`components.pages.${renderPage}`)))
+        )(() => requirePackage(`components.pages.${renderPage}`)))
     }</>,
     Views: Object.keys(getPackages().components.views)
       .filter(n => n !== 'border')
       .map(key => createElement(connect(
         (state => ({ ...state.views[key], data: state.data })),
         (dispatch => ({}))
-      )(requirePackage(`components.views.${key}`)))),
+      )(() => requirePackage(`components.views.${key}`)))),
     context: getContext(),
     cookies: req.cookies,
     pageParam: req.query,
