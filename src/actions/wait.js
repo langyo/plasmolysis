@@ -4,7 +4,7 @@ export const $ = length => {
 };
 
 export const client = task =>
-  async (payload, dispatch, state, type, name) =>
+  async (payload, { setState, replaceState, state, dispatcher }, { type, name }) =>
     await (new Promise(resolve =>
       setTimeout(() => resolve(payload, dispatch, state), task.length)
     ));

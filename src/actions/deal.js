@@ -4,8 +4,5 @@ export const $ = func => {
 };
 
 export const client = task =>
-  async (payload, dispatch, state, type, name) =>
-    await (new Promise(
-      resolve => task.func(payload, dispatch, state, resolve)
-    )
-  );
+  async (payload, { setState, replaceState, state, dispatcher }, { type, name }) =>
+    await task.func(payload, { setState, replaceState, state, dispatcher }, resolve);
