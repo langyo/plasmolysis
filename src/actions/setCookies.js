@@ -1,8 +1,8 @@
 export const $ = obj => typeof obj === 'function' ? { type: 'setCookies', func: obj } : { type: 'setCookies', obj };
 
-export const client = task => async (payload, { setState, replaceState, state, dispatcher }, { type, name }) => {
+export const client = task => async (payload, { setState, replaceState, getState, getInitState, dispatcher }, { type, name }) => {
   console.log('Get payload at setCookies:', payload);
-  let cookies = task.func ? task.func(payload, state.data.cookies, state.data) : task.obj;
+  let cookies = task.func ? task.func(payload, getState().data.cookies, getState().data) : task.obj;
   setState({
     data: {
       cookies

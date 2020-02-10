@@ -1,11 +1,8 @@
 import { controllers, actions, configs } from '../staticRequire';
-import { NoEmitOnErrorsPlugin } from 'webpack';
-import { createPortal } from 'react-dom';
 
 let controllerStreams = {};
 let controllerStreamsMapped = { models: {}, pages: {}, views: {}, global: {} };
 let initState = { models: {}, pages: {}, views: {}, data: configs.initData || {} };
-let initStateForModels = {};
 
 const actionTypes = Object.keys(actions).reduce((obj, key) => (actions[key].client ? { ...obj, [key]: actions[key].client } : obj));
 const actionCreators = Object.keys(actions).reduce((obj, key) => ({ ...obj, [key]: actions[key].$ }));
@@ -25,11 +22,12 @@ export default ({ setState, replaceState, getState }) => {
           payload = await actionTypes[tasks[i].type](tasks[i])(payload, {
             setState: state => new Promise(resolve => setState(state, resolve)),
             replaceState: state => new Promise(resolve => replaceState(state, resolve)),
-            state: getState(),
+            getState,
             dispatcher: (type, obj) => {
               if (!controllerStreams[type]) throw new Error('No corresponding controller found.')
               controllerStreams[type](obj);
-            }
+            },
+            getInitState: () => initState
           }, { type, name });
           console.log(`The action ${path} has runned to step ${i}, the payload is`, payload);
         } catch (e) {
@@ -51,11 +49,7 @@ export default ({ setState, replaceState, getState }) => {
 
       // Get initialization objects.
       if (dealed.init) {
-        if (type !== 'models') initState[type][name] = dealed.init;
-        else {
-          initState[type][name] = {};
-          initStateForModels[name] = dealed.init;
-        }
+        initState[type][name] = dealed.init;
       }
       else initState[type][name] = {};
 
@@ -80,5 +74,5 @@ export default ({ setState, replaceState, getState }) => {
 
   // TODO global.initSuccess global.initFail
 
-  return { controllerStreams, controllerStreamsMapped, initState, initStateForModels };
+  return controllerStreamsMapped;
 };

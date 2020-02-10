@@ -10,7 +10,7 @@ export const $ = (obj1, obj2) => {
   else throw new Error('The first argument must be a function or a string!');
 };
 
-export const client = task => async (payload, { setState, replaceState, state, dispatcher }, { type, name }) => {
+export const client = task => async (payload, { setState, replaceState, getState, getInitState, dispatcher }, { type, name }) => {
   console.log('Get payload at createModel:', payload);
   let id = generate();
   if (task.func) {
@@ -20,7 +20,7 @@ export const client = task => async (payload, { setState, replaceState, state, d
       models: {
         [ret.name]: {
           [id]: {
-            ...ret.payload,
+            ...(typeof getInitState().models[type] === 'function' ? getInitState().models[type](ret.payload) : getInitState().models[type]),
             $id: id
           }
         }
@@ -31,7 +31,7 @@ export const client = task => async (payload, { setState, replaceState, state, d
       models: {
         [task.name]: {
           [id]: {
-            ...task.payload,
+            ...(typeof getInitState().models[type] === 'function' ? getInitState().models[type](task.payload) : getInitState().models[type]),
             $id: id
           }
         }

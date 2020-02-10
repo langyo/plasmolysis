@@ -10,9 +10,9 @@ export const $ = (obj1, obj2) => {
   return { type: 'dispatch', obj: obj1 };
 };
 
-export const client = task => async (payload, { setState, replaceState, state, dispatcher }, { type, name }) => {
+export const client = task => async (payload, { setState, replaceState, getState, getInitState, dispatcher }, { type, name }) => {
   console.log('Get payload at dispatch:', payload);
-  let ret = typeof task.obj === 'function' ? task.obj(payload, state) : task.obj;
+  let ret = typeof task.obj === 'function' ? task.obj(payload, getState()) : task.obj;
   dispatcher(thunks[task.name || ret.type](task.name ? ret : ret.payload));
   return payload;
 };

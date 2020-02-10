@@ -13,15 +13,24 @@ export default () => {
     fetch(`api/${renderPage}`, {
       credentials: 'same-origin'
     }).then(res => res.json()).then(payload => {
-      let dealed = typeof controllers.pages[renderPage].init === 'function' ? controllers.pages[renderPage].init(payload) : payload;
-
+      let dealed = typeof controllers.pages[renderPage]({}).init === 'function' ? controllers.pages[renderPage]({}).init(payload) : payload;
+      hydrate(document.querySelector('#nickelcat-root'), Component({
+        ...window.__APP_STATE__,
+        pages: {
+          [renderPage]: dealed
+        },
+        data: { ...window.__APP_STATE__.data, connectionType: 'spa' }
+      }));
     }).catch(err => {
-
+      hydrate(document.querySelector('#nickelcat-root'), Component({
+        ...window.__APP_STATE__,
+        data: { ...window.__APP_STATE__.data, connectionType: 'spa-offline' }
+      }));
     });
   } else {
     hydrate(document.querySelector('#nickelcat-root'), Component({
       ...window.__APP_STATE__,
-      data: { ...window.__APP_STATE__.data, connectionType: 'spa' }
+      data: { ...window.__APP_STATE__.data, connectionType: 'ssr' }
     }));
   }
 };

@@ -17,7 +17,7 @@ export const $ = (path, obj1, obj2) => {
   }
 };
 
-export const client = task => async (payload, { setState, replaceState, state, dispatcher }, { type, name }) => {
+export const client = task => async (payload, { setState, replaceState, getState, getInitState, dispatcher }, { type, name }) => {
   console.log('Get payload at fetch:', payload);
   let ret = await (await fetch(task.host + task.path, {
     method: 'POST',
@@ -26,7 +26,7 @@ export const client = task => async (payload, { setState, replaceState, state, d
       'Content-Type': 'application/json'
     },
     ...task.fetch,
-    body: JSON.stringify(typeof task.send === 'function' ? task.send({ ...payload, $id: null }, state) : task.send)
+    body: JSON.stringify({ ...(typeof task.send === 'function' ? task.send({ ...payload }, getState()) : task.send), $id: null })
   })).json();
   return { ...ret, $id: payload && payload.$id || null };
 };
