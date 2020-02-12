@@ -79,9 +79,9 @@ for (let type of ['models', 'pages', 'views']) {
     let dealed = controllers[type][name](actionCreators);
 
     // Remove all special keys that are not used to express actions.
-    if (type === 'pages') preloadServices[name] = dealed.preLoad || (async () => ({}));
+    if (type === 'pages') preloadServices[name] = dealed.preload || (async () => ({}));
     dealed = Object.keys(dealed)
-      .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
+      .filter(name => ['init', 'preload'].indexOf(name) < 0)
       .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
     for (let action of Object.keys(dealed)) {

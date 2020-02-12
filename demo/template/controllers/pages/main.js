@@ -3,7 +3,7 @@ export default ({ togglePage, dispatch }) => ({
     console.log('From server', payload);
     return payload
   },
-  preLoad: async (context, cookies, params) => {
+  preload: async (context, cookies, params) => {
     try{
       let docs = context.db.get('notes').sortBy('date', n => 2147483647 - n.date).take(10);
       return { latestPush: docs, latestPushState: 'success' };

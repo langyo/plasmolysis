@@ -16,7 +16,7 @@ export const client = task => async (payload, { setState, replaceState, getState
     ? getInitState().pages[ret.name](ret.params, state.data)
     : { ...getInitState().pages[ret.name], ...ret.params } || ret.params || {};
 
-  // TODO: 从客户端请求 preLoad 函数；这并不是必须要加载得，可通过 config 下配置决定各个页面是否要执行
+  // TODO: 从客户端请求 preload 函数；这并不是必须要加载得，可通过 config 下配置决定各个页面是否要执行
 
   setState({
     pages: {

@@ -2,7 +2,7 @@ import React, { createElememt } from 'react';
 import { components } from '../staticRequire';
 import controllersCreator from './controllers';
 
-export default class Main extends React.Component {
+export default class SPAMain extends React.Component {
   constructor(initState) {
     this.state = initState;
   }

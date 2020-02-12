@@ -20,7 +20,6 @@ import { express as userAgentParser } from 'express-useragent';
 
 import React, { createElement } from 'react';
 import ReactDomServer from 'react-dom/server';
-import { connect } from 'react-redux';
 import { resolve } from 'path';
 
 const port = parseInt(process.env.PORT, 10) || 80;
@@ -28,9 +27,9 @@ const dev = process.env.NODE_ENV !== 'production';
 
 import workDirPath from '../utils/workDirPath';
 import { createServer, getContext } from './services';
-import packager from './packager';
 import { requirePackage, getPackages } from './watcher';
-import render from '../client/ssr/index';
+import getInitializeData from './initializer';
+import SSRComponent from './component';
 
 // Create the server.
 const server = express();
@@ -69,46 +68,22 @@ createServer(server);
 server.get('*', (req, res) => {
   const renderPage = req.url === '/' ? requirePackage(`configs`).initPage : req.url.substr(1, Math.min(req.url.indexOf('/', 2), req.url.indexOf('?', 2)));
   if (Object.keys(getPackages().components.pages).indexOf(renderPage) < 0) {
-    res.send(`No page named ${renderPage}!`);
+    // TODO 404 page(pages.error, or set by profile)
+    res.send(`404 No page named ${renderPage}!`);
     res.end();
     return;
   }
 
-  // Get rendered page string.
-  let {
-    str, head
-  } = render({
-    renderPage,
-    pagePreloader: requirePackage(`controllers.pages.${renderPage}`).preload || {},
-    globalPreloader: getPackages().components.global ? requirePackage(`controllers.global`).preload : {},
-    Page: <>{
-      getPackages().components.views.border ?
-        createElement(connect(
-          (state => ({ ...state.views.border, data: state.data })),
-          (dispatch => ({}))
-        )(() => requirePackage(`components.views.border`)), {
-          children: createElement(connect(
-            (state => ({ ...state.pages[renderPage], data: state.data })),
-            (dispatch => ({}))
-          )(() => requirePackage(`components.pages.${renderPage}`)))
-        }) :
-        createElement(connect(
-          (state => ({ ...state.pages[renderPage], data: state.data })),
-          (dispatch => ({}))
-        )(() => requirePackage(`components.pages.${renderPage}`)))
-    }</>,
-    Views: Object.keys(getPackages().components.views)
-      .filter(n => n !== 'border')
-      .map(key => createElement(connect(
-        (state => ({ ...state.views[key], data: state.data })),
-        (dispatch => ({}))
-      )(() => requirePackage(`components.views.${key}`)))),
-    context: getContext(),
-    cookies: req.cookies,
-    pageParam: req.query,
-    headers: req.headers
-  });
+  // Get preload data and initialize state.
+  const pagePreloader = requirePackage(`controllers.pages.${renderPage}`).preload || {};
+  const globalPreloader = getPackages().components.global ? requirePackage(`controllers.global`).preload : {};
+  const { initState, preloadPageState } = getInitializeData();
+  const context = getContext();
+  const cookies = req.cookies;
+  const pageParam = req.query;
+  const headers = req.headers;
 
+  // Render the page.
   res.send(`<!DOCTYPE html>
 <html lang=${requirePackage(`configs`).language || 'en'}>
 <head>
@@ -123,7 +98,7 @@ server.get('*', (req, res) => {
       padding: 0px;
     }
   }</style>
-  ${head || ''}
+  ${extraHeadString || ''}
   <title>${
     typeof requirePackage(`configs`).title === 'string' ?
       requirePackage(`configs`).title :
@@ -138,7 +113,8 @@ server.get('*', (req, res) => {
     You need to enable JavaScript to run this app.
     您需要启用 JavaScript 才能运行该应用。
   </noscript>
-  ${str}
+  <script>window.__APP_STATE__ = JSON.parse(${{}});</script>
+  ${extraBodyString || ''}
 </body>
 </html>`);
 });

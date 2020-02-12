@@ -55,7 +55,7 @@ export default ({ setState, replaceState, getState }) => {
 
       // Remove all special keys that are not used to express actions.
       dealed = Object.keys(dealed)
-        .filter(name => ['init', 'preLoad'].indexOf(name) < 0)
+        .filter(name => ['init', 'preload'].indexOf(name) < 0)
         .reduce((prev, next) => ({ ...prev, [next]: dealed[next] }), {});
 
       // Create action streams.
