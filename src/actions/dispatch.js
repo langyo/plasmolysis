@@ -6,6 +6,7 @@ export const $ = (obj1, obj2) => {
     if (!(typeof obj2 === 'object' || typeof obj2 === 'function')) throw new Error('You must provide an object or a function as the second argument!')
     return { type: 'dispatch', obj: obj2, name: obj1 };
   }
+  if (typeof obj1 === 'string') return { type: 'dispatch', obj: {}, name: obj1 };
   if (!(obj1 && typeof obj1 === 'function')) throw new Error('You must provide a function at least!');
   return { type: 'dispatch', obj: obj1 };
 };

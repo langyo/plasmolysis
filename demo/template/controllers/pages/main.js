@@ -14,10 +14,10 @@ export default ({ togglePage, dispatch }) => ({
 
   toShowPage: [
     togglePage(payload => ({ name: 'show', params: payload })),
-    dispatch({ type: 'views.fab.toggleToEditFab' })
+    dispatch('views.fab.toggleToEditFab')
   ],
   toEditPage: [
     togglePage(payload => ({ name: 'edit', params: payload })),
-    dispatch({ type: 'views.fab.toggleToSaveFab' })
+    dispatch('views.fab.toggleToSaveFab')
   ]
 });

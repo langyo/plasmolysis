@@ -195,8 +195,6 @@ let stalkers = [
 process.on('exit', () => stalkers.forEach(e => e.close()));
 
 import webpack from 'webpack';
-import { resolve } from 'path';
-import workDirPath from '../utils/workDirPath';
 
 let listener = webpack({
   entry: resolve('../client/index.js'),

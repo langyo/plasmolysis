@@ -80,6 +80,6 @@ export default ({ setState, fetch, route, send, handle, createModel, destoryMode
       payload: { content: payload.state === 'success' ? '已保存' : payload.reason }
     })),
     togglePage('main'),
-    dispatch({ type: 'views.fab.toggleToCreateFab' })
+    dispatch('views.fab.toggleToCreateFab')
   ]
 });

@@ -4,7 +4,7 @@ export default ({ dispatch, setState, togglePage }) => ({
   },
 
   openDrawer: [
-    dispatch({ type: 'views.drawer.open' })
+    dispatch('views.drawer.open')
   ],
 
   createNewEditor: [
@@ -12,7 +12,7 @@ export default ({ dispatch, setState, togglePage }) => ({
     togglePage('edit', { })
   ],
   saveEditContent: [
-    dispatch({ type: 'pages.edit.submit' })
+    dispatch('pages.edit.submit')
   ],
 
   toggleToCreateFab: [

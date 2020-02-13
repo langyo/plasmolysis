@@ -37,11 +37,11 @@ export default ({ setState, togglePage, createModel, setData, setCookies, dispat
   openMainPage: [
     togglePage('main'),
     setState({ isOpen: false }),
-    dispatch({ type: 'views.fab.toggleToCreateFab' })
+    dispatch('views.fab.toggleToCreateFab')
   ],
   openShowPage: [
     togglePage('show'),
     setState({ isOpen: false }),
-    dispatch({ type: 'views.fab.toggleToEditFab' })
+    dispatch('views.fab.toggleToEditFab')
   ]
 });
