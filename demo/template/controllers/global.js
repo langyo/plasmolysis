@@ -1,8 +1,12 @@
 export default {
-  init: preload => {
+  init: payload => {
     return {};
   },
   preload: async (context, cookies, params, renderComponent) => {
-    return {};
+    return {
+      payload: {},
+      extraHeadStr: '',
+      extraBodyStr: ''
+    };
   }
 }

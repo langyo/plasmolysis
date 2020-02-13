@@ -77,11 +77,30 @@ server.get('*', (req, res) => {
   // Get preload data and initialize state.
   const pagePreloader = requirePackage(`controllers.pages.${renderPage}`).preload || {};
   const globalPreloader = getPackages().components.global ? requirePackage(`controllers.global`).preload : {};
-  const { initState, preloadPageState } = getInitializeData();
+  const initState = getInitializeData();
   const context = getContext();
   const cookies = req.cookies;
-  const pageParam = req.query;
+  const params = req.query;
   const headers = req.headers;
+
+  let pagePreload = pagePreloader ? pagePreloader(context, cookies, params) : {};
+  let pageInitState = initState.pages[renderPage]
+    ? (typeof initState.pages[renderPage] === 'function'
+      ? initState.pages[renderPage](pagePreload)
+      : initState.pages[renderPage])
+    : pagePreload;
+  let globalPreload = globalPreloader ? globalPreloader(context, cookies, params, createElement(SSRComponent({
+    pages: {
+      [renderPage]: pageInitState
+    },
+    views: initState.views,
+    data: {
+      ...initState.data,
+      cookies,
+      params,
+      headers
+    }
+  }))) : {};
 
   // Render the page.
   res.send(`<!DOCTYPE html>
@@ -98,7 +117,7 @@ server.get('*', (req, res) => {
       padding: 0px;
     }
   }</style>
-  ${extraHeadString || ''}
+  ${globalPreload.extraHeadStr || ''}
   <title>${
     typeof requirePackage(`configs`).title === 'string' ?
       requirePackage(`configs`).title :
@@ -113,8 +132,20 @@ server.get('*', (req, res) => {
     You need to enable JavaScript to run this app.
     您需要启用 JavaScript 才能运行该应用。
   </noscript>
-  <script>window.__APP_STATE__ = JSON.parse(${{}});</script>
-  ${extraBodyString || ''}
+  <script>window.__APP_STATE__ = JSON.parse(${{
+      pages: {
+        [renderPage]: pageInitState
+      },
+      views: initState.views,
+      data: {
+        ...initState.data,
+        ...globalPreload.payload,
+        cookies,
+        params,
+        headers
+      }
+    }});</script>
+  ${globalPreload.extraBodyStr || ''}
 </body>
 </html>`);
 });
