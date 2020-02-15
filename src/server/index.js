@@ -19,7 +19,7 @@ import cookieParser from 'cookie-parser'
 import { express as userAgentParser } from 'express-useragent';
 
 import React, { createElement } from 'react';
-import ReactDomServer from 'react-dom/server';
+import ReactDomServer, { renderToString } from 'react-dom/server';
 import { resolve } from 'path';
 
 const port = parseInt(process.env.PORT, 10) || 80;
@@ -75,8 +75,8 @@ server.get('*', (req, res) => {
   }
 
   // Get preload data and initialize state.
-  const pagePreloader = requirePackage(`controllers.pages.${renderPage}`).preload || {};
-  const globalPreloader = getPackages().components.global ? requirePackage(`controllers.global`).preload : {};
+  const pagePreloader = requirePackage(`controllers.pages.${renderPage}`).preload || (() => ({}));
+  const globalPreloader = getPackages().components.global ? requirePackage(`controllers.global`).preload : () => ({});
   const initState = getInitializeData();
   const context = getContext();
   const cookies = req.cookies;
@@ -89,18 +89,21 @@ server.get('*', (req, res) => {
       ? initState.pages[renderPage](pagePreload)
       : initState.pages[renderPage])
     : pagePreload;
-  let globalPreload = globalPreloader ? globalPreloader(context, cookies, params, createElement(SSRComponent({
-    pages: {
-      [renderPage]: pageInitState
-    },
-    views: initState.views,
-    data: {
-      ...initState.data,
-      cookies,
-      params,
-      headers
+  let globalPreload = globalPreloader ? globalPreloader(context, cookies, params, createElement(SSRComponent, {
+    initState: {
+      pages: {
+        [renderPage]: pageInitState
+      },
+      views: initState.views,
+      data: {
+        ...initState.data,
+        cookies,
+        params,
+        headers
+      },
+      renderPage
     }
-  }))) : {};
+  })) : {};
 
   // Render the page.
   res.send(`<!DOCTYPE html>
@@ -132,7 +135,7 @@ server.get('*', (req, res) => {
     You need to enable JavaScript to run this app.
     您需要启用 JavaScript 才能运行该应用。
   </noscript>
-  <script>window.__APP_STATE__ = JSON.parse(${{
+  <script>window.__APP_STATE__ = JSON.parse(${JSON.stringify({
       pages: {
         [renderPage]: pageInitState
       },
@@ -142,10 +145,30 @@ server.get('*', (req, res) => {
         ...globalPreload.payload,
         cookies,
         params,
-        headers
-      }
-    }});</script>
+        headers,
+        globalPreload: globalPreload.payload
+      },
+      renderPage
+    })});</script>
   ${globalPreload.extraBodyStr || ''}
+  <div id="nickelcat-root">
+    ${renderToString(createElement(SSRComponent, {
+      initState: {
+        pages: {
+          [renderPage]: pageInitState
+        },
+        views: initState.views,
+        data: {
+          ...initState.data,
+          cookies,
+          params,
+          headers,
+          globalPreload: globalPreload.payload
+        },
+        renderPage
+      }
+    }))}
+  </div>
 </body>
 </html>`);
 });

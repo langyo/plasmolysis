@@ -2,8 +2,9 @@ import React, { createElememt } from 'react';
 import { requirePackage, getPackages } from './watcher';
 
 export default class SSRMain extends React.Component {
-  constructor(initState) {
-    this.state = initState;
+  constructor(props) {
+    super(props);
+    this.state = props.initState;
   }
 
   render() {

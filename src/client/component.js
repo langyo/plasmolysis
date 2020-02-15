@@ -3,8 +3,9 @@ import { components } from '../staticRequire';
 import controllersCreator from './controllers';
 
 export default class SPAMain extends React.Component {
-  constructor(initState) {
-    this.state = initState;
+  constructor(props) {
+    super(props);
+    this.state = props.initState;
   }
 
   static controllerStreamsMapped = controllersCreator({
