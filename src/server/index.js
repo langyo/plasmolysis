@@ -18,8 +18,8 @@ import { json as bodyParserJsonify } from 'body-parser';
 import cookieParser from 'cookie-parser'
 import { express as userAgentParser } from 'express-useragent';
 
-import React, { createElement } from 'react';
-import ReactDomServer, { renderToString } from 'react-dom/server';
+import { createElement } from 'react';
+import { renderToString } from 'react-dom/server';
 import { resolve } from 'path';
 
 const port = parseInt(process.env.PORT, 10) || 80;
