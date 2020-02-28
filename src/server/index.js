@@ -29,7 +29,6 @@ import workDirPath from '../utils/workDirPath';
 import { createServer, getContext } from './services';
 import { requirePackage, getPackages } from './watcher';
 import getInitializeData from './initializer';
-import SSRComponent from './component';
 
 // Create the server.
 const server = express();
@@ -75,7 +74,7 @@ server.get('*', (req, res) => {
   }
 
   // Get preload data and initialize state.
-  const pagePreloader = requirePackage(`controllers.pages.${renderPage}`).preload || (() => ({}));
+  const pagePreloader = requirePackage(`controllers.pages.${renderPage}`).preload || () => ({});
   const globalPreloader = getPackages().components.global ? requirePackage(`controllers.global`).preload : () => ({});
   const initState = getInitializeData();
   const context = getContext();
@@ -83,27 +82,28 @@ server.get('*', (req, res) => {
   const params = req.query;
   const headers = req.headers;
 
-  let pagePreload = pagePreloader ? pagePreloader(context, cookies, params) : {};
+  let pagePreload = pagePreloader(context, cookies, params);
   let pageInitState = initState.pages[renderPage]
     ? (typeof initState.pages[renderPage] === 'function'
       ? initState.pages[renderPage](pagePreload)
       : initState.pages[renderPage])
     : pagePreload;
-  let globalPreload = globalPreloader ? globalPreloader(context, cookies, params, createElement(SSRComponent, {
-    initState: {
-      pages: {
-        [renderPage]: pageInitState
-      },
-      views: initState.views,
-      data: {
-        ...initState.data,
-        cookies,
-        params,
-        headers
-      },
-      renderPage
-    }
-  })) : {};
+  let globalPreload = globalPreloader(context, cookies, params, {});
+
+  let state = {
+    pages: {
+      [renderPage]: pageInitState
+    },
+    views: initState.views,
+    data: {
+      ...initState.data,
+      cookies,
+      params,
+      headers,
+      globalPreload: globalPreload.payload
+    },
+    renderPage
+  };
 
   // Render the page.
   res.send(`<!DOCTYPE html>
@@ -152,27 +152,15 @@ server.get('*', (req, res) => {
     })});</script>
   ${globalPreload.extraBodyStr || ''}
   <div id="nickelcat-root">
-    ${renderToString(createElement(SSRComponent, {
-      initState: {
-        pages: {
-          [renderPage]: pageInitState
-        },
-        views: initState.views,
-        data: {
-          ...initState.data,
-          cookies,
-          params,
-          headers,
-          globalPreload: globalPreload.payload
-        },
-        renderPage
-      }
-    }))}
+${renderToString(createElement(requirePackage(`components.pages.${renderPage}`), {
+        // ...state.pages[renderPage],
+        // ...state.data
+}))}
   </div>
 </body>
 </html>`);
 });
 
 server.listen(port, () => {
-  console.log(`> Ready on http://localhost:${port}`)
+  console.log(`Ready on http://localhost:${port}`)
 });
