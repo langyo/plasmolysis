@@ -1,6 +1,6 @@
 {
-  "name": "nickelcat",
-  "version": "0.1.0",
+  "name": "nickelcat-preset",
+  "version": "0.2.0",
   "scripts": {
     "test": "jest --watch",
     "start": "cross-env PORT=3000 nodemon --ignore src/utils/staticRequire.js --exec \"babel-node --config-file ./.babelrc src/server/index.js\"",
