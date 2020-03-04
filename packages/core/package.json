@@ -18,5 +18,14 @@
   "bugs": {
     "url": "https://github.com/langyo/nickelcat/issues"
   },
-  "homepage": "https://github.com/langyo/nickelcat#readme"
+  "homepage": "https://github.com/langyo/nickelcat#readme",
+  "dependencies": {
+    "shortid": "^2.2.15"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.6",
+    "@babel/preset-env": "^7.8.6",
+    "babel-jest": "^25.1.0",
+    "jest": "^25.1.0"
+  }
 }

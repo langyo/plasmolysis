@@ -3,9 +3,11 @@ import React, {
   useState,
   useEffect
 } from 'react';
-import createStream from './createStream';
+import { generate } from 'shortid';
 
-export default controllers => component => (payload = {}) => {
+import createStream from './utils/createStream';
+
+export default controllers => (component, type = generate()) => (payload = {}) => {
   const initState = (controllers.$init && controllers.$init(payload)) || {};
   const [state, setState] = useState(initState);
 
