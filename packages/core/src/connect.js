@@ -1,19 +1,24 @@
 import React, {
   createElement,
-  useState,
   useEffect
 } from 'react';
 import { generate } from 'shortid';
 
 import createStream from './utils/createStream';
+import { storageModel } from './utils/modelStore';
 
-export default controllers => (component, type = generate()) => (payload = {}) => {
-  const initState = (controllers.$init && controllers.$init(payload)) || {};
-  const [state, setState] = useState(initState);
+export default controllers => (component, modelType = generate()) => {
+  const ret = (payload = {}) => {
+    const initState = (controllers.$init && controllers.$init(payload)) || {};
+  
+    return (<>
+      createElement(component, {
+  
+      })
+    </>);
+  };
 
-  return (<>
-    createElement(component, {
+  storageModel(modelType, controllers, ret);
 
-    })
-  </>);
+  return ret;
 }
