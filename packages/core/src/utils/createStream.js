@@ -19,7 +19,7 @@ export default ({
   modelType,
   modelID
 }) => async payload => {
-  if (!test(payload, getState(type), globalState())) {
+  if (!test(payload, getState(modelType, modelID), getGlobalState())) {
     log(`The action ${path} has been skiped.`);
     return payload;
   }
@@ -29,9 +29,9 @@ export default ({
     log('Middle process', tasks[i], 'at', i, ', the total length is', tasks.length);
     if (!Array.isArray(tasks[i])) {
       try {
-        payload = await getActionEvaluator(tasks[i].type)(tasks[i])(payload, {
+        payload = await getActionEvaluator(tasks[i].$type)(tasks[i])(payload, {
           setState: state => setState(modelType, modelID, state),
-          state: getState(modelType, modelID),
+          getState: () => getState(modelType, modelID),
           setGlobalState,
           getGlobalState,
           getModelList,

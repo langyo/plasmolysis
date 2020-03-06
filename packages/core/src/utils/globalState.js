@@ -42,11 +42,10 @@ export const getModelList = modelType => Object.keys(modelState).reduce(
   }), {}
 );
 
-export const createModel = (modelType, payload) => {
-  const id = generate();
+export const createModel = (modelType, initState, id = generate()) => {
   modelState = deepMerge(modelState, {
     [modelType]: {
-      [id]: getInitializer(modelType)(payload);
+      [id]: getInitializer(modelType)(initState);
     }
   });
   return id;
