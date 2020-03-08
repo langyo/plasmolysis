@@ -1,3 +1,7 @@
 /node_modules
 /dist
-data.yaml
+
+yarn.lock
+yarn-error.log
+
+package-lock.json

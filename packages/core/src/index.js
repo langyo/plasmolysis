@@ -1,6 +1,8 @@
 import serverMiddleware from './serverMiddleware';
 import connect from './connect';
 import { loadActionModel, registerActionModel } from './actionLoader';
+import createRenderComponents from './createRenderComponents';
+import * as globalStateTools from './utils/globalState';
 
 import { resolve } from 'path';
 
@@ -14,5 +16,8 @@ export {
   serverMiddleware,
   connect,
   loadActionModel,
-  registerActionModel
+  registerActionModel,
+  createRenderComponents,
+  ...globalStateTools
 };
+
