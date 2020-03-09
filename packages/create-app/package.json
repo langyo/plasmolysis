@@ -1,0 +1,27 @@
+{
+  "name": "nickelcat-cli",
+  "version": "0.2.0",
+  "description": "The cli for create an server project that using nickelcat.",
+  "main": "index.bundle.js",
+  "scripts": {
+    "start": "babel-node index.js",
+    "test": "jest --watch"
+  },
+  "keywords": [
+    "cli",
+    "nickelcat",
+    "react",
+    "framework",
+    "state"
+  ],
+  "author": "langyo",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "chalk": "^3.0.0",
+    "inquirer": "^7.0.6"
+  }
+}
