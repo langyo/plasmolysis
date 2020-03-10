@@ -10,6 +10,16 @@ import deepMerge from './deepMerge';
 
 let globalState = {};
 let modelState = getModelList().reduce((obj, key) => ({ ...obj, [key]: {}}), {});
+let listeners = [];
+
+const updateListener = () => {
+  listeners.forEach(({ type, id, setState }) => {
+    setState(() => {
+      ...modelState[type][id],
+      ...globalState
+    })
+  }; 
+} 
 
 export const getState = (modelType, modelID) => {
   // Check the container.
@@ -73,3 +83,4 @@ export const evaluateModelAction = async (modelType, modelID, actionName, payloa
   });
 };
 
+export const registerListener = (type, id, setState) => listeners.push({ type, id, setState });

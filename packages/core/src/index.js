@@ -1,8 +1,7 @@
 import serverMiddleware from './serverMiddleware';
 import connect from './connect';
-import { loadActionModel, registerActionModel } from './actionLoader';
-import createRenderComponents from './createRenderComponents';
-import * as globalStateTools from './utils/globalState';
+import register from './register';
+import { loadActionModel, requireActionModel } from './actionLoader';
 
 import { resolve } from 'path';
 
@@ -15,9 +14,8 @@ if (process.env.NODE_ENV === 'production') {
 export {
   serverMiddleware,
   connect,
+  register,
   loadActionModel,
-  registerActionModel,
-  createRenderComponents,
-  ...globalStateTools
+  requireActionModel
 };
 
