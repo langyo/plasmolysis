@@ -8,18 +8,22 @@ import {
 } from './modelStore';
 import deepMerge from './deepMerge';
 
+// TODO 也许我该把这个 globalState
+// 做成一个工厂函数，接受一个
+// initGlobalState 和 setState 函数
+
 let globalState = {};
 let modelState = getModelList().reduce((obj, key) => ({ ...obj, [key]: {}}), {});
 let listeners = [];
 
 const updateListener = () => {
-  listeners.forEach(({ type, id, setState }) => {
-    setState(() => {
-      ...modelState[type][id],
-      ...globalState
-    })
-  }; 
+  listeners.forEach(setState => setState(() => ({
+    modelState,
+    globalState
+  })));
 } 
+
+export const getAllState = () => ({ modelState, globalState });
 
 export const getState = (modelType, modelID) => {
   // Check the container.
@@ -36,12 +40,14 @@ export const setState = (modelType, modelID, state) => {
   
   if (!(modelState[modelType][modelID])) throw new Error(`The model ${modelType}[${modelID}] is missing.`);
   
+  updateListener();
   modelState[modelType][modelID] = deepMerge(modelState[modelType][modelID], state);
 }; 
 
 export const getGlobalState = () => globalState;
 
 export const setGlobalState = state => {
+  updateListener();
   globalState = deepMerge(globalState, state);
 };
 
@@ -58,6 +64,7 @@ export const createModel = (modelType, initState, id = generate()) => {
       [id]: getInitializer(modelType)(initState);
     }
   });
+  updateListener();
   return id;
 };
 
@@ -67,6 +74,7 @@ export const destoryModel = (modelType, modelID) => {
       [modelID]: null
     }
   });
+  updateListener();
 };
 
 export const evaluateModelAction = async (modelType, modelID, actionName, payload) => {
@@ -81,6 +89,8 @@ export const evaluateModelAction = async (modelType, modelID, actionName, payloa
       })(payload)
     }
   });
+  updateListener();
 };
 
-export const registerListener = (type, id, setState) => listeners.push({ type, id, setState });
+export const registerListener = setState => listeners.push(setState);
+

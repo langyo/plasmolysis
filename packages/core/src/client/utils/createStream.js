@@ -11,14 +11,6 @@ import {
 import { getActionEvaluator } from './actionCreator';
 import log from './logger';
 
-// TODO
-// 我一直在担心异步调用的问题，生怕这个控制流在客户端正在执行的过程中会被同步阻塞，
-// 所以我得改一下这里工作流的执行方式，例如使用 webworker 之类的
-// 更确切地讲，createStream
-// 可能本身是同步(为了用上
-// DOM)，其中的一部分动作用上异步...
-// 也可能不行
-
 export default ({
   test: () => true,
   tasks,
