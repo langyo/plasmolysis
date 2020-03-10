@@ -1,11 +1,3 @@
-export const $ = (funcOrType, id, action, payload) => {
-  if (typeof funcOrType === 'function') {
-    return { $type: 'dispatch', func: funcOrType };
-  } else {
-    return { $type: 'dispatch', type: funcOrType, id, action, payload };
-  }
-};
-
 export const client = task => async (payload, {
   setState,
   getState,

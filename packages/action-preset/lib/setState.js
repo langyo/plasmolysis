@@ -1,5 +1,3 @@
-export const $ = obj => typeof obj === 'function' ? { $type: 'setState', func: obj } : { $type: 'setState', obj };
-
 export const client = task => async (payload, {
   setState,
   getState,
