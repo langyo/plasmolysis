@@ -21,7 +21,21 @@ const router = routerMiddleware();
 
 router.get('/', async (ctx, next) => {
   ctx.response.type = 'text/html';
-  ctx.response.body = '<h1>Test page</h1>';
+  ctx.response.body = `
+<html>
+<head>
+  <title>Demo Page</title>
+<head>
+<body>
+  
+  <script src="./static/spa.js"></script>
+</body>
+</html>
+  `;
+});
+
+router.get('/static/spa.js', async (ctx, next) => {
+  
 });
 
 app.use(router.routes());
