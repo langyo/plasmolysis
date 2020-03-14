@@ -4,7 +4,7 @@
   "description": "The core for evaluating the action stream.",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest --watch"
+    "test": "jest ./test --watch"
   },
   "repository": {
     "type": "git",
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "dependencies": {
+    "@babel/preset-react": "^7.8.3",
     "shortid": "^2.2.15"
   },
   "devDependencies": {
