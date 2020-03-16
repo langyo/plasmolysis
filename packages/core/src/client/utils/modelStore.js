@@ -18,7 +18,7 @@ export const getModelList = () => Object.keys(components);
 
 export const getInitializer = type => initializer[type] || (init => init);
 
-export const getPreloader = type => preloader[type] || async (init) => init;
+export const getPreloader = type => preloader[type] || (async init => init);
 
 export const getStream = type => controllerStream[type] || {};
 

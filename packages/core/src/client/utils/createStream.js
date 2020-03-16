@@ -18,7 +18,7 @@ export default ({
 }, {
   modelType,
   modelID
-}) => async payload => {
+}) => (async payload => {
   if (!test(payload, getState(modelType, modelID), getGlobalState())) {
     log(`The action ${path} has been skiped.`);
     return payload;
@@ -35,10 +35,10 @@ export default ({
           setGlobalState,
           getGlobalState,
           getModelList,
-          getOtherModelState: getState
+          getOtherModelState: getState,
           createModel,
           destoryModel,
-          evaluateModelAction: (...args) => await evaluateModelAction(...args);
+          evaluateModelAction: (...args) => await evaluateModelAction(...args)
         }, {
           modelType,
           modelID
@@ -61,5 +61,5 @@ export default ({
     }
   }
   return payload;
-};
+});
 
