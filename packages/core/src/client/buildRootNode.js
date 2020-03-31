@@ -10,6 +10,8 @@ import {
 } from './utils/modelStore';
 import createStream from './utils/createStream';
 
+// TODO It will be rebased.
+
 export default (initGlobalState = {}) => {
   const [state, setState] = useState(getAllState());
   registerListener(setState);

@@ -12,13 +12,15 @@ import { getActionEvaluator } from './actionCreator';
 import log from './logger';
 
 export default ({
-  test: () => true,
+  test,
   tasks,
   path
 }, {
   modelType,
   modelID
 }) => (async payload => {
+  if (!test) test = () => true;
+
   if (!test(payload, getState(modelType, modelID), getGlobalState())) {
     log(`The action ${path} has been skiped.`);
     return payload;
