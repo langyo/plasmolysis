@@ -15,9 +15,9 @@ export const loadActionModel = model => {
       if (!(model[key] && typeof model[key] === 'function')) throw new Error(`You must provide a factory function for users at the action '${key}'`);
 
       actions[key] = { };
-      if (client) actions[key] = client;
-      if (server) actions[key] = server;
-      if (local) actions[key] = local;
+      if (client) actions[key].client = client;
+      if (server) actions[key].server = server;
+      if (local) actions[key].local = local;
     }
   } else {
     // Otherwise, we will add the namespace before the actions' name.
@@ -28,16 +28,11 @@ export const loadActionModel = model => {
       if (!(model[key] && typeof model[key] === 'function')) throw new Error(`You must provide a factory function for users at the action '${key}'`);
 
       actions[`${model.$name}.${key}`] = { };
-      if (client) actions[`${model.$name}.${key}`] = client;
-      if (server) actions[`${model.$name}.${key}`] = server;
-      if (local) actions[`${model.$name}.${key}`] = local;
+      if (client) actions[`${model.$name}.${key}`].client = client;
+      if (server) actions[`${model.$name}.${key}`].server = server;
+      if (local) actions[`${model.$name}.${key}`].local = local;
     }
   }
-};
-
-export const requireActionModel = path => {
-  const model = require(path);
-  return loadActionModel(model.default || model);
 };
 
 export const getActions = () => actions;

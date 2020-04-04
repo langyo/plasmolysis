@@ -15,3 +15,14 @@ export default {
   destoryModel,
   dispatch
 };
+
+
+export {
+  deal,
+  wait,
+  setState,
+  setData,
+  createModel,
+  destoryModel,
+  dispatch
+};

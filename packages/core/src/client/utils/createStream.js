@@ -11,42 +11,44 @@ import {
 import { getActionEvaluator } from './actionCreator';
 import log from './logger';
 
-export default ({
-  test: () => true,
+const createTasks = ({
+  test,
   tasks,
   path
 }, {
   modelType,
   modelID
 }) => (async payload => {
+  if (!test) test = (() => true);
+
   if (!test(payload, getState(modelType, modelID), getGlobalState())) {
     log(`The action ${path} has been skiped.`);
     return payload;
   }
   log('Get payload', payload);
+  log('Get tasks', tasks);
   log(`The action ${path} will be executed`);
   for (let i = 0; i < tasks.length; ++i) {
-    log('Middle process', tasks[i], 'at', i, ', the total length is', tasks.length);
+    log('Middle process', tasks[i].type, 'at', i + 1, '/', tasks.length);
     if (!Array.isArray(tasks[i])) {
       try {
-        payload = await getActionEvaluator(tasks[i].$type)(tasks[i])(payload, {
-          setState: state => setState(modelType, modelID, state),
-          getState: () => getState(modelType, modelID),
+        payload = await getActionEvaluator(tasks[i])(payload, {
+          setState,
+          getState,
           setGlobalState,
           getGlobalState,
           getModelList,
           getOtherModelState: getState,
           createModel,
           destoryModel,
-          evaluateModelAction: (...args) => await evaluateModelAction(...args)
+          evaluateModelAction: (async (...args) => await evaluateModelAction(...args))
         }, {
           modelType,
           modelID
         });
-        log(`The action ${path} has runned to step ${i}, the payload is`, payload);
+        log(`The action ${path} has runned to step ${i + 1}, the payload is`, payload);
       } catch (e) {
         log(`The action ${path} was failed to execute, because`, e);
-        throw e;
       }
     } else {
       payload = await createTasks({
@@ -57,9 +59,10 @@ export default ({
         modelType,
         modelID
       })(payload);
-      log(`The action ${path}[${i}] has been executed.`);
+      log(`The action ${path} has runned to step ${i + 1}, the payload is`, payload);
     }
   }
   return payload;
 });
 
+export default createTasks;

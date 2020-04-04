@@ -1,12 +1,12 @@
-import getActions from '../actionLoader';
+import { getActions } from '../actionLoader';
 
 const actions = getActions();
 
-export const getActionEvaluator = actionType => async (next) => {
+export const getActionEvaluator = task => {
   // If this action evaluator don't provide the function at the client,
   // we should ignore this action.
-  if (!(actions[actionType] && actions[actionType].client && typeof actions[actionType].client === 'function')) return (...args) => await next(...args);
+  if (!(actions[task.type] && actions[task.type].client && typeof actions[task.type].client === 'function')) return async payload => payload;
 
   // Otherwise, we will create a new function that forward the parameters.
-  return (payload, tools, type) => await next(actions[actionType].client(payload, tools, type), tools, type);
+  return async (payload, tools, type) => await actions[task.type].client(task)(payload, tools, type);
 }

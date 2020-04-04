@@ -2,18 +2,14 @@ import { generate } from 'shortid';
 
 import createStream from './createStream';
 import {
-  getModelList,
+  getModelList as getModelListOnStore,
   getInitializer,
   getStream
 } from './modelStore';
 import deepMerge from './deepMerge';
 
-// TODO 也许我该把这个 globalState
-// 做成一个工厂函数，接受一个
-// initGlobalState 和 setState 函数
-
 let globalState = {};
-let modelState = getModelList().reduce((obj, key) => ({ ...obj, [key]: {}}), {});
+let modelState = getModelListOnStore().reduce((obj, key) => ({ ...obj, [key]: {}}), {});
 let listeners = [];
 
 const updateListener = () => {
@@ -40,18 +36,24 @@ export const setState = (modelType, modelID, state) => {
   
   if (!(modelState[modelType][modelID])) throw new Error(`The model ${modelType}[${modelID}] is missing.`);
   
-  updateListener();
+  // Check the type.
+  if (typeof state !== 'object') throw new Error('You must provide an object!');
+  
   modelState[modelType][modelID] = deepMerge(modelState[modelType][modelID], state);
+  updateListener();
 }; 
 
 export const getGlobalState = () => globalState;
 
 export const setGlobalState = state => {
-  updateListener();
+  // Check the type.
+  if (typeof state !== 'object') throw new Error('You must provide an object!');
+
   globalState = deepMerge(globalState, state);
+  updateListener();
 };
 
-export const getModelList = modelType => Object.keys(modelState).reduce(
+export const getModelList = () => Object.keys(modelState).reduce(
   (obj, key) => ({
     ...obj,
     [key]: Object.keys(modelState[key])
@@ -59,9 +61,12 @@ export const getModelList = modelType => Object.keys(modelState).reduce(
 );
 
 export const createModel = (modelType, initState, id = generate()) => {
+  // Check the type.
+  if (typeof initState !== 'object') throw new Error('You must provide an object!');
+
   modelState = deepMerge(modelState, {
     [modelType]: {
-      [id]: getInitializer(modelType)(initState);
+      [id]: getInitializer(modelType)(initState)
     }
   });
   updateListener();
