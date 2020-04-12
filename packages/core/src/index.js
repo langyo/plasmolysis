@@ -1,5 +1,13 @@
-import client from './client/index';
+import client, {
+  connect,
+  register,
+  loadActionModel,
+  buildRootNode
+} from './client/index';
 import server from './server/index';
+
+import actionPreset from './action-preset';
+loadActionModel(actionPreset);
 
 export default {
   ...client,
@@ -7,7 +15,12 @@ export default {
 };
 
 export {
-  ...client,
+  connect,
+  register,
+  loadActionModel,
+  buildRootNode
+};
+export {
   server
 };
 

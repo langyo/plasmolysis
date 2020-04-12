@@ -12,6 +12,14 @@ export const storageModel = ({ modelType, component, controllers }) => {
   );
 };
 
+export const _storageViewController = controllers => {
+  if (controllers.$init) initializer.$view = controllers.$init;
+  if (controllers.$preload) preloader.$view = controllers.$preload;
+  controllerStreams.$view = Object.keys(controllers).filter(key => key !== '$init' && key !== '$preload').reduce(
+    (obj, key) => ({ ...obj, [key]: controllers[key] }), {}
+  );
+}
+
 export const loadComponent = type => components[type];
 
 export const getModelList = () => Object.keys(components);

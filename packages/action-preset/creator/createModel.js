@@ -1,10 +1,10 @@
 export default (funcOrType, initState, name) => { 
   if (typeof funcOrType === 'function') {
-    return { type: 'createModel', func: funcOrType };
+    return { $type: 'createModel', func: funcOrType };
   }
   else if (typeof funcOrType === 'string') {
     return {
-      type: 'createModel',
+      $type: 'createModel',
       type: funcOrType,
       payload: initState === undefined ? {} : initState,
       name

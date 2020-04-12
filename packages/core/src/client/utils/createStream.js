@@ -21,7 +21,14 @@ const createTasks = ({
 }) => (async payload => {
   if (!test) test = (() => true);
 
-  if (!test(payload, getState(modelType, modelID), getGlobalState())) {
+  if (!test(payload, {
+    getState: () => getState(modelType, modelID),
+    getGlobalState,
+    getModelList,
+    getOtherModelState: getState,
+    modelType,
+    modelID
+  })) {
     log(`The action ${path} has been skiped.`);
     return payload;
   }
@@ -29,12 +36,12 @@ const createTasks = ({
   log('Get tasks', tasks);
   log(`The action ${path} will be executed`);
   for (let i = 0; i < tasks.length; ++i) {
-    log('Middle process', tasks[i].type, 'at', i + 1, '/', tasks.length);
+    log('Middle process', tasks[i].$type, 'at', i + 1, '/', tasks.length);
     if (!Array.isArray(tasks[i])) {
       try {
         payload = await getActionEvaluator(tasks[i])(payload, {
           setState,
-          getState,
+          getState: () => getState(modelType, modelID),
           setGlobalState,
           getGlobalState,
           getModelList,

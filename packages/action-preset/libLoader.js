@@ -5,6 +5,7 @@ import * as setData from './lib/setData';
 import * as createModel from './lib/createModel';
 import * as destoryModel from './lib/destoryModel';
 import * as dispatch from './lib/dispatch';
+import * as togglePage from './lib/togglePage';
 
 export default {
   deal,
@@ -13,5 +14,6 @@ export default {
   setData,
   createModel,
   destoryModel,
-  dispatch
+  dispatch,
+  togglePage
 };

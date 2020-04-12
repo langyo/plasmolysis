@@ -5,7 +5,8 @@ import creatorLoader, {
   setData,
   createModel,
   destoryModel,
-  dispatch
+  dispatch,
+  togglePage
 } from './creatorLoader';
 import libLoader from './libLoader';
 
@@ -22,7 +23,8 @@ export {
   setData,
   createModel,
   destoryModel,
-  dispatch
+  dispatch,
+  togglePage
 };
 
 export const $name = 'preset';

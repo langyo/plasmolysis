@@ -9,7 +9,7 @@ import {
 import deepMerge from './deepMerge';
 
 let globalState = {};
-let modelState = getModelListOnStore().reduce((obj, key) => ({ ...obj, [key]: {}}), {});
+let modelState = getModelListOnStore().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
 let listeners = [];
 
 const updateListener = () => {
@@ -17,31 +17,31 @@ const updateListener = () => {
     modelState,
     globalState
   })));
-} 
+}
 
 export const getAllState = () => ({ modelState, globalState });
 
 export const getState = (modelType, modelID) => {
   // Check the container.
   if (!(modelState[modelType])) modelState[modelType] = {};
-  
+
   if (!(modelState[modelType][modelID])) throw new Error(`The model ${modelType}[${modelID}] is missing.`);
 
   return modelState[modelType][modelID];
-}; 
+};
 
 export const setState = (modelType, modelID, state) => {
   // Check the container.
   if (!(modelState[modelType])) modelState[modelType] = {};
-  
+
   if (!(modelState[modelType][modelID])) throw new Error(`The model ${modelType}[${modelID}] is missing.`);
-  
+
   // Check the type.
   if (typeof state !== 'object') throw new Error('You must provide an object!');
-  
+
   modelState[modelType][modelID] = deepMerge(modelState[modelType][modelID], state);
   updateListener();
-}; 
+};
 
 export const getGlobalState = () => globalState;
 
@@ -74,10 +74,11 @@ export const createModel = (modelType, initState, id = generate()) => {
 };
 
 export const destoryModel = (modelType, modelID) => {
-  modelState = dedepMerge(modelState, {
-    [modelType]: {
-      [modelID]: null
-    }
+  modelState = Object.assign({}, {
+    ...modelState,
+    [modelType]: (Object.keys(modelState[modelType])
+      .filter(key => key !== modelID)
+      .reduce((obj, key) => ({ ...obj, [key]: modelState[modelType][key] }), {}))
   });
   updateListener();
 };

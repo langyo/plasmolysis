@@ -5,6 +5,7 @@ import setData from './creator/setData';
 import createModel from './creator/createModel';
 import destoryModel from './creator/destoryModel';
 import dispatch from './creator/dispatch';
+import togglePage from './creator/togglePage';
 
 export default {
   deal,
@@ -13,7 +14,8 @@ export default {
   setData,
   createModel,
   destoryModel,
-  dispatch
+  dispatch,
+  togglePage
 };
 
 
@@ -24,5 +26,6 @@ export {
   setData,
   createModel,
   destoryModel,
-  dispatch
+  dispatch,
+  togglePage
 };
