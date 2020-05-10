@@ -1,6 +1,6 @@
 import connect from './connect';
 import register from './register';
-import { loadActionModel } from './actionLoader';
+import { loadActionModel } from '../lib/actionLoader';
 import buildRootNode from './buildRootNode'; 
 
 export default {

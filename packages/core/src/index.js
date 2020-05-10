@@ -4,23 +4,16 @@ import client, {
   loadActionModel,
   buildRootNode
 } from './client/index';
-import server from './server/index';
 
 import actionPreset from './action-preset';
 loadActionModel(actionPreset);
 
-export default {
-  ...client,
-  server
-};
+export default client;
 
 export {
   connect,
   register,
   loadActionModel,
   buildRootNode
-};
-export {
-  server
 };
 

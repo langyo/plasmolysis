@@ -2,22 +2,36 @@ import React, { createElement, Component } from 'react';
 import {
   getAllState,
   setGlobalState,
+  setState,
   registerListener,
   createModel
-} from './utils/globalState';
+} from './globalState';
 import {
   loadComponent,
   getModelList,
-  getStream,
+  getClientStream,
   _storageViewController
-} from './utils/modelStore';
-import createStream from './utils/createStream';
+} from '../lib/modelStore';
+import createStream from './createStream';
+import { clientTranslator } from '../lib/translator';
+
+let hasFreshed = false;
 
 class Root extends Component {
   constructor(props) {
     super(props);
     this.state = getAllState();
     registerListener(this.setState.bind(this));
+  }
+
+  componentDidMount() {
+    if (!hasFreshed) {
+      for (const key of window.__NICKELCAT_SSR_CSS__) {
+        if (document.querySelector(`${key}`)) document.querySelector(`${key}`).parentElement.removeChild(document.querySelector(`${key}`));
+      }
+      hasFreshed = true;
+      setTimeout(() => this.setState({}), 0);
+    }
   }
 
   render() {
@@ -37,7 +51,7 @@ class Root extends Component {
               modelID: '$view'
             })
           }), {}
-        ))(this.props.controller)),
+        ))(clientTranslator(this.props.controller))),
         $models: getModelList().map(
           modelType => this.state.modelState[modelType] ? Object.keys(this.state.modelState[modelType]).map(
             modelID => createElement(loadComponent(modelType), {
@@ -55,7 +69,7 @@ class Root extends Component {
                     modelID
                   })
                 }), {}
-              ))(getStream(modelType)))
+              ))(getClientStream(modelType)))
             })
           ) : []
         ).reduce((arr, item) => arr.concat(item), [])
@@ -64,9 +78,13 @@ class Root extends Component {
   }
 }
 
-export default (viewComponent = () => <></>, viewController = {}, initGlobalState = {}) => {
-  setGlobalState(initGlobalState);
+export default (viewComponent = () => <></>, viewController = {}, {
+  pageType, globalState, pagePreloadState
+}) => {
+  setGlobalState({ ...globalState, $page: pageType });
+  setState(pageType, '$page', pagePreloadState);
+
   _storageViewController(viewController);
-  createModel('$view', { /* preload data */} , '$view');
+  createModel('$view', pagePreloadState, '$view');
   return <Root component={viewComponent} controller={viewController} />;
 };

@@ -1,12 +1,12 @@
 import { generate } from 'shortid';
 
-import createStream from './createStream';
+import createStreamFactory from '../lib/createStream';
 import {
   getModelList as getModelListOnStore,
   getInitializer,
-  getStream
-} from './modelStore';
-import deepMerge from './deepMerge';
+  getClientStream
+} from '../lib/modelStore';
+import deepMerge from '../utils/deepMerge';
 
 let globalState = {};
 let modelState = getModelListOnStore().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
@@ -21,11 +21,15 @@ const updateListener = () => {
 
 export const getAllState = () => ({ modelState, globalState });
 
+export const clearAllState = () => {
+  globalState = {};
+  modelState = getModelListOnStore().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
+};
+
 export const getState = (modelType, modelID) => {
   // Check the container.
   if (!(modelState[modelType])) modelState[modelType] = {};
-
-  if (!(modelState[modelType][modelID])) throw new Error(`The model ${modelType}[${modelID}] is missing.`);
+  if (!(modelState[modelType][modelID])) modelState[modelType][modelID] = {};
 
   return modelState[modelType][modelID];
 };
@@ -33,8 +37,7 @@ export const getState = (modelType, modelID) => {
 export const setState = (modelType, modelID, state) => {
   // Check the container.
   if (!(modelState[modelType])) modelState[modelType] = {};
-
-  if (!(modelState[modelType][modelID])) throw new Error(`The model ${modelType}[${modelID}] is missing.`);
+  if (!(modelState[modelType][modelID])) modelState[modelType][modelID] = {};
 
   // Check the type.
   if (typeof state !== 'object') throw new Error('You must provide an object!');
@@ -86,8 +89,17 @@ export const destoryModel = (modelType, modelID) => {
 export const evaluateModelAction = async (modelType, modelID, actionName, payload) => {
   modelState = deepMerge(modelState, {
     [modelType]: {
-      [modelID]: await createStream({
-        tasks: getStream(modelType)[actionName],
+      [modelID]: await createStreamFactory({
+        getGlobalState,
+        setGlobalState,
+        getState,
+        setState,
+        getModelList,
+        createModel,
+        destoryModel,
+        evaluateModelAction
+      }, getActionEvaluator)({
+        tasks: getClientStream(modelType)[actionName],
         path: actionName
       }, {
         modelType,

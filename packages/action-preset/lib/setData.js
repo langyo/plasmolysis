@@ -1,29 +1,34 @@
-export const client = task => async (payload, {
-  setState,
-  getState,
-  setGlobalState,
-  getGlobalState,
-  getModelList,
-  getOtherModelState,
-  createModel,
-  destoryModel,
-  evaluateModelAction
-}, {
-  modelType,
-  modelID
-}) => {
-  if (task.func) {
-    let ret = task.func(payload, {
+export default {
+  creator: obj => typeof obj === 'function' ?
+    { func: obj } :
+    { obj },
+  executor: {
+    client: task => async (payload, {
+      setState,
       getState,
+      setGlobalState,
       getGlobalState,
       getModelList,
-      getOtherModelState,
+      createModel,
+      destoryModel,
+      evaluateModelAction,
       modelType,
       modelID
-    });
-    setGlobalState(ret);
-  } else {
-    setGlobalState(task.obj);
+    }) => {
+      if (task.func) {
+        let ret = task.func(payload, {
+          state: getState(modelType, modelID),
+          getGlobalState,
+          getModelList,
+          getState,
+          modelType,
+          modelID
+        });
+        setGlobalState(ret);
+      } else {
+        setGlobalState(task.obj);
+      }
+      return payload;
+    }
   }
-  return payload;
 };
