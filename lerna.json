@@ -1,0 +1,9 @@
+{
+  "packages": [
+    "packages/core",
+    "packages/action-preset",
+    "packages/create-app",
+    "packages/dev-server"
+  ],
+  "version": "0.2.0"
+}
