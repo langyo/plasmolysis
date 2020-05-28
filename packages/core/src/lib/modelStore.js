@@ -9,8 +9,8 @@ let nativeControllerStreams = {};
 
 import {
   clientTranslator,
-  serverTranslator,
-  nativeTranslator
+  serverRouterTranslator,
+  nativeRouterTranslator
 } from './translator';
 
 export const storageModel = ({ modelType, component, controllers }) => {
@@ -23,8 +23,8 @@ export const storageModel = ({ modelType, component, controllers }) => {
   else preloader[modelType] = async obj => ({ payload: (obj && obj.query || {}) });
 
   clientControllerStreams[modelType] = clientTranslator(controllers);
-  serverControllerStreams[modelType] = serverTranslator(controllers);
-  nativeControllerStreams[modelType] = nativeTranslator(controllers);
+  serverControllerStreams[modelType] = serverRouterTranslator(controllers);
+  nativeControllerStreams[modelType] = nativeRouterTranslator(controllers);
 };
 
 export const _storageViewController = controllers => {
@@ -45,6 +45,6 @@ export const getPreloader = type => preloader[type] || (async init => init);
 
 export const getClientStream = type => clientControllerStreams[type] || {};
 
-export const getServerStream = type => serverControllerStreams[type] || {};
+export const getServerRouterStream = type => serverControllerStreams[type] || {};
 
-export const getNativeStream = type => nativeControllerStreams[type] || {};
+export const getNativeRouterStream = type => nativeControllerStreams[type] || {};

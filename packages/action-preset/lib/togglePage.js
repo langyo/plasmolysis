@@ -1,22 +1,25 @@
-export default {
-  creator: (typeOrFunc, initState = {}) =>
-    typeof typeOrFunc === 'function' ?
-      { func: typeOrFunc } :
-      { type: typeOrFunc, initState },
+import factory from 'nickelcat/utils/actionFactory';
+
+export default factory({
+  $$type: 'togglePage',
+  creator: [
+    { paras: ['function'], func: func => ({ func }) },
+    { paras: ['string', 'string'], func: (type, initState) => ({ type, initState }) }
+  ],
   executor: {
-    client: task => async (payload, {
-      setState,
-      getState,
-      setGlobalState,
-      getGlobalState,
-      getModelList,
-      createModel,
-      destoryModel,
-      evaluateModelAction,
-      modelType,
-      modelID
-    }) => {
-      if (task.func) {
+    client: [
+      task => async (payload, {
+        setState,
+        getState,
+        setGlobalState,
+        getGlobalState,
+        getModelList,
+        createModel,
+        destoryModel,
+        evaluateModelAction,
+        modelType,
+        modelID
+      }) => {
         let ret = task.func(payload, {
           state: getState(modelType, modelID),
           getGlobalState,
@@ -43,7 +46,20 @@ export default {
             .join('&')
           }` : ''
         }`);
-      } else {
+        return payload;
+      },
+      task => async (payload, {
+        setState,
+        getState,
+        setGlobalState,
+        getGlobalState,
+        getModelList,
+        createModel,
+        destoryModel,
+        evaluateModelAction,
+        modelType,
+        modelID
+      }) => {
         if (getGlobalState().$page) destoryModel(getGlobalState().$page, '$page');
         createModel(task.type, task.initState, '$page');
         setGlobalState({ $page: task.type });
@@ -62,8 +78,8 @@ export default {
             .join('&')
           }` : ''
         }`);
+        return payload;
       }
-      return payload;
-    }
+    ]
   }
-};
+});

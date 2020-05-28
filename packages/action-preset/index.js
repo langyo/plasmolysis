@@ -2,12 +2,11 @@ import _createModel from './lib/createModel';
 import _deal from './lib/deal';
 import _destoryModel from './lib/destoryModel';
 import _dispatch from './lib/dispatch';
+import _fetch from './lib/fetch';
 import _setData from './lib/setData';
 import _setState from './lib/setState';
 import _togglePage from './lib/togglePage';
 import _wait from './lib/wait';
-
-import creatorFactory from './creatorFactory';
 
 export default {
   $packageName: 'preset',
@@ -16,6 +15,7 @@ export default {
     deal: _deal,
     destoryModel: _destoryModel,
     dispatch: _dispatch,
+    fetch: _fetch,
     setData: _setData,
     setState: _setState,
     togglePage: _togglePage,
@@ -31,11 +31,12 @@ export default {
   }
 };
 
-export const createModel = creatorFactory('createModel', _createModel);
-export const deal = creatorFactory('deal', _deal);
-export const destoryModel = creatorFactory('destoryModel', _destoryModel);
-export const dispatch = creatorFactory('dispatch', _dispatch);
-export const setData = creatorFactory('setData', _setData);
-export const setState = creatorFactory('setState', _setState);
-export const togglePage = creatorFactory('togglePage', _togglePage);
-export const wait = creatorFactory('wait', _wait);
+export const createModel = _createModel.creator;
+export const deal = _deal.creator;
+export const destoryModel = _destoryModel.creator;
+export const dispatch = _dispatch.creator;
+export const fetch = _fetch.creator;
+export const setData = _setData.creator;
+export const setState = _setState.creator;
+export const togglePage = _togglePage.creator;
+export const wait = _wait.creator;

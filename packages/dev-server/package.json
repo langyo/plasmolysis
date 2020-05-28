@@ -1,8 +1,8 @@
 {
-  "name": "nickelcat",
+  "name": "nickelcat-dev-server",
   "version": "0.3.0",
-  "description": "The core for evaluating the action stream.",
-  "main": "src/index.js",
+  "description": "The develop server for nickelcat applications.",
+  "main": "index.js",
   "scripts": {
     "test": "jest ./test --watch"
   },
@@ -11,7 +11,9 @@
     "url": "git+https://github.com/langyo/nickelcat.git"
   },
   "keywords": [
-    "react"
+    "nickelcat",
+    "dev",
+    "server"
   ],
   "author": "langyo",
   "license": "Apache-2.0",
@@ -19,15 +21,12 @@
     "url": "https://github.com/langyo/nickelcat/issues"
   },
   "homepage": "https://github.com/langyo/nickelcat#readme",
-  "devDependencies": {
-    "@babel/core": "^7.8.6",
-    "@babel/preset-env": "^7.8.6",
-    "@babel/preset-react": "^7.8.3",
-    "babel-jest": "^25.1.0",
-    "jest": "^25.1.0",
-    "shortid": "^2.2.15"
-  },
   "dependencies": {
-    "chalk": "^4.0.0"
+    "chokidar": "^3.4.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "shortid": "^2.2.15",
+    "terser-webpack-plugin": "^3.0.2",
+    "webpack": "^4.43.0"
   }
 }

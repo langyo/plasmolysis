@@ -1,51 +1,55 @@
-import { clientLog as log } from '../utils/logger';
+import { generalControllerStreamLog as log } from '../utils/logger';
 
-export default (context, actionEvaluator) => {
+export default (actionEvaluator, globalContext = {}) => {
   const createTasks = ({
     tasks,
     path
-  }, extraArgs = {}) => (async payload => {
+  }, taskContext = {}) => (async (payload, actionContext)=> {
     const tags = tasks[0];
+    const context = {
+      ...globalContext,
+      ...taskContext,
+      ...actionContext
+    };
 
     if (tags.test && (!tags(payload, context))) {
-      log(`The action ${path} has been skiped.`);
+      log({ tasks, path, payload, status: 'skipped' });
       return payload;
     }
     if (tags.loop && tags.loop.strickClock) {
       if (tags.loop.strickClock <= 10) throw new Error('You used strict timing mode, but the interval you set is too short.');
       setTimeout(tags.loop.timeOut, () => new Promise(() => createTasks({
         tags, tasks, path
-      }, extraArgs)(payload)));
+      }, context)(payload)));
     }
 
-    log('Get payload', payload);
-    log('Get tasks', tasks);
-    log(`The action ${path} will be executed`);
+    log({ tasks, path, payload, status: 'begin' });
     for (let i = 1; i < tasks.length; ++i) {
-      log('Middle process', tasks[i].$$type, 'at', i + 1, '/', tasks.length);
       if (!Array.isArray(tasks[i])) {
         try {
-          payload = await actionEvaluator(tasks[i])(payload, {
-            ...context,
-            ...extraArgs
-          });
-          log(`The action ${path} has runned to step ${i + 1}, the payload is`, payload);
-        } catch (e) {
-          log(`The action ${path} was failed to execute, because`, e);
+          payload = await actionEvaluator(tasks[i])(payload, context);
+          log({ tasks, path, payload, status: 'success', step: i });
+        } catch (errInfo) {
+          log({ tasks, path, payload, status: 'fail', step: i, extraErrorInfo: errInfo });
+          if (tasks[i].$$catch) return await createTasks({
+            tasks: tasks[i].$$catch,
+            path: `${path}[${i}]->catch`
+          }, taskContext)({ prePayload: payload, errInfo });
+          else return { prePayload: payload, errInfo };
         }
       } else {
         payload = await createTasks({
           tasks: tasks[i],
           path: `${path}[${i}]`
-        }, extraArgs)(payload);
-        log(`The action ${path} has runned to step ${i + 1}, the payload is`, payload);
+        }, taskContext)(payload);
+        log({ tasks, path, payload, status: 'success', step: i });
       }
     }
 
     if (tags.loop && !tags.loop.strickClock) {
       setTimeout(tags.loop.timeOut, () => new Promise(() => createTasks({
         tags, tasks, path
-      }, extraArgs)(payload)));
+      }, taskContext)(payload)));
     }
 
     return payload;

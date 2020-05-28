@@ -8,6 +8,7 @@ import {
 import { clearAllState } from '../client/globalState';
 
 import { serverLog as log } from '../utils/logger';
+import chalk from 'chalk';
 
 const defaultMetaData = [{
   name: "viewport",
@@ -32,36 +33,37 @@ export default pageType => async ({
     })
   }
 }) => {
-  // Initialize the data.
-  const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await getPreloader(pageType)({
-    ip, path, query, host, charset, protocol, type, cookies
-  });
-  const renderState = {
-    pageType,
-    globalState: {
-      ...initState,
-      ...payloadRetGlobalState
-    },
-    pagePreloadState: getInitializer(pageType)(payloadRetModelState)
-  };
-  const rootNode = buildRootNode(rootComponent, rootController, renderState);
-  let { renderCSS, renderHTML, renderMeta } = headProcessor(rootNode);
+  try {
+    // Initialize the data.
+    const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await getPreloader(pageType)({
+      ip, path, query, host, charset, protocol, type, cookies
+    });
+    const renderState = {
+      pageType,
+      globalState: {
+        ...initState,
+        ...payloadRetGlobalState
+      },
+      pagePreloadState: getInitializer(pageType)(payloadRetModelState)
+    };
+    const rootNode = buildRootNode(rootComponent, rootController, renderState);
+    let { renderCSS, renderHTML, renderMeta } = headProcessor(rootNode);
 
-  // Fill the blank parameters.
-  if (!renderCSS) renderCSS = {};
-  if (!renderHTML) renderHTML = renderToString(rootNode);
-  if (!renderMeta) renderMeta = defaultMetaData;
+    // Fill the blank parameters.
+    if (!renderCSS) renderCSS = {};
+    if (!renderHTML) renderHTML = renderToString(rootNode);
+    if (!renderMeta) renderMeta = defaultMetaData;
 
-  const body = `
+    const body = `
 <html>
 <head>
 <title>
     ${
-    typeof pageTitle === 'string' && pageTitle ||
-    typeof pageTitle === 'object' && (
-      pageTitle[pageType] || ''
-    )
-    }
+      typeof pageTitle === 'string' && pageTitle ||
+      typeof pageTitle === 'object' && (
+        pageTitle[pageType] || ''
+      )
+      }
 </title>
 <style>
 body {
@@ -70,18 +72,18 @@ margin: 0px;
 }
 </style>
     ${
-    renderMeta.map(obj =>
-      Object.keys(obj)
-        .map(key => `${key}="${obj[key]}"`)
-        .reduce((prev, next) => `${prev} ${next}`, '')
-    ).reduce((str, next) => `${str}
+      renderMeta.map(obj =>
+        Object.keys(obj)
+          .map(key => `${key}="${obj[key]}"`)
+          .reduce((prev, next) => `${prev} ${next}`, '')
+      ).reduce((str, next) => `${str}
 <meta ${next} />`, '')
-    }
+      }
     ${
-    Object.keys(renderCSS)
-      .map(id => `<style id="${id}">${renderCSS[id]}</style>`)
-      .reduce((prev, next) => prev + next)
-    }
+      Object.keys(renderCSS)
+        .map(id => `<style id="${id}">${renderCSS[id]}</style>`)
+        .reduce((prev, next) => prev + next)
+      }
 <head>
 <body>
 <div id="root">
@@ -104,7 +106,28 @@ document.write('<scr' + 'ipt>eruda.init();</scr' + 'ipt>');
 </body>
 </html>`;
 
-  // As the state will be keeped after the next request, we should clear the old state.
-  clearAllState();
-  return { type: 'text/html', body };
+    // As the state will be keeped after the next request, we should clear the old state.
+    clearAllState();
+    
+    return { type: 'text/html', statusCode: 200, body };
+  } catch (e) {
+    log('error', chalk.redBright('Page preload crash'), chalk.yellow(pageType), e);
+    
+    // As the state will be keeped after the next request, we should clear the old state.
+    clearAllState();
+
+    return { type: 'text/html', statusCode: 503, body: `
+<html>
+<head>
+    <title>RUNTIME ERROR</title>
+</head>
+<body>
+<h2>Oops!</h2>
+<p>${e.message}</p>
+<p>The most likely cause of the error is the invalid parameters passed, or the problem with the server design.</p>
+<p>The server has logged the error. We apologize for the inconvenience. :P</p>
+</body>
+</html>
+    `};
+  }
 };

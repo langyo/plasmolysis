@@ -12,7 +12,7 @@ import { getActionEvaluator } from './actionCreator';
 
 import createStreamsFactory from '../lib/createStream';
 
-export default createStreamsFactory({
+export default createStreamsFactory(getActionEvaluator, {
   getGlobalState,
   setGlobalState,
   getState,
@@ -21,4 +21,4 @@ export default createStreamsFactory({
   createModel,
   destoryModel,
   evaluateModelAction
-}, getActionEvaluator);
+});

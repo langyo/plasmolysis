@@ -1,9 +1,9 @@
 import {
   getModelList,
-  getServerStream
+  getServerRouterStream
 } from '../lib/modelStore';
 import {
-  getServerActionExecutor
+  getServerRouterActionExecutor
 } from '../lib/actionLoader';
 import createStream from './createStream';
 
@@ -14,25 +14,25 @@ import htmlPageRender from './htmlPageRender';
 let routes = {};
 
 const createRoutes = ({
-  tasks,
+  streams,
   path
 }, extraArgs) => {
-  for (let i = 1; i < tasks.length; ++i) {
-    if (!Array.isArray(tasks[i])) {
-      if (tasks[i].$$static) {
-        const route = getServerActionExecutor(tasks[i].$$type)({
-          /* context */
-          execChildStream: payload => createStream({ tasks: tasks[i].$$static, path })(payload)
+  for (let streamName of Object.keys(streams)) {
+    if (streamName[0] === '$') continue;
+    for (let i = 1; i < streams[streamName].length; ++i) {
+      if (!Array.isArray(streams[streamName][i])) {
+        const route = getServerRouterActionExecutor(streams[streamName][i].$$type)(streams[streamName][i])({
+          execChildStream: (stream, extraArgs = {}) => payload => createStream({ tasks: [extraArgs, ...stream], path })(payload)
         });
 
-        log('info', `Parsed the static route: ${path}[${i}]`);
+        log('info', `Parsed the static route: ${path}.${streamName}[${i}]`, route);
         routes = merge(routes, route);
+      } else {
+        createRoutes({
+          tasks: streams[streamName][i],
+          path: `${path}.${streamName}[${i}]`
+        }, extraArgs);
       }
-    } else {
-      createRoutes({
-        tasks: tasks[i],
-        path: `${path}[${i}]`
-      }, extraArgs);
     }
   }
 };
@@ -42,7 +42,7 @@ export const initRoutes = ({
 }) => {
   // Normal actions
   for (let modelType of getModelList()) {
-    createRoutes({ tasks: getServerStream(modelType), path: modelType });
+    createRoutes({ streams: getServerRouterStream(modelType), path: modelType });
   }
   // Page routes
   for (let modelType of getModelList()) {
@@ -50,11 +50,9 @@ export const initRoutes = ({
     routes.http[`/${modelType}`] = htmlPageRender(modelType);
   }
   if (rootPageRelay) {
-    log('debug', 'RouteRelay: ', rootPageRelay);
     if (getModelList().indexOf(rootPageRelay) < 0) log('warn', `Unknown root page's name: ${rootPageRelay}.`);
     else routes.http['/'] = htmlPageRender(rootPageRelay);
   }
-  log('debug', 'Routes:', routes);
 };
 
 export { createRoutes };
