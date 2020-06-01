@@ -1,18 +1,18 @@
 import { parentCreator } from './childProcessCreator';
 import middlewareRelay from './middlewareRelay';
-import { loader as webpackLoader } from './webpackLoader';
-import dirWatcher from './dirWatcher';
+import webpackLoader from './webpackLoader';
+import projectWatcher from './projectWatcher';
 
-import { serverLog as log } from 'nickelcat/utils/logger';
+import { serverLog as log } from '../utils/logger';
 import { resolve } from 'path';
 
-export default ({
+export default async ({
   workDirPath
 }) => {
-  const watcher = dirWatcher({ workDirPath });
+  const watcher = projectWatcher({ workDirPath });
   let clientBundleContent  = '';
 
-  const webpackClientSide = webpackLoader({
+  const webpackClientSide = await webpackLoader({
     entry: resolve(__dirname, './defaultClientLoader.js'),
     target: 'web'
   }, watcher);
@@ -25,7 +25,7 @@ export default ({
     clientBundleContent = content;
   });
 
-  const webpackServerSide = webpackLoader({
+  const webpackServerSide = await webpackLoader({
     entry: resolve(__dirname, './defaultServerLoader.js'),
     target: 'node'
   }, watcher);

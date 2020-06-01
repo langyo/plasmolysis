@@ -2,56 +2,31 @@ import {
   connect,
   initRoutes,
   getRoutes
-} from '../server';
-import { loadActionModel } from '../client';
-import initState from '../../configs/initState';
+} from 'nickelcat/server';
+import { loadActionModel } from 'nickelcat/client';
+import { resolve } from 'path';
 
-import presetActionPackage from '../action-preset';
+const initState = require(resolve(process.cwd(), './configs/initState'));
+
+const { components, services } = require('./.requirePackages.js');
+
+import presetActionPackage from 'nickelcat-action-preset';
 loadActionModel(presetActionPackage);
 
-import OverviewPage from '../../components/overviewPage';
-import overviewPageCtx from '../../controllers/overviewPage';
-connect(OverviewPage, overviewPageCtx, 'overview')
-
-import FetchPage from '../../components/fetchPage';
-import fetchPageCtx from '../../controllers/fetchPage';
-connect(FetchPage, fetchPageCtx, 'fetch');
-
-import ParsePage from '../../components/parsePage';
-import parsePageCtx from '../../controllers/parsePage';
-connect(ParsePage, parsePageCtx, 'parse');
-
-import StatusPage from '../../components/statusPage';
-import statusPageCtx from '../../controllers/statusPage';
-connect(StatusPage, statusPageCtx, 'status');
-
-import CreateNewTaskDialog from '../../components/dialogs/createNewTask';
-import createNewTaskDialogCtx from '../../controllers/dialogs/createNewTask';
-connect(CreateNewTaskDialog, createNewTaskDialogCtx, 'createNewTaskDialog');
-
-import FetchConfigDialog from '../../components/dialogs/fetchConfig';
-import fetchConfigDialogCtx from '../../controllers/dialogs/fetchConfig';
-connect(FetchConfigDialog, fetchConfigDialogCtx, 'fetchConfigDialog');
-
-import ParseConfigDialog from '../../components/dialogs/parseConfig';
-import parseConfigDialogCtx from '../../controllers/dialogs/parseConfig';
-connect(ParseConfigDialog, parseConfigDialogCtx, 'parseConfigDialog');
-
-import AboutDialog from '../../components/dialogs/about';
-import aboutDialogCtx from '../../controllers/dialogs/about';
-connect(AboutDialog, aboutDialogCtx, 'aboutDialog');
+for (const name of Object.keys(components).filter(name => name !== 'index')) {
+  connect(components[name].component.default, components[name].controller.default, name);
+}
 
 import extraConfigs from '../../configs';
 initRoutes(extraConfigs);
 
 import { router } from '../server';
 import { childCreator } from './childProcessCreator';
-import RootComponent from '../../components/index';
-import rootController from '../../controllers/index';
 
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheets } from '@material-ui/core/styles';
 
+if (!components.index) throw new Error('TODO: Support the multi pages without the route index component.');
 childCreator(async ({
   type,
   payload,
@@ -60,8 +35,8 @@ childCreator(async ({
   ...configs,
   ...extraConfigs,
   rootGuide: {
-    rootComponent: RootComponent,
-    rootController: rootController,
+    rootComponent: components.index.component.default,
+    rootController: components.index.controller.default,
     initState,
     headProcessor: node => {
       const sheets = new ServerStyleSheets();
