@@ -1,6 +1,6 @@
 {
   "name": "nickelcat-dev-server",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "The develop server for nickelcat applications.",
   "main": "index.js",
   "scripts": {
