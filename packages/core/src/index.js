@@ -5,9 +5,6 @@ import client, {
   buildRootNode
 } from './client/index';
 
-import actionPreset from './action-preset';
-loadActionModel(actionPreset);
-
 export default client;
 
 export {
