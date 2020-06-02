@@ -1,10 +1,16 @@
-import client from './src/client';
-import server from './src/server';
-import utils from './src/utils';
+import client, {
+  connect,
+  register,
+  loadActionModel,
+  buildRootNode
+} from './client/index';
 
-export default {
-  ...client,
-  client,
-  server,
-  utils
+export default client;
+
+export {
+  connect,
+  register,
+  loadActionModel,
+  buildRootNode
 };
+
