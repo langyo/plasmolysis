@@ -22,6 +22,9 @@ export const build = parallel(() => {
           {
             "loose": true
           }
+        ],
+        [
+          "@babel/plugin-transform-runtime"
         ]
       ]
     }))
