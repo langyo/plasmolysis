@@ -6,9 +6,11 @@ import {
 import { loadActionModel } from 'nickelcat/client';
 import { resolve } from 'path';
 
+import { readFileSync } from 'fs';
+
 let initState = Object.seal({});
 try {
-  const required = require(resolve(process.cwd(), './configs/initState.js'));
+  const required = new Function('module', 'require', readFileSync(resolve(process.cwd(), './configs/initState.js'), 'utf8'))({ exports: { default: null }}, require).exports;
   initState = Object.seal(required.default || required);
 } catch (e) { }
 
@@ -23,7 +25,7 @@ for (const name of Object.keys(components).filter(name => name !== 'index')) {
 
 let extraConfigs = Object.seal({});
 try {
-  const required = require(resolve(process.cwd(), './configs/index.js'));
+  const required = new Function('module', 'require', readFileSync(resolve(process.cwd(), './configs/index.js'), 'utf8'))({ exports: { default: null }}, require).exports;
   extraConfigs = Object.seal(required.default || required);
 } catch (e) { }
 initRoutes(extraConfigs);
