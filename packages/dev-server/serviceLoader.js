@@ -6,9 +6,14 @@ import projectWatcher from './projectWatcher';
 import { serverLog as log } from 'nickelcat/utils/logger';
 import { resolve } from 'path';
 
+import { writeFileSync } from 'fs';
+import scanner from './projectScanner';
+
 export default async ({
   workDirPath
 }) => {
+  writeFileSync(resolve(__dirname, './.requirePackages.js'), await scanner());
+
   const watcher = projectWatcher({ workDirPath });
   let clientBundleContent  = '';
 

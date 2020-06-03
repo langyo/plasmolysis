@@ -6,7 +6,11 @@ import {
 import { loadActionModel } from 'nickelcat/client';
 import { resolve } from 'path';
 
-const initState = require(resolve(process.cwd(), './configs/initState'));
+let initState = Object.seal({});
+try {
+  const required = require(resolve(process.cwd(), './configs/initState.js'));
+  initState = Object.seal(required.default || required);
+} catch (e) { }
 
 const { components, services } = require('./.requirePackages.js');
 
@@ -17,7 +21,11 @@ for (const name of Object.keys(components).filter(name => name !== 'index')) {
   connect(components[name].component.default, components[name].controller.default, name);
 }
 
-import extraConfigs from '../../configs';
+let extraConfigs = Object.seal({});
+try {
+  const required = require(resolve(process.cwd(), './configs/index.js'));
+  extraConfigs = Object.seal(required.default || required);
+} catch (e) { }
 initRoutes(extraConfigs);
 
 import { router } from 'nickelcat/server';

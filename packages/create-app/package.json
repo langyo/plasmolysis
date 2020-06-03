@@ -1,7 +1,8 @@
 {
   "name": "nickelcat-cli",
   "description": "The CLI for create an server project that using nickelcat.",
-  "main": "index.bundle.js",
+  "version": "0",
+  "main": "index.js",
   "scripts": {
     "start": "babel-node index.js",
     "test": "jest ./test --watch"

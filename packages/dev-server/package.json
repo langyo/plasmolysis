@@ -1,6 +1,7 @@
 {
   "name": "nickelcat-dev-server",
   "description": "The develop server for nickelcat applications.",
+  "version": "0",
   "main": "index.js",
   "scripts": {
     "test": "jest ./test --watch"
