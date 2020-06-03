@@ -11,6 +11,11 @@ export default async (parseOption = {
   } = parseOption;
 
   let components = [];
+  let services = [];
+  let configs = {
+    index: '',
+    initState: ''
+  };
 
   const scanDfs = (path, route = '') => {
     let list = [];
@@ -21,8 +26,6 @@ export default async (parseOption = {
         list.push({ fileName: `${route}${fileName.slice(0, fileName.lastIndexOf('.'))}`, path: join(path, fileName), route });
     return list;
   }
-
-  let services = [];
 
   if (
     existsSync(resolve(process.cwd(), './components')) && statSync(resolve(process.cwd(), './components')).isDirectory() &&
@@ -73,6 +76,10 @@ export default async (parseOption = {
     services.map(service => `"${service.name}": {
       service: require("${service.servicePath.split('\\').join('\\\\')}")
     }`).join(',\n')}
+  },
+  configs: {
+    index: ${configs.index ? `require("${configs.index.split('\\').join('\\\\')}")` : `{}`},
+    initState: ${configs.initState ? `require("${configs.initState.split('\\').join('\\\\')}")` : `{}`}
   }
 };`;
 };
