@@ -1,6 +1,7 @@
 {
   "name": "nickelcat-action-preset",
   "description": "The core library for evaluating the action stream.",
+  "version": "0",
   "scripts": {
     "test": "jest --watch"
   },
