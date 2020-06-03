@@ -1,7 +1,6 @@
 {
   "name": "nickelcat-template",
   "private": true,
-  "version": "0.2.0",
   "scripts": {
     "start": "concurrently \"nodemon --exec babel-node ./app/server.js\""
   },

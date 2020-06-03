@@ -1,6 +1,5 @@
 {
   "name": "nickelcat",
-  "version": "0.3.3",
   "description": "The core for evaluating the action stream.",
   "main": "src/index.js",
   "scripts": {

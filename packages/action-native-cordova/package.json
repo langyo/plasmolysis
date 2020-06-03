@@ -1,6 +1,5 @@
 {
   "name": "nickelcat-action-native-cordova",
-  "version": "0.2.0",
   "description": "The library for evaluating the action stream.",
   "scripts": {
     "test": "jest --watch"
