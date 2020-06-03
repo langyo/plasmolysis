@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "gulp build",
-    "publish": "lerna publish"
+    "publish": "lerna publish --force-publish"
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
