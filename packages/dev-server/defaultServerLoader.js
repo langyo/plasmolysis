@@ -20,7 +20,7 @@ for (const name of Object.keys(components).filter(name => name !== 'index')) {
 import extraConfigs from '../../configs';
 initRoutes(extraConfigs);
 
-import { router } from '../server';
+import { router } from 'nickelcat/server';
 import { childCreator } from './childProcessCreator';
 
 import { renderToString } from 'react-dom/server';

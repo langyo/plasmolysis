@@ -1,11 +1,11 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { buildRootNode } from '../client';
+import { buildRootNode } from 'nickelcat/client';
 import {
   getInitializer,
   getPreloader
 } from '../lib/modelStore';
-import { clearAllState } from '../client/globalState';
+import { clearAllState } from 'nickelcat/client/globalState';
 
 import { serverLog as log } from 'nickelcat/utils/logger';
 import chalk from 'chalk';

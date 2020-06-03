@@ -3,7 +3,7 @@ import EventEmitter from 'events';
 import { resolve } from 'path';
 
 import scanner from './projectScanner';
-import { writeFileSync, unlinkSync } from 'fs';
+import { writeFileSync } from 'fs';
 
 export default ({
   workDirPath,
