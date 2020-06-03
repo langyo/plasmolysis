@@ -1,7 +1,22 @@
 {
   "name": "root",
   "private": true,
+  "scripts": {
+    "build": "gulp build",
+    "publish": "lerna publish"
+  },
   "devDependencies": {
+    "@babel/cli": "^7.10.1",
+    "@babel/core": "^7.10.2",
+    "@babel/node": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@babel/preset-react": "^7.10.1",
     "lerna": "^3.22.0"
+  },
+  "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.10.1",
+    "@babel/register": "^7.10.1",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0"
   }
 }

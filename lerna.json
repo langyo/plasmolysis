@@ -1,9 +1,9 @@
 {
   "packages": [
-    "packages/core",
-    "packages/action-preset",
-    "packages/create-app",
-    "packages/dev-server"
+    "dist/core",
+    "dist/action-preset",
+    "dist/create-app",
+    "dist/dev-server"
   ],
   "version": "0.3.3"
 }
