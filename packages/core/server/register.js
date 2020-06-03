@@ -7,8 +7,8 @@ import {
 } from '../lib/actionLoader';
 import createStream from './createStream';
 
-import { serverLog as log } from '../utils/logger';
-import merge from '../utils/deepMerge';
+import { serverLog as log } from 'nickelcat/utils/logger';
+import merge from 'nickelcat/utils/deepMerge';
 import htmlPageRender from './htmlPageRender';
 
 let routes = {};

@@ -1,7 +1,7 @@
 import webpack from 'webpack';
 import TerserPlugin from 'terser-webpack-plugin';
 
-import { serverLog as log } from '../utils/logger';
+import { serverLog as log } from 'nickelcat/utils/logger';
 import EventEmitter from 'events';
 import MFS from 'memory-fs';
 

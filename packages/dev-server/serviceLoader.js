@@ -3,7 +3,7 @@ import middlewareRelay from './middlewareRelay';
 import webpackLoader from './webpackLoader';
 import projectWatcher from './projectWatcher';
 
-import { serverLog as log } from '../utils/logger';
+import { serverLog as log } from 'nickelcat/utils/logger';
 import { resolve } from 'path';
 
 export default async ({

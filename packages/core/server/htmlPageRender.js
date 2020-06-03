@@ -7,7 +7,7 @@ import {
 } from '../lib/modelStore';
 import { clearAllState } from '../client/globalState';
 
-import { serverLog as log } from '../utils/logger';
+import { serverLog as log } from 'nickelcat/utils/logger';
 import chalk from 'chalk';
 
 const defaultMetaData = [{

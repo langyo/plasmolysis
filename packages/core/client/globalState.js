@@ -6,7 +6,7 @@ import {
   getInitializer,
   getClientStream
 } from '../lib/modelStore';
-import deepMerge from '../utils/deepMerge';
+import deepMerge from 'nickelcat/utils/deepMerge';
 
 let globalState = {};
 let modelState = getModelListOnStore().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
