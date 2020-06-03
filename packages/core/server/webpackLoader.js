@@ -1,7 +1,7 @@
 import webpack from 'webpack';
 import UglifyJSPlugin from 'uglifyjs-webpack-plugin';
 
-import { serverLog as log } from 'nickelcat/utils/logger';
+import { serverLog as log } from '../utils/logger';
 import { resolve } from 'path';
 import EventEmitter from 'events';
 

@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "dependencies": {
+    "@material-ui/core": "^4.10.1",
     "chokidar": "^3.4.0",
+    "nickelcat": "latest",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "shortid": "^2.2.15",

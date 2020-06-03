@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/langyo/nickelcat/issues"
   },
-  "homepage": "https://github.com/langyo/nickelcat#readme"
+  "homepage": "https://github.com/langyo/nickelcat#readme",
+  "dependencies": {
+    "nickelcat": "latest"
+  }
 }

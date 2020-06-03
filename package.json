@@ -2,22 +2,37 @@
   "name": "root",
   "private": true,
   "scripts": {
+    "postinstall": "npm run debug-link && npm run install:",
+    "install:": "npm run install:core && npm run install:action-preset && npm run install:dev-server && npm run install:create-app",
+    "install:core": "cd ./packages/core && yarn && cd ..",
+    "install:action-preset": "cd ./packages/action-preset && yarn && cd ..",
+    "install:dev-server": "cd ./packages/dev-server && yarn && cd ..",
+    "install:create-app": "cd ./packages/create-app && yarn && cd ..",
+
     "build": "gulp build",
-    "publish": "lerna publish --force-publish"
+    "clean": "gulp clean",
+    "publish": "npm run clean && npm run build && lerna publish --force-publish",
+
+    "link": "gulp debug_link && npm run link:",
+    "watch": "npm run link: && gulp debug_link_watch",
+    "link:": "npm run link:core && npm run link:action-preset && npm run link:dev-server && npm run link:create-app",
+    "link:core": "cd ./dist/core && yarn link && cd ..",
+    "link:action-preset": "cd ./dist/action-preset && yarn link nickelcat && yarn link && cd ..",
+    "link:dev-server": "cd ./dist/dev-server && yarn link nickelcat && yarn link nickelcat-action-preset && yarn link && cd ..",
+    "link:create-app": "cd ./dist/create-app && yarn link nickelcat && yarn link && cd .."
   },
   "devDependencies": {
     "@babel/cli": "^7.10.1",
     "@babel/core": "^7.10.2",
     "@babel/node": "^7.10.1",
-    "@babel/preset-env": "^7.10.2",
-    "@babel/preset-react": "^7.10.1",
-    "lerna": "^3.22.0"
-  },
-  "dependencies": {
     "@babel/plugin-proposal-class-properties": "^7.10.1",
     "@babel/plugin-transform-runtime": "^7.10.1",
+    "@babel/preset-env": "^7.10.2",
+    "@babel/preset-react": "^7.10.1",
     "@babel/register": "^7.10.1",
+    "del": "^5.1.0",
     "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0"
+    "gulp-babel": "^8.0.0",
+    "lerna": "^3.22.0"
   }
 }

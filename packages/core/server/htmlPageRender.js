@@ -1,13 +1,13 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import { buildRootNode } from 'nickelcat/client';
+import { buildRootNode } from '../client';
 import {
   getInitializer,
   getPreloader
 } from '../lib/modelStore';
-import { clearAllState } from 'nickelcat/client/globalState';
+import { clearAllState } from '../client/globalState';
 
-import { serverLog as log } from 'nickelcat/utils/logger';
+import { serverLog as log } from '../utils/logger';
 import chalk from 'chalk';
 
 const defaultMetaData = [{

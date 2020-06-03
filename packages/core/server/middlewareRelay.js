@@ -1,4 +1,4 @@
-import { serverLog as log } from 'nickelcat/utils/logger';
+import { serverLog as log } from '../utils/logger';
 
 export default ({
   sendFunc,

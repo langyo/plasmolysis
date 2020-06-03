@@ -1,37 +1,52 @@
-import { src, dest, parallel } from "gulp";
-import babel from "gulp-babel";
+import { src, dest, series, parallel, symlink, watch } from 'gulp';
+import babel from 'gulp-babel';
+import del from 'del';
 
-export const build = parallel(() => {
-  return src([
-    './packages/**/*.js',
-    '!./packages/**/node_modules/**/*',
-    '!./packages/create-app/templates/**/*'
-  ])
-    .pipe(babel({
-      "presets": [
-        [
-          "@babel/preset-env"
-        ],
-        [
-          "@babel/preset-react"
-        ]
+const clean = () => del('./dist/');
+export { clean };
+
+const compile = () => src([
+  './packages/**/*.js',
+  '!./packages/**/node_modules/**/*',
+  '!./packages/create-app/templates/**/*'
+])
+  .pipe(babel({
+    "presets": [
+      [
+        "@babel/preset-env"
       ],
-      "plugins": [
-        [
-          "@babel/plugin-proposal-class-properties",
-          {
-            "loose": true
-          }
-        ],
-        [
-          "@babel/plugin-transform-runtime"
-        ]
+      [
+        "@babel/preset-react"
       ]
-    }))
-    .pipe(dest('./dist/'));
-}, () => {
-  return src([
-    './packages/**/package.json',
-    '!./packages/**/node_modules/**/package.json'
-  ]).pipe(dest('./dist/'));
-});
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-class-properties",
+        {
+          "loose": true
+        }
+      ],
+      [
+        "@babel/plugin-transform-runtime"
+      ]
+    ]
+  }))
+  .pipe(dest('./dist/'));
+
+const copy_packages_json = () => src([
+  './packages/**/package.json',
+  '!./packages/**/node_modules/**/package.json'
+]).pipe(dest('./dist/'));
+
+export const build = series(clean, compile, copy_packages_json);
+
+export const debug_link = series(
+  compile,
+  () => {
+    return src([
+      './packages/*/node_modules/'
+    ]).pipe(symlink('./dist/'));
+  }
+);
+
+export const debug_link_watch = () => watch(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], parallel(compile, copy_packages_json));

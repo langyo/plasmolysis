@@ -1,4 +1,4 @@
-import { generalControllerStreamLog as log } from 'nickelcat/utils/logger';
+import { generalControllerStreamLog as log } from '../utils/logger';
 
 export default (actionEvaluator, globalContext = {}) => {
   const createTasks = ({
