@@ -1,9 +1,8 @@
-import { src, dest, series, parallel, symlink, watch } from 'gulp';
+import { src, dest, series, parallel, symlink, watch as watchFiles } from 'gulp';
 import babel from 'gulp-babel';
 import del from 'del';
 
-const clean = () => del('./dist/');
-export { clean };
+export const clean = () => del('./dist/');
 
 const compile = () => src([
   './packages/**/*.js',
@@ -33,20 +32,19 @@ const compile = () => src([
   }))
   .pipe(dest('./dist/'));
 
-const copy_packages_json = () => src([
+const bind_packages_json = () => src([
   './packages/**/package.json',
   '!./packages/**/node_modules/**/package.json'
-]).pipe(dest('./dist/'));
+]).pipe(symlink('./dist/'));
 
-export const build = series(clean, compile, copy_packages_json);
+export const link_to_dist = () => src([
+  './packages/*/node_modules'
+]).pipe(symlink('./dist/'));
 
-export const debug_link = series(
-  compile,
-  () => {
-    return src([
-      './packages/*/node_modules/'
-    ]).pipe(symlink('./dist/'));
-  }
-);
+export const link_to_packages = () => src([
+  './dist/*/node_modules/'
+]).pipe(dest('./packages/*/'));
 
-export const debug_link_watch = () => watch(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], parallel(compile, copy_packages_json));
+export const build = series(clean, compile, bind_packages_json, link_to_packages);
+
+export const watch = () => watchFiles(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], compile);

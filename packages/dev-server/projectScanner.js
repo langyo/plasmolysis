@@ -12,10 +12,7 @@ export default async (parseOption = {
 
   let components = [];
   let services = [];
-  let configs = {
-    index: '',
-    initState: ''
-  };
+  let configs = {};
 
   const scanDfs = (path, route = '') => {
     let list = [];
@@ -64,6 +61,9 @@ export default async (parseOption = {
       }
     }
   }
+
+  if (existsSync(resolve(process.cwd(), './configs/index.js'))) configs.index = resolve(process.cwd(), './configs/index.js');
+  if (existsSync(resolve(process.cwd(), './configs/initState.js'))) configs.initState = resolve(process.cwd(), './configs/initState.js');
   
   return `module.exports = {
   components: {${
