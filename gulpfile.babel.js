@@ -1,9 +1,30 @@
 import { src, dest, series, parallel, watch as watchFiles } from 'gulp';
-import { readdir, symlink, exists } from 'fs';
+import {
+  readdir as readdirOld,
+  symlink as symlinkOld,
+  access as accessOld,
+  unlink as unlinkOld,
+  readFile as readFileOld,
+  writeFile as writeFileOld
+} from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
 import babel from 'gulp-babel';
 import del from 'del';
+
+const readdir = promisify(readdirOld);
+const symlink = promisify(symlinkOld);
+const access = async path => {
+  try{
+    await promisify(accessOld)(path);
+    return true;
+  } catch(e) {
+    return false;
+  }
+};
+const unlink = promisify(unlinkOld);
+const readFile = promisify(readFileOld);
+const writeFile = promisify(writeFileOld);
 
 export const clean = () => del('./dist/');
 
@@ -35,23 +56,56 @@ const compile = () => src([
   }))
   .pipe(dest('./dist/'));
 
-const bind_packages_json = () => src([
-  './packages/**/package.json',
-  '!./packages/**/node_modules/**/package.json'
-]).pipe(symlink('./dist/'));
+export const link = async () => {
+  for (const pkg of (await readdir(resolve('./dist')))) {
+    if (await access(resolve(`./packages/${pkg}/package.json`))) {
+      if ((await access(resolve(`./dist/${pkg}/package.json`)))) await unlink(`./dist/${pkg}/package.json`);
+      await symlink(resolve(`./packages/${pkg}/package.json`), resolve(`./dist/${pkg}/package.json`));
+    }
+  }
 
-export const link_to_dist = async () => {
-  let files = await promisify(readdir)((resolve('./packages')));
-  for (let file of files) {
-    if (await promisify(exists)((resolve(`./packages/${file}/node_modules`))))
-      await promisify(symlink)(resolve(`./packages/${file}/node_modules`), resolve(`./dist/${file}/node_modules`));
+  for (const pkg of (await readdir(resolve('./dist')))) {
+    if (await access(resolve(`./packages/${pkg}/node_modules`))) {
+      if ((await access(resolve(`./dist/${pkg}/node_modules`)))) await unlink(`./dist/${pkg}/node_modules`);
+      await symlink(resolve(`./packages/${pkg}/node_modules`), resolve(`./dist/${pkg}/node_modules`), 'dir');
+    }
   }
 };
 
-export const link_to_packages = () => src([
-  './dist/*/node_modules/'
-]).pipe(dest('./packages/*/'));
+export const build = series(clean, compile, link);
 
-export const build = series(clean, compile, bind_packages_json, link_to_packages);
+export const build_pub_ver = series(
+  build,
+  async () => {
+    for (const pkg of (await readdir(resolve('./dist')))) {
+      if (await access(resolve(`./dist/${pkg}/package.json`))) {
+        await unlink(resolve(`./dist/${pkg}/package.json`));
+        await writeFile(resolve(`./dist/${pkg}/package.json`), await readFile(resolve(`./packages/${pkg}/package.json`)));
+      }
+    }
+    for (const pkg of (await readdir(resolve('./dist')))) {
+      if (await access(resolve(`./dist/${pkg}/node_modules`)))
+        await unlink(resolve(`./dist/${pkg}/node_modules`));
+    }
+  },
+  async () => {
+    const { version } = JSON.parse(await readFile(resolve('./lerna.json')));
+    let pkgs = {};
+    for (const pkg of (await readdir(resolve('./dist')))) {
+      if (await access(resolve(`./dist/${pkg}/package.json`))) {
+        pkgs[pkg] = JSON.parse(await readFile(resolve(`./dist/${pkg}/package.json`)));
+      }
+    }
+    for (const pkg of Object.keys(pkgs)) {
+      pkgs[pkg].version = version;
+      for (const ownPkg of Object.keys(pkgs)) {
+        if (pkgs[pkg].dependencies && pkgs[pkg].dependencies[pkgs[ownPkg].name]) pkgs[pkg].dependencies[pkgs[ownPkg].name] = `^${version}`;
+        if (pkgs[pkg].devDependencies && pkgs[pkg].devDependencies[pkgs[ownPkg].name]) pkgs[pkg].devDependencies[pkgs[ownPkg].name] = `^${version}`;
+      }
+      await writeFile(resolve(`./dist/${pkg}/package.json`), JSON.stringify(pkgs[pkg]));
+    }
+    console.log(pkgs)
+  }
+);
 
-export const watch = () => watchFiles(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], compile);
+export const watch = () => series(build, watchFiles(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], compile));
