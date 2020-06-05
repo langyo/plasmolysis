@@ -1,4 +1,7 @@
-import { src, dest, series, parallel, symlink, watch as watchFiles } from 'gulp';
+import { src, dest, series, parallel, watch as watchFiles } from 'gulp';
+import { readdir, symlink, exists } from 'fs';
+import { promisify } from 'util';
+import { resolve } from 'path';
 import babel from 'gulp-babel';
 import del from 'del';
 
@@ -37,9 +40,13 @@ const bind_packages_json = () => src([
   '!./packages/**/node_modules/**/package.json'
 ]).pipe(symlink('./dist/'));
 
-export const link_to_dist = () => src([
-  './packages/*/node_modules'
-]).pipe(symlink('./dist/'));
+export const link_to_dist = async () => {
+  let files = await promisify(readdir)((resolve('./packages')));
+  for (let file of files) {
+    if (await promisify(exists)((resolve(`./packages/${file}/node_modules`))))
+      await promisify(symlink)(resolve(`./packages/${file}/node_modules`), resolve(`./dist/${file}/node_modules`));
+  }
+};
 
 export const link_to_packages = () => src([
   './dist/*/node_modules/'
