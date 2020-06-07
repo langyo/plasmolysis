@@ -108,4 +108,4 @@ export const build_pub_ver = series(
   }
 );
 
-export const watch = () => series(build, watchFiles(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], compile));
+export const watch = () => watchFiles(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], compile);
