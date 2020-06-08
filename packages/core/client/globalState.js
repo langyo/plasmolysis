@@ -19,6 +19,8 @@ const updateListener = () => {
   })));
 }
 
+export const registerListener = setState => listeners.push(setState);
+
 export const getAllState = () => ({ modelState, globalState });
 
 export const clearAllState = () => {
@@ -109,6 +111,3 @@ export const evaluateModelAction = async (modelType, modelID, actionName, payloa
   });
   updateListener();
 };
-
-export const registerListener = setState => listeners.push(setState);
-
