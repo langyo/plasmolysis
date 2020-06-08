@@ -88,7 +88,7 @@ export const link = async () => {
           await rmdir(resolve(`./packages/${pkg}/node_modules/${name}`), { recursive: true });
         else await unlink(`./packages/${pkg}/node_modules/${name}`);
       }
-      await symlink(resolve(`./packages/${insideName}/`), resolve(`./packages/${pkg}/node_modules/${name}`), 'dir');
+      await symlink(resolve(`./dist/${insideName}/`), resolve(`./packages/${pkg}/node_modules/${name}`), 'dir');
     }
   }
 };
