@@ -1,7 +1,7 @@
 import {
   getModelList,
   getServerRouterStream
-} from '../lib/modelStore';
+} from '../lib/modelManager';
 import {
   getServerRouterActionExecutor
 } from '../lib/actionLoader';

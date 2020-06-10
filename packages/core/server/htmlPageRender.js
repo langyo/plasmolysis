@@ -4,8 +4,8 @@ import { buildRootNode } from '../client';
 import {
   getInitializer,
   getPreloader
-} from '../lib/modelStore';
-import { clearAllState } from '../client/globalState';
+} from '../lib/modelManager';
+import { clearAllState } from '../client/stateManager';
 
 import { serverLog as log } from '../utils/logger';
 import chalk from 'chalk';

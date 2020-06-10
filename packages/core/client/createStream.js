@@ -7,7 +7,7 @@ import {
   createModel,
   destoryModel,
   evaluateModelAction
-} from './globalState';
+} from './stateManager';
 import { getActionEvaluator } from './actionCreator';
 
 import createStreamsFactory from '../lib/createStream';

@@ -1,90 +1,197 @@
-import React, { createElement, Component } from 'react';
-import {
-  getAllState,
-  setGlobalState,
-  setState,
-  registerListener,
-  createModel
-} from './globalState';
-import {
-  loadComponent,
-  getModelList,
-  getClientStream,
-  _storageViewController
-} from '../lib/modelStore';
+import React, { createElement } from 'react';
+import { hydrate as clientRenderFunc } from 'react-dom';
+import { renderToString as serverRenderFunc } from 'react-dom/server';
+import createStateManager from './stateManager';
+import createModelManager from '../lib/modelManager';
 import createStream from './createStream';
 import { clientTranslator } from '../lib/translator';
 
-let hasFreshed = false;
-
-class Root extends Component {
+const bindStateToReact = (stateManager, component, propsFunc) => class extends Component {
   constructor(props) {
     super(props);
-    this.state = getAllState();
-    registerListener(this.setState.bind(this));
-  }
-
-  componentDidMount() {
-    if (!hasFreshed) {
-      for (const key of window.__NICKELCAT_SSR_CSS__) {
-        if (document.querySelector(`${key}`)) document.querySelector(`${key}`).parentElement.removeChild(document.querySelector(`${key}`));
-      }
-      hasFreshed = true;
-      setTimeout(() => this.setState({}), 0);
-    }
+    this.state = stateManager.getAllState();
+    stateManager.registerListener(this.setState.bind(this));
   }
 
   render() {
     return <>
-      {createElement(this.props.component, {
-        key: '$view',
-        ...this.state.modelState.$view.$view,
-        ...this.state.globalState,
-        ...((stream => Object.keys(stream).reduce(
-          (obj, key) => ({
-            ...obj,
-            [key]: createStream({
-              tasks: stream[key],
-              path: '$view'
-            }, {
-              modelType: '$view',
-              modelID: '$view'
-            })
-          }), {}
-        ))(clientTranslator(this.props.controller))),
-        $models: getModelList().map(
-          modelType => this.state.modelState[modelType] ? Object.keys(this.state.modelState[modelType]).map(
-            modelID => createElement(loadComponent(modelType), {
-              key: `${modelType}-${modelID}`,
-              ...this.state.modelState[modelType][modelID],
-              ...this.state.globalState,
-              ...((stream => Object.keys(stream).reduce(
-                (obj, key) => ({
-                  ...obj,
-                  [key]: createStream({
-                    tasks: stream[key],
-                    path: `${modelType}[${modelID}]`
-                  }, {
-                    modelType,
-                    modelID
-                  })
-                }), {}
-              ))(getClientStream(modelType)))
-            })
-          ) : []
-        ).reduce((arr, item) => arr.concat(item), [])
-      })}
+      {createElement(component, propsFunc(this.state))}
     </>
   }
 }
 
-export default (viewComponent = () => <></>, viewController = {}, {
-  pageType, globalState, pagePreloadState
+export const hydrate = ({
+  components,
+  rootModelName = 'index',
+  pageType,
+  globalState,
+  pagePreloadState,
+  targetElement = document.querySelector('#nickelcat-root')
 }) => {
-  setGlobalState({ ...globalState, $page: pageType });
-  setState(pageType, '$page', pagePreloadState);
+  const rootComponent = components[rootModelName] && components[rootModelName].component || (({ $models }) => (<>{$models}</>));
+  const rootController = components[rootModelName] && components[rootModelName].controller || {};
 
-  _storageViewController(viewController);
-  createModel('$view', pagePreloadState, '$view');
-  return <Root component={viewComponent} controller={viewController} />;
+  const modelManager = createModelManager();
+  for (const component of components) modelManager.loadComponent(component);
+
+  const stateManager = createStateManager(modelManager);
+  stateManager.setGlobalState({ ...globalState, $page: pageType });
+  stateManager.setState(pageType, '$page', pagePreloadState);
+  stateManager.createModel('$view', pagePreloadState, '$view');
+
+  clientRenderFunc(bindStateToReact(stateManager, rootComponent, state => ({
+    ...state.modelState.$view.$view,
+    ...state.globalState,
+    ...((stream => Object.keys(stream).reduce(
+      (obj, key) => ({
+        ...obj,
+        [key]: createStream({
+          tasks: stream[key],
+          path: '$view'
+        }, {
+          modelType: '$view',
+          modelID: '$view'
+        })
+      }), {}
+    ))(clientTranslator(rootController))),
+    $models: (<div id='nickelcat-models'></div>)
+  })), targetElement);
+
+  const appendModel = (modelType, modelID) => {
+    const elementID = `nickelcat-model-${modelType}-${modelID}`;
+    let node = document.createElement('div');
+    node.id = elementID;
+    targetElement.appendChild(node);
+    const subTargetElement = document.querySelector(elementID);
+    clientRenderFunc(bindStateToReact(stateManager, loadComponent(modelType), state => ({
+      ...state.modelState[modelType][modelID],
+      ...state.globalState,
+      ...((stream => Object.keys(stream).reduce(
+        (obj, key) => ({
+          ...obj,
+          [key]: createStream({
+            tasks: stream[key],
+            path: `${modelType}[${modelID}]`
+          }, {
+            modelType,
+            modelID
+          })
+        }), {}
+      ))(getClientStream(modelType)))
+    })), subTargetElement);
+  };
+  const removeModel = (modelType, modelID) => {
+    const elementID = `nickelcat-model-${modelType}-${modelID}`;
+    const node = document.querySelector(elementID);
+    targetElement.removeChild(node);
+  };
+
+  for (const modelType of modelManager.getModelList()) {
+    if (stateManager.modelState[modelType]) {
+      for (const modelID of Object.keys(stateManager.modelState[modelType])) {
+        appendModel(modelType, modelID);
+      }
+    }
+  }
+
+  stateManager.registerListener(({ modelState }) => {
+    const prevIDList = Array.from(targetElement.childNodes)
+      .map(n => n.id)
+      .map(str => {
+        const ret = /^nickelcat-model-(.+)-(.+)$/.exec(str);
+        return { modelType: ret[1], modelID: ret[2] };
+      })
+      .reduce((obj, { modelType, modelID }) => ({
+        ...obj,
+        [modelType]: obj[modelType] ? [...obj[modelType], modelID] : [modelID]
+      }));
+    const nextIDList = Object.keys(modelState).reduce((obj, modelType) => ({
+      ...obj,
+      [modelType]: Object.keys(modelState[modelType])
+    }));
+
+    for (const modelType of Object.keys(nextIDList)) {
+      if (!prevIDList[modelType]) {
+        for (const modelID of nextIDList[modelType])
+          appendModel(modelType, modelID);
+      } else {
+        for (const modelID of nextIDList[modelType]) {
+          if (!prevIDList[modelType][modelID]) appendModel(modelType, modelID);
+        }
+        for (const modelID of prevIDList[modelType]) {
+          if (!nextIDList[modelType][modelID]) removeModel(modelType, modelID);
+        }
+      }
+    }
+  });
+}
+export const renderToString = ({
+  components,
+  rootModelName = 'index',
+  pageType,
+  globalState,
+  pagePreloadState,
+  targetElement = document.querySelector('#nickelcat-root')
+}) => {
+  const rootComponent = components[rootModelName] && components[rootModelName].component || (({ $models }) => (<>{$models}</>));
+  const rootController = components[rootModelName] && components[rootModelName].controller || {};
+
+  const modelManager = createModelManager();
+  for (const component of components) modelManager.loadComponent(component);
+
+  const stateManager = createStateManager(modelManager);
+  stateManager.setGlobalState({ ...globalState, $page: pageType });
+  stateManager.setState(pageType, '$page', pagePreloadState);
+  stateManager.createModel('$view', pagePreloadState, '$view');
+
+  let renderString = serverRenderFunc(bindStateToReact(stateManager, rootComponent, state => ({
+    ...state.modelState.$view.$view,
+    ...state.globalState,
+    ...((stream => Object.keys(stream).reduce(
+      (obj, key) => ({
+        ...obj,
+        [key]: createStream({
+          tasks: stream[key],
+          path: '$view'
+        }, {
+          modelType: '$view',
+          modelID: '$view'
+        })
+      }), {}
+    ))(clientTranslator(rootController))),
+    $models: (<div id='nickelcat-models'></div>)
+  })));
+
+  const reg = /<div id='nickelcat-models'.*?>/;
+  reg.exec(renderString);
+  const insertPos = reg.lastIndex;
+
+  const appendModel = (modelType, modelID) => {
+    return serverRenderFunc(bindStateToReact(stateManager, loadComponent(modelType), state => ({
+      ...state.modelState[modelType][modelID],
+      ...state.globalState,
+      ...((stream => Object.keys(stream).reduce(
+        (obj, key) => ({
+          ...obj,
+          [key]: createStream({
+            tasks: stream[key],
+            path: `${modelType}[${modelID}]`
+          }, {
+            modelType,
+            modelID
+          })
+        }), {}
+      ))(getClientStream(modelType)))
+    })));
+  };
+
+  for (const modelType of modelManager.getModelList()) {
+    if (stateManager.modelState[modelType]) {
+      for (const modelID of Object.keys(stateManager.modelState[modelType])) {
+        renderString = renderString.split(0, insertPos) + appendModel(modelType, modelID) + renderString.split(insertPos);
+      }
+    }
+  }
+
+  return renderString;
 };
