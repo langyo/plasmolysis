@@ -68,18 +68,30 @@ export default async (parseOption = {
   return `module.exports = {
   components: {${
     components.map(component => `"${component.name}": {
-      component: require("${component.componentPath.split('\\').join('\\\\')}"),
-      controller: require("${component.controllerPath.split('\\').join('\\\\')}")
+      component:
+        require("${component.componentPath.split('\\').join('\\\\')}").default ||
+        require("${component.componentPath.split('\\').join('\\\\')}"),
+      controller:
+        require("${component.controllerPath.split('\\').join('\\\\')}").default ||
+        require("${component.controllerPath.split('\\').join('\\\\')}")
     }`).join(',\n')}
   },
   services: {${
     services.map(service => `"${service.name}": {
-      service: require("${service.servicePath.split('\\').join('\\\\')}")
+      service:
+        require("${service.servicePath.split('\\').join('\\\\')}").default ||
+        require("${service.servicePath.split('\\').join('\\\\')}")
     }`).join(',\n')}
   },
   configs: {
-    index: ${configs.index ? `require("${configs.index.split('\\').join('\\\\')}")` : `{}`},
-    initState: ${configs.initState ? `require("${configs.initState.split('\\').join('\\\\')}")` : `{}`}
+    index: ${configs.index ? `(
+      require("${configs.index.split('\\').join('\\\\')}").default ||
+      require("${configs.index.split('\\').join('\\\\')}")
+    )` : `{}`},
+    initState: ${configs.initState ? `(
+      require("${configs.initState.split('\\').join('\\\\')}").default ||
+      require("${configs.initState.split('\\').join('\\\\')}")
+    )` : `{}`}
   }
 };`;
 };

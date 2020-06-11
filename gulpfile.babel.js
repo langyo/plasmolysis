@@ -125,7 +125,6 @@ export const build_pub_ver = series(
       }
       await writeFile(resolve(`./dist/${pkg}/package.json`), JSON.stringify(pkgs[pkg]));
     }
-    console.log(pkgs)
   }
 );
 

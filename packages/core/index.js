@@ -1,6 +1,4 @@
 import client, {
-  connect,
-  register,
   loadActionModel,
   buildRootNode
 } from './client/index';
@@ -8,8 +6,6 @@ import client, {
 export default client;
 
 export {
-  connect,
-  register,
   loadActionModel,
   buildRootNode
 };

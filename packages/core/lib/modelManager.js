@@ -5,7 +5,7 @@ import {
 } from './translator';
 
 class ModelStorage {
-  constructor() {
+  constructor(components) {
     this.components = {};
     this.initializer = {};
     this.preloader = {};
@@ -14,29 +14,28 @@ class ModelStorage {
     this.clientControllerStreams = {};
     this.serverControllerStreams = {};
     this.nativeControllerStreams = {};
+
+    if (components) {
+      console.assert(typeof components === 'object');
+      for (const modelType of Object.keys(components)) {
+        this.storageModel(modelType, components[modelType]);
+      }
+    }
   }
 
-  storageModel({ modelType, component, controllers }) {
+  storageModel(modelType, { component, controller }) {
     this.components[modelType] = component;
-    this.originControllerStreams[modelType] = controllers;
+    this.originControllerStreams[modelType] = controller;
 
-    if (controllers.$init) this.initializer[modelType] = controllers.$init;
+    if (controller.$init) this.initializer[modelType] = controller.$init;
     else this.initializer[modelType] = obj => obj;
-    if (controllers.$preload) this.preloader[modelType] = controllers.$preload;
+    if (controller.$preload) this.preloader[modelType] = controller.$preload;
     else this.preloader[modelType] = async obj => ({ payload: (obj && obj.query || {}) });
 
-    this.clientControllerStreams[modelType] = clientTranslator(controllers);
-    this.serverControllerStreams[modelType] = serverRouterTranslator(controllers);
-    this.nativeControllerStreams[modelType] = nativeRouterTranslator(controllers);
+    this.clientControllerStreams[modelType] = clientTranslator(controller);
+    this.serverControllerStreams[modelType] = serverRouterTranslator(controller);
+    this.nativeControllerStreams[modelType] = nativeRouterTranslator(controller);
   };
-
-  // _storageViewController(controllers) {
-  //   if (controllers.$init) this.initializer.$view = controllers.$init;
-  //   if (controllers.$preload) this.preloader.$view = controllers.$preload;
-  //   this.originControllerStreams.$view = Object.keys(controllers).filter(key => key !== '$init' && key !== '$preload').reduce(
-  //     (obj, key) => ({ ...obj, [key]: controllers[key] }), {}
-  //   );
-  // }
 
   loadComponent(type) {
     return this.components[type];

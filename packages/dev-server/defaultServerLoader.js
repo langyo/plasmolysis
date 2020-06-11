@@ -1,5 +1,4 @@
 import {
-  connect,
   initRoutes,
   getRoutes
 } from 'nickelcat/server';
@@ -9,10 +8,6 @@ const { components, services, configs } = require('./.requirePackages.js');
 
 import presetActionPackage from 'nickelcat-action-preset';
 loadActionModel(presetActionPackage);
-
-for (const name of Object.keys(components).filter(name => name !== 'index')) {
-  connect(components[name].component.default, components[name].controller.default, name);
-}
 
 let initState = Object.seal(configs.initState);
 let extraConfigs = Object.seal(configs.index);
@@ -24,7 +19,6 @@ import { childCreator } from './childProcessCreator';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheets } from '@material-ui/core/styles';
 
-if (!components.index) throw new Error('TODO: Support the multi pages without the route index component.');
 childCreator(async ({
   type,
   payload,
@@ -33,12 +27,17 @@ childCreator(async ({
   ...configs,
   ...extraConfigs,
   rootGuide: {
-    rootComponent: components.index.component.default,
-    rootController: components.index.controller.default,
+    components,
     initState,
-    headProcessor: node => {
+    headProcessor: nodes => {
       const sheets = new ServerStyleSheets();
-      const html = renderToString(sheets.collect(node));
+      const html = Object.keys(nodes).reduce((str, id) => `
+        ${str}
+        <div id="${id}">
+          ${renderToString(sheets.collect(nodes[id]))}
+        </div>
+      `, '');
+
       return {
         renderHTML: html,
         renderCSS: {
@@ -46,5 +45,6 @@ childCreator(async ({
         }
       }
     }
-  }
+  },
+  targetElement: document.querySelector('#nickelcat-root')
 }));

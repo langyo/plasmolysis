@@ -23,14 +23,14 @@ export default pageType => async ({
   pageTitle,
   allowMobileConsole = true,
   rootGuide: {
-    rootComponent,
-    rootController,
+    components,
     initState,
     headProcessor = node => ({
       renderCSS: {},
       renderHTML: renderToString(node),
       renderMeta: defaultMetaData
-    })
+    }),
+    targetElement
   }
 }) => {
   try {
@@ -46,12 +46,19 @@ export default pageType => async ({
       },
       pagePreloadState: getInitializer(pageType)(payloadRetModelState)
     };
-    const rootNode = buildRootNode(rootComponent, rootController, renderState);
-    let { renderCSS, renderHTML, renderMeta } = headProcessor(rootNode);
+    const nodes = buildRootNode({
+      components,
+      ...renderState,
+      targetElement
+    });
+    let { renderCSS, renderHTML, renderMeta } = headProcessor(nodes);
 
     // Fill the blank parameters.
     if (!renderCSS) renderCSS = {};
-    if (!renderHTML) renderHTML = renderToString(rootNode);
+    if (!renderHTML) renderHTML = Object.keys(nodes).reduce((str, id) => `
+      ${str}
+      <div id="${id}">${renderToString(nodes[id])}</div>
+    `, '');
     if (!renderMeta) renderMeta = defaultMetaData;
 
     const body = `

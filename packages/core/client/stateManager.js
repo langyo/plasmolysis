@@ -1,11 +1,6 @@
 import { generate } from 'shortid';
 
 import createStreamFactory from '../lib/createStream';
-// import {
-//   getModelList as getModelListOnStore,
-//   getInitializer,
-//   getClientStream
-// } from '../lib/modelManager';
 import deepMerge from '../utils/deepMerge';
 
 class StateManager {
