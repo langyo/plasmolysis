@@ -1,8 +1,4 @@
 import {
-  getModelList,
-  getServerRouterStream
-} from '../lib/modelManager';
-import {
   getServerRouterActionExecutor
 } from '../lib/actionLoader';
 import createStream from './createStream';
@@ -39,18 +35,18 @@ const createRoutes = ({
 
 export const initRoutes = ({
   rootPageRelay
-}) => {
+}, modelManagers) => {
   // Normal actions
-  for (let modelType of getModelList()) {
-    createRoutes({ streams: getServerRouterStream(modelType), path: modelType });
+  for (let modelType of modelManagers.getModelList()) {
+    createRoutes({ streams: modelManagers.getServerRouterStream(modelType), path: modelType });
   }
   // Page routes
-  for (let modelType of getModelList()) {
+  for (let modelType of modelManagers.getModelList()) {
     if (!routes.http) routes.http = {};
     routes.http[`/${modelType}`] = htmlPageRender(modelType);
   }
   if (rootPageRelay) {
-    if (getModelList().indexOf(rootPageRelay) < 0) log('warn', `Unknown root page's name: ${rootPageRelay}.`);
+    if (modelManagers.getModelList().indexOf(rootPageRelay) < 0) log('warn', `Unknown root page's name: ${rootPageRelay}.`);
     else routes.http['/'] = htmlPageRender(rootPageRelay);
   }
 };

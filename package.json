@@ -15,7 +15,6 @@
     "watch": "gulp watch",
 
     "link": "gulp link",
-    "global-unlink": "yarn unlink nickelcat && yarn unlink nickelcat-action-preset && yarn unlink nickelcat-dev-server && yarn unlink nickelcat-create-app",
     "global-link:core": "cd ./dist/core && yarn link && cd ..",
     "global-link:action-preset": "cd ./dist/action-preset && yarn link nickelcat && yarn link && cd ..",
     "global-link:dev-server": "cd ./dist/dev-server && yarn link nickelcat && yarn link nickelcat-action-preset && yarn link && cd ..",

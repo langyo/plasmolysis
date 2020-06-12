@@ -54,4 +54,3 @@ cd demo
 我们要运行这个项目，可以在刚刚的文件夹下执行```npm start```，一段时间后框架便会将应用准备好，开放在本地的 3000 端口。您可以通过访问 [https://localhost:3000](https://localhost:3000/) 体验。
 
 Enjoy!
-

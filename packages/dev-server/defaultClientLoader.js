@@ -1,19 +1,19 @@
 import React from 'react';
 import { hydrate } from 'react-dom';
-import {
-  buildRootNode,
-  loadActionModel
-} from 'nickelcat/client';
+import { buildRootNode } from 'nickelcat/client';
+import createModelManager from 'nickelcat/lib/modelManager';
 
 const { components, services } = require('./.requirePackages.js');
+const modelManager = createModelManager(components);
 
 import presetActionPackage from 'nickelcat-action-preset';
+import { loadActionModel } from 'nickelcat/lib/actionLoader';
 loadActionModel(presetActionPackage);
 
 const nodes = buildRootNode({
-  components,
+  modelManager,
   ...window.__NICKELCAT_INIT__,
-  targetElement
+  targetElementID: 'nickelcat-root'
 });
 for (const id of Object.keys(nodes)) {
   hydrate(nodes[id], document.querySelector(`#${id}`));

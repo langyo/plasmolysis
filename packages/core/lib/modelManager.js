@@ -66,4 +66,4 @@ class ModelStorage {
   }
 };
 
-export default () => new ModelStorage();
+export default components => new ModelStorage(components);

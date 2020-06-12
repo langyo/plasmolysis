@@ -1,10 +1,6 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { buildRootNode } from '../client';
-import {
-  getInitializer,
-  getPreloader
-} from '../lib/modelManager';
 import { clearAllState } from '../client/stateManager';
 
 import { serverLog as log } from '../utils/logger';
@@ -23,19 +19,19 @@ export default pageType => async ({
   pageTitle,
   allowMobileConsole = true,
   rootGuide: {
-    components,
+    modelManager,
     initState,
     headProcessor = node => ({
       renderCSS: {},
       renderHTML: renderToString(node),
       renderMeta: defaultMetaData
     }),
-    targetElement
+    targetElementID
   }
 }) => {
   try {
     // Initialize the data.
-    const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await getPreloader(pageType)({
+    const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await modelManagers.getPreloader(pageType)({
       ip, path, query, host, charset, protocol, type, cookies
     });
     const renderState = {
@@ -44,12 +40,12 @@ export default pageType => async ({
         ...initState,
         ...payloadRetGlobalState
       },
-      pagePreloadState: getInitializer(pageType)(payloadRetModelState)
+      pagePreloadState: modelManagers.getInitializer(pageType)(payloadRetModelState)
     };
     const nodes = buildRootNode({
-      components,
+      modelManager,
       ...renderState,
-      targetElement
+      targetElementID
     });
     let { renderCSS, renderHTML, renderMeta } = headProcessor(nodes);
 

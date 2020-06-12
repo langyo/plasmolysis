@@ -1,7 +1,6 @@
 import React, { createElement } from 'react';
 import { hydrate } from 'react-dom';
 import createStateManager from './stateManager';
-import createModelManager from '../lib/modelManager';
 import createStream from './createStream';
 import { clientTranslator } from '../lib/translator';
 
@@ -13,20 +12,17 @@ const bindStateToReact = (stateManager, component, propsFunc) => class extends C
   }
 
   render() {
-    return <>
-      {createElement(component, propsFunc(this.state))}
-    </>
+    return createElement(component, propsFunc(this.state));
   }
 }
 
 export default ({
-  components,
+  modelManager,
   pageType,
   globalState,
   pagePreloadState,
-  targetElement = document.querySelector('#nickelcat-root')
+  targetElementID = 'nickelcat-root'
 }) => {
-  const modelManager = createModelManager(components);
   const stateManager = createStateManager(modelManager);
   stateManager.setGlobalState({ ...globalState, $page: pageType });
   stateManager.createModel(pageType, pagePreloadState, '$page');
@@ -34,6 +30,7 @@ export default ({
     if (/^views?\./.test(modelType))
       stateManager.createModel(modelType, pagePreloadState, '$view');
 
+  const targetElement = document.getElementById(targetElementID);
   const appendModel = (modelType, modelID) => {
     const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
     let nodePre = document.createElement('div');
