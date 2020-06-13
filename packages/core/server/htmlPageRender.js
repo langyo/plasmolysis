@@ -1,7 +1,6 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { buildRootNode } from '../client';
-import { clearAllState } from '../client/stateManager';
 
 import { serverLog as log } from '../utils/logger';
 import chalk from 'chalk';
@@ -31,7 +30,7 @@ export default pageType => async ({
 }) => {
   try {
     // Initialize the data.
-    const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await modelManagers.getPreloader(pageType)({
+    const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await modelManager.getPreloader(pageType)({
       ip, path, query, host, charset, protocol, type, cookies
     });
     const renderState = {
@@ -40,7 +39,7 @@ export default pageType => async ({
         ...initState,
         ...payloadRetGlobalState
       },
-      pagePreloadState: modelManagers.getInitializer(pageType)(payloadRetModelState)
+      pagePreloadState: modelManager.getInitializer(pageType)(payloadRetModelState)
     };
     const nodes = buildRootNode({
       modelManager,
@@ -95,7 +94,7 @@ ${renderHTML}
 <script id="__NICKELCAT_INIT_STATE__">
 window.__NICKELCAT_INIT__ = (${JSON.stringify(renderState)});
 window.__NICKELCAT_SSR_CSS__ = (${JSON.stringify(Object.keys(renderCSS))});
-document.querySelector("#__NICKELCAT_INIT_STATE__").parentElement.removeChild(document.querySelector("#__NICKELCAT_INIT_STATE__"));
+document.getElementById("__NICKELCAT_INIT_STATE__").parentElement.removeChild(document.getElementById("__NICKELCAT_INIT_STATE__"));
 </script>
 <script src=${staticClientPath}></script>
 ${allowMobileConsole && `<script>
@@ -108,17 +107,9 @@ document.write('<scr' + 'ipt>eruda.init();</scr' + 'ipt>');
 </script>` || ''}
 </body>
 </html>`;
-
-    // As the state will be keeped after the next request, we should clear the old state.
-    clearAllState();
-    
     return { type: 'text/html', statusCode: 200, body };
   } catch (e) {
     log('error', chalk.redBright('Page preload crash'), chalk.yellow(pageType), e);
-    
-    // As the state will be keeped after the next request, we should clear the old state.
-    clearAllState();
-
     return { type: 'text/html', statusCode: 503, body: `
 <html>
 <head>

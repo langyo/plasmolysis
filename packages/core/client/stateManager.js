@@ -13,7 +13,7 @@ class StateManager {
     this.listeners = [];
   }
 
-  updateListener() {
+  updateListener = () => {
     this.listeners.forEach(setState => setState(() => ({
       modelState,
       globalState
@@ -24,11 +24,11 @@ class StateManager {
     this.listeners.push(setState);
   }
 
-  getAllState() {
+  getAllState = () => {
     return { modelState: this.modelState, globalState: this.globalState };
   }
 
-  getState(modelType, modelID) {
+  getState = (modelType, modelID) => {
     // Check the container.
     if (!(this.modelState[modelType])) this.modelState[modelType] = {};
     if (!(this.modelState[modelType][modelID])) this.modelState[modelType][modelID] = {};
@@ -36,7 +36,7 @@ class StateManager {
     return this.modelState[modelType][modelID];
   };
 
-  setState(modelType, modelID, state) {
+  setState = (modelType, modelID, state) => {
     // Check the container.
     if (!(this.modelState[modelType])) this.modelState[modelType] = {};
     if (!(this.modelState[modelType][modelID])) this.modelState[modelType][modelID] = {};
@@ -45,22 +45,22 @@ class StateManager {
     if (typeof state !== 'object') throw new Error('You must provide an object!');
 
     this.modelState[modelType][modelID] = deepMerge(this.modelState[modelType][modelID], state);
-    updateListener();
+    this.updateListener();
   };
 
-  getGlobalState() {
+  getGlobalState = () => {
     return this.globalState;
   }
 
-  setGlobalState(state) {
+  setGlobalState = state => {
     // Check the type.
     if (typeof state !== 'object') throw new Error('You must provide an object!');
 
     this.globalState = deepMerge(this.globalState, state);
-    updateListener();
+    this.updateListener();
   };
 
-  getModelList() {
+  getModelList = () => {
     return Object.keys(this.modelState).reduce(
       (obj, key) => ({
         ...obj,
@@ -69,30 +69,30 @@ class StateManager {
     );
   }
 
-  createModel(modelType, initState, id = generate()) {
+  createModel = (modelType, initState, id = generate()) => {
     // Check the type.
     if (typeof initState !== 'object') throw new Error('You must provide an object!');
 
     this.modelState = deepMerge(this.modelState, {
       [modelType]: {
-        [id]: getInitializer(modelType)(initState)
+        [id]: this.getInitializer(modelType)(initState)
       }
     });
-    updateListener();
+    this.updateListener();
     return id;
   };
 
-  destoryModel(modelType, modelID) {
+  destoryModel = (modelType, modelID) => {
     this.modelState = Object.assign({}, {
       ...this.modelState,
       [modelType]: (Object.keys(this.modelState[modelType])
         .filter(key => key !== modelID)
         .reduce((obj, key) => ({ ...obj, [key]: this.modelState[modelType][key] }), {}))
     });
-    updateListener();
+    this.updateListener();
   };
 
-  async evaluateModelAction(modelType, modelID, actionName, payload) {
+  evaluateModelAction = async (modelType, modelID, actionName, payload) => {
     this.modelState = deepMerge(this.modelState, {
       [modelType]: {
         [modelID]: await createStreamFactory({
@@ -113,7 +113,7 @@ class StateManager {
         })(payload)
       }
     });
-    updateListener();
+    this.updateListener();
   };
 }
 

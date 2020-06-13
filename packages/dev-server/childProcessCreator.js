@@ -4,7 +4,7 @@ import { generate } from 'shortid';
 import { resolve } from 'path';
 
 export const parentCreator = content => {
-  let childProcess = fork(resolve(__dirname, './childProcessShell.js'));
+  let childProcess = fork(resolve(__dirname, './childProcessShell.js'), { slient: true });
   let emitter = new EventEmitter();
 
 

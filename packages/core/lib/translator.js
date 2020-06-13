@@ -1,11 +1,3 @@
-import {
-  getClientActionTranslator,
-  getServerActionTranslator,
-  getServerRouterActionTranslator,
-  getNativeActionTranslator,
-  getNativeRouterActionTranslator
-} from './actionLoader';
-
 const dfsFactory = (platform, translator, extraArgs = {}) => (tasks, dfs) => {
   let translated = [], tags = {};
   for (let task of tasks) {
@@ -52,55 +44,55 @@ const dfsFactory = (platform, translator, extraArgs = {}) => (tasks, dfs) => {
   return [tags, ...translated];
 };
 
-export const clientTranslator = streams => {
-  const dfs = dfsFactory('client', getClientActionTranslator);
+export const clientTranslator = (stream, actionManager) => {
+  const dfs = dfsFactory('client', actionManager.getClientActionTranslator);
   let ret = {};
 
-  for (let streamName of Object.keys(streams).filter(key => key[0] !== '$')) {
-    if (!Array.isArray(streams[streamName])) continue;
-    ret[streamName] = dfs(streams[streamName], dfs);
+  for (let streamName of Object.keys(stream).filter(key => key[0] !== '$')) {
+    if (!Array.isArray(stream[streamName])) continue;
+    ret[streamName] = dfs(stream[streamName], dfs);
   }
 
-  ret.$init = streams.$init;
+  ret.$init = stream.$init;
   return ret;
 };
 
-export const serverTranslator = stream => {
-  const dfs = dfsFactory('server', getServerActionTranslator);
+export const serverTranslator = (stream, actionManager) => {
+  const dfs = dfsFactory('server', actionManager.getServerActionTranslator);
 
   if (!Array.isArray(stream)) return [];
   else return dfs(stream, dfs);
 };
 
-export const serverRouterTranslator = streams => {
-  const dfs = dfsFactory('server', getServerRouterActionTranslator, { childStreamTranslator: serverTranslator });
+export const serverRouterTranslator = (stream, actionManager) => {
+  const dfs = dfsFactory('server', actionManager.getServerRouterActionTranslator, { childStreamTranslator: stream => serverTranslator(stream, actionManager) });
   let ret = {};
 
-  for (let streamName of Object.keys(streams).filter(key => key[0] !== '$')) {
-    if (!Array.isArray(streams[streamName])) continue;
-    ret[streamName] = dfs(streams[streamName], dfs);
+  for (let streamName of Object.keys(stream).filter(key => key[0] !== '$')) {
+    if (!Array.isArray(stream[streamName])) continue;
+    ret[streamName] = dfs(stream[streamName], dfs);
   }
 
-  ret.$preload = streams.$preload;
+  ret.$preload = stream.$preload;
   return ret;
 };
 
-export const nativeTranslator = stream => {
-  const dfs = dfsFactory('native', getNativeActionTranslator);
+export const nativeTranslator = (stream, actionManager) => {
+  const dfs = dfsFactory('native', actionManager.getNativeActionTranslator);
 
   if (!Array.isArray(stream)) return [];
   else return dfs(stream, dfs);
 };
 
-export const nativeRouterTranslator = streams => {
-  const dfs = dfsFactory('native', getNativeRouterActionTranslator, { childStreamTranslator: nativeTranslator });
+export const nativeRouterTranslator = (stream, actionManager) => {
+  const dfs = dfsFactory('native', actionManager.getNativeRouterActionTranslator, { childStreamTranslator: stream => nativeTranslator(stream, actionManager) });
   let ret = {};
 
-  for (let streamName of Object.keys(streams).filter(key => key[0] !== '$')) {
-    if (!Array.isArray(streams[streamName])) continue;
-    ret[streamName] = dfs(streams[streamName], dfs);
+  for (let streamName of Object.keys(stream).filter(key => key[0] !== '$')) {
+    if (!Array.isArray(stream[streamName])) continue;
+    ret[streamName] = dfs(stream[streamName], dfs);
   }
 
-  ret.$preload = streams.$preload;
+  ret.$preload = stream.$preload;
   return ret;
 };

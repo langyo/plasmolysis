@@ -1,21 +1,22 @@
 import {
   initRoutes,
   getRoutes
-} from 'nickelcat/server';
+} from 'nickelcat/server/register';
 import createModelManager from 'nickelcat/lib/modelManager';
-
-const { components, services, configs } = require('./.requirePackages.js');
-const modelManager = createModelManager(components);
+import { serverLog as log } from 'nickelcat/utils/logger';
 
 import presetActionPackage from 'nickelcat-action-preset';
-import { loadActionModel } from 'nickelcat/lib/actionLoader';
-loadActionModel(presetActionPackage);
+import createActionMangager from 'nickelcat/lib/actionManager';
+const actionManager = createActionMangager(presetActionPackage);
+
+const { components, services, configs } = require('./.requirePackages.js');
+const modelManager = createModelManager(components, actionManager);
 
 let initState = Object.seal(configs.initState);
 let extraConfigs = Object.seal(configs.index);
-initRoutes(extraConfigs, modelManager);
+initRoutes(extraConfigs, modelManager, actionManager);
 
-import { router } from 'nickelcat/server';
+import router from 'nickelcat/server/router';
 import { childCreator } from './childProcessCreator';
 
 import { renderToString } from 'react-dom/server';
@@ -51,9 +52,10 @@ childCreator(async ({
         }
       },
       targetElementID: 'nickelcat-root'
-    });
+    }, actionManager);
     return ret;
   } catch (e) {
+    log('error', e);
     return {
       successFlag: true,
       payload: {

@@ -5,7 +5,7 @@ import {
 } from './translator';
 
 class ModelStorage {
-  constructor(components) {
+  constructor(components, actionManager) {
     this.components = {};
     this.initializer = {};
     this.preloader = {};
@@ -15,6 +15,8 @@ class ModelStorage {
     this.serverControllerStreams = {};
     this.nativeControllerStreams = {};
 
+    this.actionManager = actionManager;
+
     if (components) {
       console.assert(typeof components === 'object');
       for (const modelType of Object.keys(components)) {
@@ -23,7 +25,7 @@ class ModelStorage {
     }
   }
 
-  storageModel(modelType, { component, controller }) {
+  storageModel = (modelType, { component, controller }) => {
     this.components[modelType] = component;
     this.originControllerStreams[modelType] = controller;
 
@@ -32,38 +34,38 @@ class ModelStorage {
     if (controller.$preload) this.preloader[modelType] = controller.$preload;
     else this.preloader[modelType] = async obj => ({ payload: (obj && obj.query || {}) });
 
-    this.clientControllerStreams[modelType] = clientTranslator(controller);
-    this.serverControllerStreams[modelType] = serverRouterTranslator(controller);
-    this.nativeControllerStreams[modelType] = nativeRouterTranslator(controller);
+    this.clientControllerStreams[modelType] = clientTranslator(controller, this.actionManager);
+    this.serverControllerStreams[modelType] = serverRouterTranslator(controller, this.actionManager);
+    this.nativeControllerStreams[modelType] = nativeRouterTranslator(controller, this.actionManager);
   };
 
-  loadComponent(type) {
+  loadComponent = type => {
     return this.components[type];
   }
 
-  getModelList() {
+  getModelList = () => {
     return Object.keys(this.components);
   }
 
-  getInitializer(type) {
+  getInitializer = type => {
     return this.initializer[type] || (init => init);
   }
 
-  getPreloader(type) {
+  getPreloader = type => {
     return this.preloader[type] || (async init => init);
   }
 
-  getClientStream(type) {
+  getClientStream = type => {
     return this.clientControllerStreams[type] || {};
   }
 
-  getServerRouterStream(type) {
+  getServerRouterStream = type => {
     return this.serverControllerStreams[type] || {};
   }
 
-  getNativeRouterStream(type) {
+  getNativeRouterStream = type => {
     return this.nativeControllerStreams[type] || {};
   }
 };
 
-export default components => new ModelStorage(components);
+export default (components, actionManager) => new ModelStorage(components, actionManager);

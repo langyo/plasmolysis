@@ -1,6 +1,6 @@
 import { generalControllerStreamLog as log } from '../utils/logger';
 
-export default (actionEvaluator, globalContext = {}) => {
+export default (actionEvaluator, globalContext = {}, actionManager) => {
   const createTasks = ({
     tasks,
     path
@@ -27,7 +27,7 @@ export default (actionEvaluator, globalContext = {}) => {
     for (let i = 1; i < tasks.length; ++i) {
       if (!Array.isArray(tasks[i])) {
         try {
-          payload = await actionEvaluator(tasks[i])(payload, context);
+          payload = await actionEvaluator(tasks[i], actionManager)(payload, context);
           log({ tasks, path, payload, status: 'success', step: i });
         } catch (errInfo) {
           log({ tasks, path, payload, status: 'fail', step: i, extraErrorInfo: errInfo });

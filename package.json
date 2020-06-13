@@ -15,6 +15,7 @@
     "watch": "gulp watch",
 
     "link": "gulp link",
+    "global-link": "npm run global-link:core && npm run global-link:action-preset && npm run global-link:dev-server && npm run global-link:create-app",
     "global-link:core": "cd ./dist/core && yarn link && cd ..",
     "global-link:action-preset": "cd ./dist/action-preset && yarn link nickelcat && yarn link && cd ..",
     "global-link:dev-server": "cd ./dist/dev-server && yarn link nickelcat && yarn link nickelcat-action-preset && yarn link && cd ..",
