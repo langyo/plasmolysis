@@ -28,8 +28,12 @@ const dfsFactory = (platform, translator, extraArgs = {}) => (tasks, dfs) => {
       tags.test = task;
       continue;
     }
+    
+    // If the task is an empty object, skip it.
+    if (Object.keys(task).length === 0) continue;
 
     // Combine the normal tasks.
+    if (!translator(task.$$type)) throw new Error(`Unknown task type "${task.$$type}".`);
     let translatorRet = translator(task.$$type)(task, extraArgs);
     if (translatorRet) {
       // Translate the special keys before combining.

@@ -1,6 +1,6 @@
 import { generate } from 'shortid';
 
-import createStreamFactory from '../lib/createStream';
+import createStreamFactory from './createStream';
 import deepMerge from '../utils/deepMerge';
 
 class StateManager {
@@ -14,14 +14,24 @@ class StateManager {
   }
 
   updateListener = () => {
-    this.listeners.forEach(setState => setState(() => ({
+    this.listeners.forEach(({ setState }) => setState(() => ({
       modelState,
       globalState
     })));
   }
 
-  registerListener(setState) {
-    this.listeners.push(setState);
+  registerListener(setState, id = generate()) {
+    this.listeners.push({ setState, id });
+    return id;
+  }
+
+  removeListener(id) {
+    for (let i = 0; i < this.listeners.length; ++i) {
+      if (this.listeners[i].id === id) {
+        this.listeners.splice(i, 1);
+        break;
+      }
+    }
   }
 
   getAllState = () => {

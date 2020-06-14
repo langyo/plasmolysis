@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { buildRootNode } from '../client';
+import nodeRender from './serverNodeRender';
 
 import { serverLog as log } from '../utils/logger';
 import chalk from 'chalk';
@@ -11,7 +11,7 @@ const defaultMetaData = [{
   content: "width=device-width, initial-scale=1"
 }];
 
-export default pageType => async ({
+export default (pageType, actionManager) => async ({
   ip, path, query, host, charset, protocol, type, cookies
 }, {
   staticClientPath,
@@ -20,9 +20,11 @@ export default pageType => async ({
   rootGuide: {
     modelManager,
     initState,
-    headProcessor = node => ({
+    headProcessor = nodes => ({
       renderCSS: {},
-      renderHTML: renderToString(node),
+      renderHTML: Object.keys(nodes)
+        .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
+        .join(''),
       renderMeta: defaultMetaData
     }),
     targetElementID
@@ -41,7 +43,8 @@ export default pageType => async ({
       },
       pagePreloadState: modelManager.getInitializer(pageType)(payloadRetModelState)
     };
-    const nodes = buildRootNode({
+    const nodes = nodeRender({
+      actionManager,
       modelManager,
       ...renderState,
       targetElementID
@@ -50,10 +53,9 @@ export default pageType => async ({
 
     // Fill the blank parameters.
     if (!renderCSS) renderCSS = {};
-    if (!renderHTML) renderHTML = Object.keys(nodes).reduce((str, id) => `
-      ${str}
-      <div id="${id}">${renderToString(nodes[id])}</div>
-    `, '');
+    if (!renderHTML) renderHTML = Object.keys(nodes)
+      .map(id => `<div id="${id}">${createElement(renderToString(nodes[id]))}</div>`)
+      .join('');
     if (!renderMeta) renderMeta = defaultMetaData;
 
     const body = `
@@ -77,18 +79,18 @@ margin: 0px;
       renderMeta.map(obj =>
         Object.keys(obj)
           .map(key => `${key}="${obj[key]}"`)
-          .reduce((prev, next) => `${prev} ${next}`, '')
+          .join(' ')
       ).reduce((str, next) => `${str}
 <meta ${next} />`, '')
       }
     ${
       Object.keys(renderCSS)
         .map(id => `<style id="${id}">${renderCSS[id]}</style>`)
-        .reduce((prev, next) => prev + next)
+        .join('')
       }
 <head>
 <body>
-<div id="root">
+<div id="nickelcat-root">
 ${renderHTML}
 </div>
 <script id="__NICKELCAT_INIT_STATE__">
@@ -97,12 +99,13 @@ window.__NICKELCAT_SSR_CSS__ = (${JSON.stringify(Object.keys(renderCSS))});
 document.getElementById("__NICKELCAT_INIT_STATE__").parentElement.removeChild(document.getElementById("__NICKELCAT_INIT_STATE__"));
 </script>
 <script src=${staticClientPath}></script>
-${allowMobileConsole && `<script>
+${allowMobileConsole && `<script id="__NICKELCAT_MOBILE_DEBUG_FLAG__">
 ;(function () {
 var src = '//cdn.jsdelivr.net/npm/eruda';
 if (!/mobile_dev=true/.test(window.location)) return;
 document.write('<scr' + 'ipt src="' + src + '"></scr' + 'ipt>');
 document.write('<scr' + 'ipt>eruda.init();</scr' + 'ipt>');
+document.getElementById('__NICKELCAT_MOBILE_DEBUG_FLAG__').parentElement.removeChild(document.getElementById('__NICKELCAT_MOBILE_DEBUG_FLAG__'));
 })();
 </script>` || ''}
 </body>
@@ -110,7 +113,8 @@ document.write('<scr' + 'ipt>eruda.init();</scr' + 'ipt>');
     return { type: 'text/html', statusCode: 200, body };
   } catch (e) {
     log('error', chalk.redBright('Page preload crash'), chalk.yellow(pageType), e);
-    return { type: 'text/html', statusCode: 503, body: `
+    return {
+      type: 'text/html', statusCode: 503, body: `
 <html>
 <head>
     <title>RUNTIME ERROR</title>

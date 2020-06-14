@@ -34,22 +34,22 @@ childCreator(async ({
       rootGuide: {
         modelManager,
         initState,
-        headProcessor: nodes => {
-          const sheets = new ServerStyleSheets();
-          const html = Object.keys(nodes).reduce((str, id) => `
-            ${str}
-            <div id="${id}">
-              ${renderToString(sheets.collect(nodes[id]))}
-            </div>
-          `, '');
+        // headProcessor: nodes => {
+        //   const sheets = new ServerStyleSheets();
+        //   const html = Object.keys(nodes).reduce((str, id) => `
+        //     ${str}
+        //     <div id="${id}">
+        //       ${renderToString(sheets.collect(nodes[id]))}
+        //     </div>
+        //   `, '');
 
-          return {
-            renderHTML: html,
-            renderCSS: {
-              'ssr-css': sheets.toString()
-            }
-          }
-        }
+        //   return {
+        //     renderHTML: html,
+        //     renderCSS: {
+        //       'ssr-css': sheets.toString()
+        //     }
+        //   }
+        // }
       },
       targetElementID: 'nickelcat-root'
     }, actionManager);

@@ -2,7 +2,7 @@ import createStream from './createStream';
 
 import { serverLog as log } from '../utils/logger';
 import merge from '../utils/deepMerge';
-import htmlPageRender from './htmlPageRender';
+import templatePageGenerator from './templatePageGenerator';
 
 let routes = {};
 
@@ -15,7 +15,7 @@ const createRoutes = ({
     for (let i = 1; i < streams[streamName].length; ++i) {
       if (!Array.isArray(streams[streamName][i])) {
         const route = actionManager.getServerRouterActionExecutor(streams[streamName][i].$$type)(streams[streamName][i])({
-          execChildStream: (stream, extraArgs = {}) => payload => createStream({ tasks: [extraArgs, ...stream], path })(payload)
+          execChildStream: (stream, extraArgs = {}) => payload => createStream()({ tasks: [extraArgs, ...stream], path })(payload)
         });
 
         log('info', `Parsed the static route: ${path}.${streamName}[${i}]`, route);
@@ -39,12 +39,15 @@ export const initRoutes = ({
   }
   // Page routes
   for (let modelType of modelManager.getModelList()) {
+    // Set the route only for models with page prefixes.
+    if (!/^pages?/.test(modelType)) continue;
+
     if (!routes.http) routes.http = {};
-    routes.http[`/${modelType}`] = htmlPageRender(modelType);
+    routes.http[`/${modelType}`] = templatePageGenerator(modelType, actionManager);
   }
   if (rootPageRelay) {
     if (modelManager.getModelList().indexOf(rootPageRelay) < 0) log('warn', `Unknown root page's name: ${rootPageRelay}.`);
-    else routes.http['/'] = htmlPageRender(rootPageRelay);
+    else routes.http['/'] = templatePageGenerator(rootPageRelay, actionManager);
   }
 };
 
