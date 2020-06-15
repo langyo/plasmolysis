@@ -2,7 +2,7 @@ import { existsSync, readdirSync, statSync } from 'fs';
 import { resolve, join } from 'path';
 
 export default async (parseOption = {
-  parseFilterComponents: ['', 'dialog.'],
+  parseFilterComponents: ['', 'dialog.', 'dialogs.', 'page.', 'pages.'],
   parseFilterServices: ['']
 }) => {
   let {

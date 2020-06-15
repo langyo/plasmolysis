@@ -1,37 +1,30 @@
-import React, { createElement } from 'react';
+import React, { createElement, memo, useState } from 'react';
 import { hydrate } from 'react-dom';
 import createStateManager from '../lib/stateManager';
 import createStream from './createStream';
 import { clientTranslator } from '../lib/translator';
 
-const bindStateToReact = (actionManager, stateManager, component, modelType, modelID) => {
-  return class extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = stateManager.getAllState();
-      stateManager.registerListener(this.setState.bind(this), modelID);
-    }
+const bindStateToReact = (actionManager, stateManager, component, modelType, modelID) => createElement(memo(() => {
+  const [state, setState] = useState(stateManager.getAllState());
+  stateManager.registerListener(setState, modelID);
 
-    render() {
-      return createElement(component, {
-        ...this.state.modelState[modelType][modelID],
-        ...this.state.globalState,
-        ...((stream => Object.keys(stream).reduce(
-          (obj, key) => ({
-            ...obj,
-            [key]: createStream(stateManager)({
-              tasks: stream[key],
-              path: `${modelType}[${modelID}]`
-            }, {
-              modelType,
-              modelID
-            }, actionManager)
-          }), {}
-        ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
-      });
-    }
-  };
-};
+  return createElement(memo(component, {
+    ...state.modelState[modelType][modelID],
+    ...state.globalState,
+    ...((stream => Object.keys(stream).reduce(
+      (obj, key) => ({
+        ...obj,
+        [key]: createStream(stateManager)({
+          tasks: stream[key],
+          path: `${modelType}[${modelID}]`
+        }, {
+          modelType,
+          modelID
+        }, actionManager)
+      }), {}
+    ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
+  }));
+}));
 
 export default ({
   actionManager,
@@ -98,16 +91,14 @@ export default ({
     }
   });
 
-  let ret = {};
   for (const modelType of modelManager.getModelList()) {
     if (stateManager.modelState[modelType]) {
       for (const modelID of Object.keys(stateManager.modelState[modelType])) {
-        ret[`nickelcat-model-${modelType.split('.').join('_')}-${modelID}`] = bindStateToReact(
+        const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
+        hydrate(bindStateToReact(
           actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID
-        );
+        ), document.getElementById(elementID));
       }
     }
   }
-
-  return ret;
 }

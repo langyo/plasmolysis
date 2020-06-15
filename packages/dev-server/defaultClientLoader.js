@@ -10,15 +10,12 @@ const actionManager = createActionMangager(presetActionPackage);
 const { components, services } = require('./.requirePackages.js');
 const modelManager = createModelManager(components, actionManager);
 
-const nodes = nodeRender({
+nodeRender({
   actionManager,
   modelManager,
   ...window.__NICKELCAT_INIT__,
   targetElementID: 'nickelcat-root'
 }, actionManager);
-for (const id of Object.keys(nodes)) {
-  hydrate(createElement(nodes[id]), document.getElementById(id));
-}
 
 for (const id of window.__NICKELCAT_SSR_CSS__) {
   if (document.getElementById(id)) {
