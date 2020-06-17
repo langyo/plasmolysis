@@ -34,10 +34,6 @@ class StateManager {
     }
   }
 
-  getAllState = () => {
-    return { modelState: this.modelState, globalState: this.globalState };
-  }
-
   getState = (modelType, modelID) => {
     // Check the container.
     if (!(this.modelState[modelType])) this.modelState[modelType] = {};

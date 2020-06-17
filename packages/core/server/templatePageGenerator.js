@@ -22,9 +22,10 @@ export default (pageType, actionManager) => async ({
     initState,
     headProcessor = nodes => ({
       renderCSS: {},
-      renderHTML: Object.keys(nodes)
-        .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
-        .join(''),
+      // renderHTML: Object.keys(nodes)
+      //   .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
+      //   .join(''),
+      renderHTML: '',
       renderMeta: defaultMetaData
     }),
     targetElementID
@@ -54,7 +55,7 @@ export default (pageType, actionManager) => async ({
     // Fill the blank parameters.
     if (!renderCSS) renderCSS = {};
     if (!renderHTML) renderHTML = Object.keys(nodes)
-      .map(id => `<div id="${id}">${createElement(renderToString(nodes[id]))}</div>`)
+      .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
       .join('');
     if (!renderMeta) renderMeta = defaultMetaData;
 

@@ -1,17 +1,15 @@
-import React, { createElement, memo, useState } from 'react';
-import { hydrate } from 'react-dom';
+import React from 'react';
+import { hydrate, render } from 'react-dom';
 import createStateManager from '../lib/stateManager';
 import createStream from './createStream';
 import { clientTranslator } from '../lib/translator';
 
-const bindStateToReact = (actionManager, stateManager, component, modelType, modelID) => createElement(memo(() => {
-  const [state, setState] = useState(stateManager.getAllState());
-  stateManager.registerListener(setState, modelID);
-
-  return createElement(memo(component, {
-    ...state.modelState[modelType][modelID],
-    ...state.globalState,
-    ...((stream => Object.keys(stream).reduce(
+const loadReactComponent = (actionManager, stateManager, Component, modelType, modelID) => {
+  const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
+  hydrate(<Component
+    {...stateManager.getState(modelType, modelID)}
+    {...stateManager.getGlobalState()}
+    {...((stream => Object.keys(stream).reduce(
       (obj, key) => ({
         ...obj,
         [key]: createStream(stateManager)({
@@ -22,9 +20,27 @@ const bindStateToReact = (actionManager, stateManager, component, modelType, mod
           modelID
         }, actionManager)
       }), {}
-    ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
-  }));
-}));
+    ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))}
+  />, document.getElementById(elementID));
+  stateManager.registerListener(() => {
+    render(<Component
+      {...stateManager.getState(modelType, modelID)}
+      {...stateManager.getGlobalState()}
+      {...((stream => Object.keys(stream).reduce(
+        (obj, key) => ({
+          ...obj,
+          [key]: createStream(stateManager)({
+            tasks: stream[key],
+            path: `${modelType}[${modelID}]`
+          }, {
+            modelType,
+            modelID
+          }, actionManager)
+        }), {}
+      ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))}
+    />, document.getElementById(elementID));
+  }, modelID);
+};
 
 export default ({
   actionManager,
@@ -48,10 +64,7 @@ export default ({
     let nodePre = document.createElement('div');
     nodePre.id = elementID;
     targetElement.appendChild(nodePre);
-    const node = document.getElementById(elementID);
-    hydrate(bindStateToReact(
-      actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID
-    ), node);
+    loadReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
   };
   const removeModel = (modelType, modelID) => {
     const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
@@ -94,10 +107,7 @@ export default ({
   for (const modelType of modelManager.getModelList()) {
     if (stateManager.modelState[modelType]) {
       for (const modelID of Object.keys(stateManager.modelState[modelType])) {
-        const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
-        hydrate(bindStateToReact(
-          actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID
-        ), document.getElementById(elementID));
+        loadReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
       }
     }
   }
