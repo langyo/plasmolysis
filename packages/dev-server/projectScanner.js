@@ -1,5 +1,10 @@
-import { existsSync, readdirSync, statSync } from 'fs';
+import { existsSync, readdirSync, statSync, readFileSync } from 'fs';
 import { resolve, join } from 'path';
+
+import { Volume } from 'memfs';
+import { Union } from 'unionfs';
+import * as realFs from 'fs';
+const joinPath = require('memory-fs/lib/join');
 
 export default async (parseOption = {
   parseFilterComponents: ['', 'dialog.', 'dialogs.', 'page.', 'pages.'],
@@ -37,8 +42,10 @@ export default async (parseOption = {
           if (component.route === controller.route && component.fileName === controller.fileName) {
             components.push({
               name: component.fileName,
-              componentPath: component.path,
-              controllerPath: controller.path
+              componentPath: join('/components/', component.path.substr(resolve(process.cwd(), './components').length)).split('\\').join('/'),
+              controllerPath: join('/controllers/', controller.path.substr(resolve(process.cwd(), './controllers').length)).split('\\').join('/'),
+              componentContent: readFileSync(component.path, 'utf8'),
+              controllerContent: readFileSync(controller.path, 'utf8')
             });
             break;
           }
@@ -56,42 +63,70 @@ export default async (parseOption = {
       if (parseFilterServices.indexOf(services.route) >= 0) {
         services.push({
           name: services.fileName,
-          servicePath: services.path
+          servicePath: join('/services/', services.path.substr(resolve(process.cwd(), './services').length)).split('\\').join('/'),
+          serviceContent: readFileSync(services.path, 'utf8')
         });
       }
     }
   }
 
-  if (existsSync(resolve(process.cwd(), './configs/index.js'))) configs.index = resolve(process.cwd(), './configs/index.js');
-  if (existsSync(resolve(process.cwd(), './configs/initState.js'))) configs.initState = resolve(process.cwd(), './configs/initState.js');
-  
-  return `module.exports = {
+  if (existsSync(resolve(process.cwd(), './configs/index.js'))) {
+    configs.index = readFileSync(resolve(process.cwd(), './configs/index.js'), 'utf8');
+  } else {
+    configs.index = `export default {
+
+};`;
+  }
+  if (existsSync(resolve(process.cwd(), './configs/initState.js'))) {
+    configs.initState = readFileSync(resolve(process.cwd(), './configs/initState.js'), 'utf8');
+  } else {
+    configs.initState = `export default {};`;
+  }
+
+  const virtualFiles = {
+    '/__NICKELCAT_STATIC_REQUIRE.js': `module.exports = {
   components: {${
-    components.map(component => `"${component.name}": {
+      components.map(component => `"${component.name}": {
       component:
-        require("${component.componentPath.split('\\').join('\\\\')}").default ||
-        require("${component.componentPath.split('\\').join('\\\\')}"),
+        require("${component.componentPath}").default ||
+        require("${component.componentPath}"),
       controller:
-        require("${component.controllerPath.split('\\').join('\\\\')}").default ||
-        require("${component.controllerPath.split('\\').join('\\\\')}")
-    }`).join(',\n')}
+        require("${component.controllerPath}").default ||
+        require("${component.controllerPath}")
+      }`).join(',\n')}
   },
   services: {${
-    services.map(service => `"${service.name}": {
+      services.map(service => `"${service.name}": {
       service:
-        require("${service.servicePath.split('\\').join('\\\\')}").default ||
-        require("${service.servicePath.split('\\').join('\\\\')}")
-    }`).join(',\n')}
+        require("${service.servicePath}").default ||
+        require("${service.servicePath}")
+      }`).join(',\n')}
   },
   configs: {
-    index: ${configs.index ? `(
-      require("${configs.index.split('\\').join('\\\\')}").default ||
-      require("${configs.index.split('\\').join('\\\\')}")
-    )` : `{}`},
-    initState: ${configs.initState ? `(
-      require("${configs.initState.split('\\').join('\\\\')}").default ||
-      require("${configs.initState.split('\\').join('\\\\')}")
-    )` : `{}`}
+    index: require('/configs/index'),
+    initState: require('/configs/initState')
   }
-};`;
+};`,
+    ...components.reduce((obj, { componentPath, componentContent }) => ({
+      ...obj,
+      [componentPath]: componentContent
+    }), {}),
+    ...components.reduce((obj, { controllerPath, controllerContent }) => ({
+      ...obj,
+      [controllerPath]: controllerContent
+    }), {}),
+    ...services.reduce((obj, { servicePath, serviceContent }) => ({
+      ...obj,
+      [servicePath]: serviceContent
+    }), {}),
+    '/configs/index.js': configs.index,
+    '/configs/initState.js': configs.initState
+  };
+  const mfs = Volume.fromJSON(virtualFiles);
+  console.log(virtualFiles);
+  const fs = new Union();
+  fs.use(realFs).use(mfs);
+  if (!fs.join) fs.join = joinPath;
+
+  return fs;
 };

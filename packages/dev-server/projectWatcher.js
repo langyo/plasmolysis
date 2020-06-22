@@ -34,9 +34,8 @@ export default ({
     ignored
   }).on('all', async (event, path) => {
     if (!initlaizeWaitDone) return;
-    if (path === resolve(__dirname, './.requirePackages.js')) return;
-
-    writeFileSync(resolve(__dirname, './.requirePackages.js'), await scanner());
+    console.log('update', path);
+    await scanner();
 
     if (delayWaiting) changedDuringDelay = true;
     else delayUpdate();

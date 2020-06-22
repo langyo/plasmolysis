@@ -7,7 +7,7 @@ import presetActionPackage from 'nickelcat-action-preset';
 import createActionMangager from 'nickelcat/lib/actionManager';
 const actionManager = createActionMangager(presetActionPackage);
 
-const { components, services } = require('./.requirePackages.js');
+const { components, services } = require('/__NICKELCAT_STATIC_REQUIRE.js');
 const modelManager = createModelManager(components, actionManager);
 
 nodeRender({

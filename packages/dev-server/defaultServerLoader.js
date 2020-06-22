@@ -9,7 +9,7 @@ import presetActionPackage from 'nickelcat-action-preset';
 import createActionMangager from 'nickelcat/lib/actionManager';
 const actionManager = createActionMangager(presetActionPackage);
 
-const { components, services, configs } = require('./.requirePackages.js');
+const { components, services, configs } = require('/__NICKELCAT_STATIC_REQUIRE.js');
 const modelManager = createModelManager(components, actionManager);
 
 let initState = Object.seal(configs.initState);

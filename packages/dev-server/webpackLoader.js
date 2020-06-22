@@ -3,10 +3,10 @@ import TerserPlugin from 'terser-webpack-plugin';
 
 import { serverLog as log } from 'nickelcat/utils/logger';
 import EventEmitter from 'events';
-import MFS from 'memory-fs';
+import scanner from './projectScanner';
 
 export default async (webpackConfig, updateListener) => {
-  const fs = new MFS();
+  const fs = await scanner();
   const emitter = new EventEmitter();
 
   const compiler = webpack({
@@ -16,7 +16,10 @@ export default async (webpackConfig, updateListener) => {
         {
           test: /\.js$/,
           loader: 'babel-loader',
-          exclude: /node_modules/
+          exclude: /node_modules/,
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react']
+          }
         }
       ]
     },
@@ -38,6 +41,7 @@ export default async (webpackConfig, updateListener) => {
     },
     ...webpackConfig
   });
+  compiler.inputFileSystem = fs;
   compiler.outputFileSystem = fs;
 
   compiler.run((err, status) => {
