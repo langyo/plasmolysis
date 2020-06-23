@@ -9,7 +9,7 @@ import presetActionPackage from 'nickelcat-action-preset';
 import createActionMangager from 'nickelcat/lib/actionManager';
 const actionManager = createActionMangager(presetActionPackage);
 
-const { components, services, configs } = require('/__NICKELCAT_STATIC_REQUIRE.js');
+const { components, services, configs } = require('./__nickelcat_staticRequire.js');
 const modelManager = createModelManager(components, actionManager);
 
 let initState = Object.seal(configs.initState);
@@ -17,7 +17,7 @@ let extraConfigs = Object.seal(configs.index);
 initRoutes(extraConfigs, modelManager, actionManager);
 
 import router from 'nickelcat/server/router';
-import { childCreator } from './childProcessCreator';
+import { childCreator } from './__nickelcat_childProcessCreator';
 
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheets } from '@material-ui/core/styles';
@@ -67,7 +67,6 @@ childCreator(async ({
 <body>
   <h2>Oops!</h2>
   <p>${e.message}</p>
-  <p>Cannot find the resources. :(</p>
   </body>
 </html>
       `}

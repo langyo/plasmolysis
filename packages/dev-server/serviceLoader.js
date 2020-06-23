@@ -1,4 +1,4 @@
-import { parentCreator } from './childProcessCreator';
+import { parentCreator } from './lib/childProcessCreator';
 import middlewareRelay from './middlewareRelay';
 import webpackLoader from './webpackLoader';
 import projectWatcher from './projectWatcher';
@@ -13,7 +13,7 @@ export default async ({
   let clientBundleContent  = '';
 
   const webpackClientSide = await webpackLoader({
-    entry: resolve(__dirname, './defaultClientLoader.js'),
+    entry: resolve(process.cwd(), './__nickelcat_defaultClientLoader.js'),
     target: 'web'
   }, watcher);
   webpackClientSide.once('ready', content => {
@@ -26,7 +26,7 @@ export default async ({
   });
 
   const webpackServerSide = await webpackLoader({
-    entry: resolve(__dirname, './defaultServerLoader.js'),
+    entry: resolve(process.cwd(), './__nickelcat_defaultServerLoader.js'),
     target: 'node'
   }, watcher);
 

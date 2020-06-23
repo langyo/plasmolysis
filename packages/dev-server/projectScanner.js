@@ -4,7 +4,6 @@ import { resolve, join } from 'path';
 import { Volume } from 'memfs';
 import { Union } from 'unionfs';
 import * as realFs from 'fs';
-const joinPath = require('memory-fs/lib/join');
 
 export default async (parseOption = {
   parseFilterComponents: ['', 'dialog.', 'dialogs.', 'page.', 'pages.'],
@@ -42,10 +41,8 @@ export default async (parseOption = {
           if (component.route === controller.route && component.fileName === controller.fileName) {
             components.push({
               name: component.fileName,
-              componentPath: join('/components/', component.path.substr(resolve(process.cwd(), './components').length)).split('\\').join('/'),
-              controllerPath: join('/controllers/', controller.path.substr(resolve(process.cwd(), './controllers').length)).split('\\').join('/'),
-              componentContent: readFileSync(component.path, 'utf8'),
-              controllerContent: readFileSync(controller.path, 'utf8')
+              componentPath: component.path.split('\\').join('\\\\'),
+              controllerPath: controller.path.split('\\').join('\\\\')
             });
             break;
           }
@@ -63,28 +60,17 @@ export default async (parseOption = {
       if (parseFilterServices.indexOf(services.route) >= 0) {
         services.push({
           name: services.fileName,
-          servicePath: join('/services/', services.path.substr(resolve(process.cwd(), './services').length)).split('\\').join('/'),
-          serviceContent: readFileSync(services.path, 'utf8')
+          servicePath: services.path.split('\\').join('\\\\')
         });
       }
     }
   }
 
-  if (existsSync(resolve(process.cwd(), './configs/index.js'))) {
-    configs.index = readFileSync(resolve(process.cwd(), './configs/index.js'), 'utf8');
-  } else {
-    configs.index = `export default {
-
-};`;
-  }
-  if (existsSync(resolve(process.cwd(), './configs/initState.js'))) {
-    configs.initState = readFileSync(resolve(process.cwd(), './configs/initState.js'), 'utf8');
-  } else {
-    configs.initState = `export default {};`;
-  }
+  configs.index = existsSync(resolve(process.cwd(), './configs/index.js'));
+  configs.initState = existsSync(resolve(process.cwd(), './configs/initState.js'));
 
   const virtualFiles = {
-    '/__NICKELCAT_STATIC_REQUIRE.js': `module.exports = {
+    [join(process.cwd(), './__nickelcat_staticRequire.js')]: `module.exports = {
   components: {${
       components.map(component => `"${component.name}": {
       component:
@@ -103,30 +89,19 @@ export default async (parseOption = {
       }`).join(',\n')}
   },
   configs: {
-    index: require('/configs/index'),
-    initState: require('/configs/initState')
+    index: ${configs.index ? `require("${join(process.cwd(), './configs/index.js').split('\\').join('\\\\')}").default || require("${join(process.cwd(), './configs/index.js').split('\\').join('\\\\')}")` : '{}'},
+    initState: ${configs.initState ? `require("${join(process.cwd(), './configs/initState.js').split('\\').join('\\\\')}").default || require("${join(process.cwd(), './configs/initState.js').split('\\').join('\\\\')}")` : '{}'}
   }
 };`,
-    ...components.reduce((obj, { componentPath, componentContent }) => ({
-      ...obj,
-      [componentPath]: componentContent
-    }), {}),
-    ...components.reduce((obj, { controllerPath, controllerContent }) => ({
-      ...obj,
-      [controllerPath]: controllerContent
-    }), {}),
-    ...services.reduce((obj, { servicePath, serviceContent }) => ({
-      ...obj,
-      [servicePath]: serviceContent
-    }), {}),
-    '/configs/index.js': configs.index,
-    '/configs/initState.js': configs.initState
+    [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]: readFileSync(join(__dirname, './lib/defaultClientLoader.js'), 'utf8'),
+    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]: readFileSync(join(__dirname, './lib/defaultServerLoader.js'), 'utf8'),
+    [join(process.cwd(), './__nickelcat_childProcessCreator.js')]: readFileSync(join(__dirname, './lib/childProcessCreator.js'), 'utf8'),
+    [join(process.cwd(), './__nickelcat_childProcessShell.js')]: readFileSync(join(__dirname, './lib/childProcessShell.js'), 'utf8')
   };
   const mfs = Volume.fromJSON(virtualFiles);
-  console.log(virtualFiles);
   const fs = new Union();
   fs.use(realFs).use(mfs);
-  if (!fs.join) fs.join = joinPath;
+  if (!fs.join) fs.join = join;
 
   return fs;
 };
