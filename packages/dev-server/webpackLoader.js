@@ -4,6 +4,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 import { serverLog as log } from 'nickelcat/utils/logger';
 import EventEmitter from 'events';
 import scanner from './projectScanner';
+import { join } from 'path';
 
 export default async (webpackConfig, updateListener) => {
   const fs = await scanner();
@@ -22,6 +23,9 @@ export default async (webpackConfig, updateListener) => {
           }
         }
       ]
+    },
+    resolve: {
+      modules: [join(process.cwd(), './node_modules'), 'node_modules']
     },
     output: {
       filename: 'output',
