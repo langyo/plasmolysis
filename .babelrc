@@ -17,5 +17,6 @@
     [
       "@babel/plugin-transform-runtime"
     ]
-  ]
+  ],
+  "sourceMaps": "both"
 }

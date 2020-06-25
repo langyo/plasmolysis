@@ -2,7 +2,7 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "postinstall": "npm run build && gulp link && npm run install-pkg",
+    "postinstall": "npm run install-pkg && npm run build",
     "install-pkg": "npm run install-pkg:core && npm run install-pkg:action-preset && npm run install-pkg:dev-server && npm run install-pkg:create-app",
     "install-pkg:core": "cd ./packages/core && yarn && cd ..",
     "install-pkg:action-preset": "cd ./packages/action-preset && yarn && cd ..",

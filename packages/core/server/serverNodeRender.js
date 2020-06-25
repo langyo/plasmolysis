@@ -1,15 +1,15 @@
-import React from 'react';
+import { createElement } from 'react';
 import createStateManager from '../lib/stateManager';
 import createStream from './createStream';
 import { clientTranslator } from '../lib/translator';
 
-const createReactComponent = (actionManager, stateManager, Component, modelType, modelID) => <Component
-  {...stateManager.getState(modelType, modelID)}
-  {...stateManager.getGlobalState()}
-  {...((stream => Object.keys(stream).reduce(
+const createReactComponent = (actionManager, stateManager, Component, modelType, modelID) => createElement(Component, {
+  ...stateManager.getState(modelType, modelID),
+  ...stateManager.getGlobalState(),
+  ...((stream => Object.keys(stream).reduce(
     (obj, key) => ({
       ...obj,
-      [key]: createStream(stateManager)({
+      [key]: createStream({ stateManager, actionManager })({
         tasks: stream[key],
         path: `${modelType}[${modelID}]`
       }, {
@@ -17,8 +17,8 @@ const createReactComponent = (actionManager, stateManager, Component, modelType,
         modelID
       }, actionManager)
     }), {}
-  ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))}
-/>;
+  ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
+});
 
 export default ({
   actionManager,

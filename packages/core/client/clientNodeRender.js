@@ -1,4 +1,4 @@
-import React from 'react';
+import { createElement } from 'react';
 import { hydrate, render } from 'react-dom';
 import createStateManager from '../lib/stateManager';
 import createStream from './createStream';
@@ -6,13 +6,13 @@ import { clientTranslator } from '../lib/translator';
 
 const loadReactComponent = (actionManager, stateManager, Component, modelType, modelID) => {
   const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
-  hydrate(<Component
-    {...stateManager.getState(modelType, modelID)}
-    {...stateManager.getGlobalState()}
-    {...((stream => Object.keys(stream).reduce(
+  hydrate(createElement(Component, {
+    ...stateManager.getState(modelType, modelID),
+    ...stateManager.getGlobalState(),
+    ...((stream => Object.keys(stream).reduce(
       (obj, key) => ({
         ...obj,
-        [key]: createStream(stateManager)({
+        [key]: createStream({ stateManager, actionManager })({
           tasks: stream[key],
           path: `${modelType}[${modelID}]`
         }, {
@@ -20,16 +20,16 @@ const loadReactComponent = (actionManager, stateManager, Component, modelType, m
           modelID
         }, actionManager)
       }), {}
-    ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))}
-  />, document.getElementById(elementID));
+    ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
+  }), document.getElementById(elementID));
   stateManager.registerListener(() => {
-    render(<Component
-      {...stateManager.getState(modelType, modelID)}
-      {...stateManager.getGlobalState()}
-      {...((stream => Object.keys(stream).reduce(
+    render(createElement(Component, {
+      ...stateManager.getState(modelType, modelID),
+      ...stateManager.getGlobalState(),
+      ...((stream => Object.keys(stream).reduce(
         (obj, key) => ({
           ...obj,
-          [key]: createStream(stateManager)({
+          [key]: createStream({ stateManager, actionManager })({
             tasks: stream[key],
             path: `${modelType}[${modelID}]`
           }, {
@@ -37,8 +37,8 @@ const loadReactComponent = (actionManager, stateManager, Component, modelType, m
             modelID
           }, actionManager)
         }), {}
-      ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))}
-    />, document.getElementById(elementID));
+      ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
+    }), document.getElementById(elementID));
   }, modelID);
 };
 
@@ -74,7 +74,7 @@ export default ({
   };
 
   stateManager.registerListener(({ modelState }) => {
-    const prevIDList = Array.from(targetElement.childNodes)
+    const prevIDList = Array.from(targetElement.children)
       .map(n => n.id)
       .map(str => {
         const ret = /^nickelcat-model-(.+)-(.+)$/.exec(str);

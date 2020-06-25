@@ -14,10 +14,10 @@ class StateManager {
   }
 
   updateListener = () => {
-    this.listeners.forEach(({ setState }) => setState(() => ({
-      modelState,
-      globalState
-    })));
+    this.listeners.forEach(({ setState }) => setState({
+      modelState: this.modelState,
+      globalState: this.globalState
+    }));
   }
 
   registerListener(setState, id = generate()) {
