@@ -4,7 +4,7 @@ export default (actionEvaluator, globalContext = {}, actionManager) => {
   const createTasks = ({
     tasks,
     path
-  }, taskContext = {}) => (async (payload, actionContext)=> {
+  }, taskContext = {}) => (async (payload, actionContext = {})=> {
     const tags = tasks[0];
     const context = {
       ...globalContext,
