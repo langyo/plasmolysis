@@ -22,10 +22,10 @@ const loadReactComponent = (actionManager, stateManager, Component, modelType, m
       }), {}
     ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
   }), document.getElementById(elementID));
-  stateManager.registerListener(() => {
+  stateManager.registerListener(({ globalState, modelState }) => {
     render(createElement(Component, {
-      ...stateManager.getState(modelType, modelID),
-      ...stateManager.getGlobalState(),
+      ...modelState[modelType][modelID],
+      ...globalState,
       ...((stream => Object.keys(stream).reduce(
         (obj, key) => ({
           ...obj,
@@ -83,11 +83,11 @@ export default ({
       .reduce((obj, { modelType, modelID }) => ({
         ...obj,
         [modelType]: obj[modelType] ? [...obj[modelType], modelID] : [modelID]
-      }));
+      }), {});
     const nextIDList = Object.keys(modelState).reduce((obj, modelType) => ({
       ...obj,
       [modelType]: Object.keys(modelState[modelType])
-    }));
+    }), {});
 
     for (const modelType of Object.keys(nextIDList)) {
       if (!prevIDList[modelType]) {
