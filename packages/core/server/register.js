@@ -40,8 +40,8 @@ export const initRoutes = ({
   // Page routes
   for (let modelType of modelManager.getModelList()) {
     // Set the route only for models with page prefixes.
-    if (!/^pages?/.test(modelType)) continue;
-
+    if (!/^pages?\./.test(modelType)) continue;
+    
     if (!routes.http) routes.http = {};
     routes.http[`/${modelType}`] = templatePageGenerator(modelType, actionManager);
   }

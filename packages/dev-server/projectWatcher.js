@@ -1,6 +1,6 @@
 import { watch } from 'chokidar';
 import EventEmitter from 'events';
-import { resolve } from 'path';
+import { serverLog as log } from 'nickelcat/utils/logger';
 
 import scanner from './projectScanner';
 import { writeFileSync } from 'fs';
@@ -24,6 +24,7 @@ export default ({
         delayUpdate();
       } else {
         delayWaiting = false;
+        log('info', 'The project files were updated, rebuilding the environment...')
         emitter.emit('update');
       }
     }, aggregate);
@@ -34,7 +35,6 @@ export default ({
     ignored
   }).on('all', async (event, path) => {
     if (!initlaizeWaitDone) return;
-    console.log('update', path);
     await scanner();
 
     if (delayWaiting) changedDuringDelay = true;

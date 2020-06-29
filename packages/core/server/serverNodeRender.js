@@ -37,7 +37,7 @@ export default ({
   let ret = {};
   for (const modelType of modelManager.getModelList()) {
     for (const modelID of stateManager.getModelIDList(modelType)) {
-      ret[`nickelcat-model-${modelType.split('.').join('_')}-${modelID}`] =
+      ret[`nickelcat-model-${modelType.split('.').join('-')}-${modelID}`] =
         createReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
     }
   }

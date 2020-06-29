@@ -17,11 +17,11 @@ export default async ({
     target: 'web'
   }, watcher);
   webpackClientSide.once('ready', content => {
-    log('info', `Webpack has been compiled the static file.`);
+    log('info', `Webpack has been compiled to the static file.`);
     clientBundleContent = content;
   });
   webpackClientSide.on('change', content => {
-    log('info', `Webpack has been compiled the static file.`);
+    log('info', `Webpack has been compiled to the up-to-date static file.`);
     clientBundleContent = content;
   });
 
@@ -34,8 +34,9 @@ export default async ({
     const { send, restart } = parentCreator(content);
     log('info', `The server has ready.`);
     webpackServerSide.on('change', content => {
-      log('info', `Restarting services.`);
+      log('info', `Restarting service...`);
       restart(content);
+      log('info', `The service has been restarted.`);
     });
     resolveFunc(middlewareRelay({
       sendFunc: send,
