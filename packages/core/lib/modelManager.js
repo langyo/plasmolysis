@@ -4,68 +4,64 @@ import {
   nativeRouterTranslator
 } from './translator';
 
-class ModelStorage {
-  constructor(components, actionManager) {
-    this.components = {};
-    this.initializer = {};
-    this.preloader = {};
-    this.originControllerStreams = {};
+export default (requireComponents, actionManager) => {
+  let components = {};
+  let initializer = {};
+  let preloader = {};
+  let originControllerStreams = {};
 
-    this.clientControllerStreams = {};
-    this.serverControllerStreams = {};
-    this.nativeControllerStreams = {};
+  let clientControllerStreams = {};
+  let serverControllerStreams = {};
+  let nativeControllerStreams = {};
 
-    this.actionManager = actionManager;
+  const storageModel = (modelType, { component, controller }) => {
+    components[modelType] = component;
+    originControllerStreams[modelType] = controller;
 
-    if (components) {
-      console.assert(typeof components === 'object');
-      for (const modelType of Object.keys(components)) {
-        this.storageModel(modelType, components[modelType]);
-      }
-    }
-  }
+    if (controller.$init) initializer[modelType] = controller.$init;
+    else initializer[modelType] = obj => obj;
+    if (controller.$preload) preloader[modelType] = controller.$preload;
+    else preloader[modelType] = async obj => ({ payload: (obj && obj.query || {}) });
 
-  storageModel = (modelType, { component, controller }) => {
-    this.components[modelType] = component;
-    this.originControllerStreams[modelType] = controller;
-
-    if (controller.$init) this.initializer[modelType] = controller.$init;
-    else this.initializer[modelType] = obj => obj;
-    if (controller.$preload) this.preloader[modelType] = controller.$preload;
-    else this.preloader[modelType] = async obj => ({ payload: (obj && obj.query || {}) });
-
-    this.clientControllerStreams[modelType] = clientTranslator(controller, this.actionManager);
-    this.serverControllerStreams[modelType] = serverRouterTranslator(controller, this.actionManager);
-    this.nativeControllerStreams[modelType] = nativeRouterTranslator(controller, this.actionManager);
+    clientControllerStreams[modelType] = clientTranslator(controller, actionManager);
+    serverControllerStreams[modelType] = serverRouterTranslator(controller, actionManager);
+    nativeControllerStreams[modelType] = nativeRouterTranslator(controller, actionManager);
   };
 
-  loadComponent = type => {
-    return this.components[type];
+  console.assert(typeof requireComponents === 'object');
+  for (const modelType of Object.keys(requireComponents)) {
+    storageModel(modelType, requireComponents[modelType]);
   }
 
-  getModelList = () => {
-    return Object.keys(this.components);
-  }
+  return Object.seal({
+    storageModel,
 
-  getInitializer = type => {
-    return this.initializer[type] || (init => init);
-  }
+    loadComponent(type) {
+      return components[type];
+    },
 
-  getPreloader = type => {
-    return this.preloader[type] || (async init => init);
-  }
+    getModelList() {
+      return Object.keys(components);
+    },
 
-  getClientStream = type => {
-    return this.clientControllerStreams[type] || {};
-  }
+    getInitializer(type) {
+      return initializer[type] || (init => init);
+    },
 
-  getServerRouterStream = type => {
-    return this.serverControllerStreams[type] || {};
-  }
+    getPreloader(type) {
+      return preloader[type] || (async init => init);
+    },
 
-  getNativeRouterStream = type => {
-    return this.nativeControllerStreams[type] || {};
-  }
+    getClientStream(type) {
+      return clientControllerStreams[type] || {};
+    },
+
+    getServerRouterStream(type) {
+      return serverControllerStreams[type] || {};
+    },
+
+    getNativeRouterStream(type) {
+      return nativeControllerStreams[type] || {};
+    }
+  });
 };
-
-export default (components, actionManager) => new ModelStorage(components, actionManager);

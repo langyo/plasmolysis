@@ -22,13 +22,12 @@ export default (pageType, actionManager) => async ({
     initState,
     headProcessor = nodes => ({
       renderCSS: {},
-      // renderHTML: Object.keys(nodes)
-      //   .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
-      //   .join(''),
-      renderHTML: '',
+      renderHTML: Object.keys(nodes)
+        .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
+        .join(''),
       renderMeta: defaultMetaData
     }),
-    targetElementID
+    targetElementID = 'nickelcat-root'
   }
 }) => {
   try {
@@ -50,14 +49,12 @@ export default (pageType, actionManager) => async ({
       ...renderState,
       targetElementID
     });
-    let { renderCSS, renderHTML, renderMeta } = headProcessor(nodes);
-
-    // Fill the blank parameters.
-    if (!renderCSS) renderCSS = {};
-    if (!renderHTML) renderHTML = Object.keys(nodes)
-      .map(id => `<div id="${id}">${renderToString(nodes[id])}</div>`)
-      .join('');
-    if (!renderMeta) renderMeta = defaultMetaData;
+    const { renderCSS, renderHTML, renderMeta } = (result => ({
+      renderCSS: {},
+      renderHTML: {},
+      renderMeta: defaultMetaData,
+      ...result
+    }))(headProcessor(nodes));
 
     const body = `
 <html>

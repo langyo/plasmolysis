@@ -1,5 +1,3 @@
-import React, { createElement } from 'react';
-import { hydrate } from 'react-dom';
 import nodeRender from 'nickelcat/client/clientNodeRender';
 import createModelManager from 'nickelcat/lib/modelManager';
 

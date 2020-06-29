@@ -25,8 +25,7 @@ export default ({
   modelManager,
   pageType,
   globalState,
-  pagePreloadState,
-  targetElementID = 'nickelcat-root'
+  pagePreloadState
 }) => {
   const stateManager = createStateManager(modelManager);
   stateManager.setGlobalState({ ...globalState, $page: pageType });
@@ -37,13 +36,11 @@ export default ({
 
   let ret = {};
   for (const modelType of modelManager.getModelList()) {
-    if (stateManager.modelState[modelType]) {
-      for (const modelID of Object.keys(stateManager.modelState[modelType])) {
-        ret[`nickelcat-model-${modelType.split('.').join('_')}-${modelID}`] =
-          createReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
-      }
+    for (const modelID of stateManager.getModelIDList(modelType)) {
+      ret[`nickelcat-model-${modelType.split('.').join('_')}-${modelID}`] =
+        createReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
     }
   }
 
   return ret;
-}
+};

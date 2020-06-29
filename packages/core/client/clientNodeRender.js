@@ -56,8 +56,9 @@ export default ({
   for (const modelType of Object.keys(modelManager.getModelList()))
     if (/^views?\./.test(modelType))
       stateManager.createModel(modelType, pagePreloadState, '$view');
+  console.log(modelManager.getModelList())
 
-  // Register the listeners and bind the render if running on the browser.
+  // Register the listeners and bind the render.
   const targetElement = document.getElementById(targetElementID);
   const appendModel = (modelType, modelID) => {
     const elementID = `nickelcat-model-${modelType.split('.').join('_')}-${modelID}`;
@@ -105,10 +106,8 @@ export default ({
   });
 
   for (const modelType of modelManager.getModelList()) {
-    if (stateManager.modelState[modelType]) {
-      for (const modelID of Object.keys(stateManager.modelState[modelType])) {
-        loadReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
-      }
+    for (const modelID of stateManager.getModelIDList(modelType)) {
+      loadReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
     }
   }
-}
+};

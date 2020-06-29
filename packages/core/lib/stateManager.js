@@ -3,124 +3,130 @@ import { generate } from 'shortid';
 import createStreamFactory from './createStream';
 import deepMerge from '../utils/deepMerge';
 
-class StateManager {
-  constructor(modelManager) {
-    this.getInitializer = modelManager.getInitializer;
-    this.getClientStream = modelManager.getClientStream;
+export default modelManager => {
+  let getInitializer = modelManager.getInitializer;
+  let getClientStream = modelManager.getClientStream;
 
-    this.globalState = {};
-    this.modelState = modelManager.getModelList().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
-    this.listeners = [];
-  }
+  let globalState = {};
+  let modelState = modelManager.getModelList().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
+  let listeners = [];
 
-  updateListener = () => {
-    this.listeners.forEach(({ setState }) => setState({
-      modelState: this.modelState,
-      globalState: this.globalState
+  const updateListener = () => {
+    listeners.forEach(({ setState }) => setState({
+      modelState: modelState,
+      globalState: globalState
     }));
-  }
+  };
 
-  registerListener(setState, id = generate()) {
-    this.listeners.push({ setState, id });
-    return id;
-  }
+  return Object.seal({
+    getInitializer,
+    getClientStream,
 
-  removeListener(id) {
-    for (let i = 0; i < this.listeners.length; ++i) {
-      if (this.listeners[i].id === id) {
-        this.listeners.splice(i, 1);
-        break;
+    registerListener(setState, id = generate()) {
+      listeners.push({ setState, id });
+      return id;
+    },
+
+    removeListener(id) {
+      for (let i = 0; i < listeners.length; ++i) {
+        if (listeners[i].id === id) {
+          listeners.splice(i, 1);
+          break;
+        }
       }
+    },
+
+    getState(modelType, modelID) {
+      // Check the container.
+      if (!(modelState[modelType])) modelState[modelType] = {};
+      if (!(modelState[modelType][modelID])) modelState[modelType][modelID] = {};
+
+      return modelState[modelType][modelID];
+    },
+
+    setState(modelType, modelID, state) {
+      // Check the container.
+      if (!(modelState[modelType])) modelState[modelType] = {};
+      if (!(modelState[modelType][modelID])) modelState[modelType][modelID] = {};
+
+      // Check the type.
+      if (typeof state !== 'object') throw new Error('You must provide an object!');
+
+      modelState[modelType][modelID] = deepMerge(modelState[modelType][modelID], state);
+      updateListener();
+    },
+
+    getGlobalState() {
+      return globalState;
+    },
+
+    setGlobalState(state) {
+      // Check the type.
+      if (typeof state !== 'object') throw new Error('You must provide an object!');
+
+      globalState = deepMerge(globalState, state);
+      updateListener();
+    },
+
+    getModelList() {
+      return Object.keys(modelState).reduce(
+        (obj, key) => ({
+          ...obj,
+          [key]: Object.keys(modelState[key])
+        }), {}
+      );
+    },
+
+    getModelIDList(modelType) {
+      if (!modelState[modelType]) modelState[modelType] = {};
+      return Object.keys(modelState[modelType]);
+    },
+
+    createModel(modelType, initState, id = generate()) {
+      // Check the type.
+      if (typeof initState !== 'object') throw new Error('You must provide an object!');
+
+      modelState = deepMerge(modelState, {
+        [modelType]: {
+          [id]: getInitializer(modelType)(initState)
+        }
+      });
+      updateListener();
+      return id;
+    },
+
+    destoryModel(modelType, modelID) {
+      modelState = Object.assign({}, {
+        ...modelState,
+        [modelType]: (Object.keys(modelState[modelType])
+          .filter(key => key !== modelID)
+          .reduce((obj, key) => ({ ...obj, [key]: modelState[modelType][key] }), {}))
+      });
+      updateListener();
+    },
+
+    evaluateModelAction: async (modelType, modelID, actionName, payload) => {
+      modelState = deepMerge(modelState, {
+        [modelType]: {
+          [modelID]: await createStreamFactory({
+            getGlobalState,
+            setGlobalState,
+            getState,
+            setState,
+            getModelList,
+            createModel,
+            destoryModel,
+            evaluateModelAction
+          }, getActionEvaluator)({
+            tasks: getClientStream(modelType)[actionName],
+            path: actionName
+          }, {
+            modelType,
+            modelID
+          })(payload)
+        }
+      });
+      updateListener();
     }
-  }
-
-  getState = (modelType, modelID) => {
-    // Check the container.
-    if (!(this.modelState[modelType])) this.modelState[modelType] = {};
-    if (!(this.modelState[modelType][modelID])) this.modelState[modelType][modelID] = {};
-
-    return this.modelState[modelType][modelID];
-  };
-
-  setState = (modelType, modelID, state) => {
-    // Check the container.
-    if (!(this.modelState[modelType])) this.modelState[modelType] = {};
-    if (!(this.modelState[modelType][modelID])) this.modelState[modelType][modelID] = {};
-
-    // Check the type.
-    if (typeof state !== 'object') throw new Error('You must provide an object!');
-
-    this.modelState[modelType][modelID] = deepMerge(this.modelState[modelType][modelID], state);
-    this.updateListener();
-  };
-
-  getGlobalState = () => {
-    return this.globalState;
-  }
-
-  setGlobalState = state => {
-    // Check the type.
-    if (typeof state !== 'object') throw new Error('You must provide an object!');
-
-    this.globalState = deepMerge(this.globalState, state);
-    this.updateListener();
-  };
-
-  getModelList = () => {
-    return Object.keys(this.modelState).reduce(
-      (obj, key) => ({
-        ...obj,
-        [key]: Object.keys(this.modelState[key])
-      }), {}
-    );
-  }
-
-  createModel = (modelType, initState, id = generate()) => {
-    // Check the type.
-    if (typeof initState !== 'object') throw new Error('You must provide an object!');
-
-    this.modelState = deepMerge(this.modelState, {
-      [modelType]: {
-        [id]: this.getInitializer(modelType)(initState)
-      }
-    });
-    this.updateListener();
-    return id;
-  };
-
-  destoryModel = (modelType, modelID) => {
-    this.modelState = Object.assign({}, {
-      ...this.modelState,
-      [modelType]: (Object.keys(this.modelState[modelType])
-        .filter(key => key !== modelID)
-        .reduce((obj, key) => ({ ...obj, [key]: this.modelState[modelType][key] }), {}))
-    });
-    this.updateListener();
-  };
-
-  evaluateModelAction = async (modelType, modelID, actionName, payload) => {
-    this.modelState = deepMerge(this.modelState, {
-      [modelType]: {
-        [modelID]: await createStreamFactory({
-          getGlobalState,
-          setGlobalState,
-          getState,
-          setState,
-          getModelList,
-          createModel,
-          destoryModel,
-          evaluateModelAction
-        }, getActionEvaluator)({
-          tasks: getClientStream(modelType)[actionName],
-          path: actionName
-        }, {
-          modelType,
-          modelID
-        })(payload)
-      }
-    });
-    this.updateListener();
-  };
-}
-
-export default modelManager => new StateManager(modelManager);
+  });
+};
