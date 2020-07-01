@@ -22,10 +22,10 @@ const loadReactComponent = (actionManager, stateManager, Component, modelType, m
       }), {}
     ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
   }), document.getElementById(elementID));
-  stateManager.registerListener(({ globalState, modelState }) => {
+  stateManager.registerListener(() => {
     render(createElement(Component, {
-      ...modelState[modelType][modelID],
-      ...globalState,
+      ...stateManager.getState(modelType, modelID),
+      ...stateManager.getGlobalState(),
       ...((stream => Object.keys(stream).reduce(
         (obj, key) => ({
           ...obj,
@@ -73,7 +73,7 @@ export default ({
     stateManager.removeListener(modelID);
   };
 
-  stateManager.registerListener(({ modelState }) => {
+  stateManager.registerListener(() => {
     const prevIDList = Array.from(targetElement.children)
       .map(n => n.id)
       .map(str => {
@@ -84,12 +84,10 @@ export default ({
         ...obj,
         [modelType]: obj[modelType] ? [...obj[modelType], modelID] : [modelID]
       }), {});
-    const nextIDList = Object.keys(modelState)
-      .filter(modelType => Object.keys(modelState[modelType]).length > 0)
-      .reduce((obj, modelType) => ({
-        ...obj,
-        [modelType]: Object.keys(modelState[modelType])
-      }), {});
+    const nextIDList = stateManager.getModelList().reduce((obj, modelType) => ({
+      ...obj,
+      [modelType]: stateManager.getModelIDList(modelType)
+    }), {});
 
     for (const modelType of Object.keys(nextIDList)) {
       if (!prevIDList[modelType]) {
@@ -104,7 +102,7 @@ export default ({
         }
       }
     }
-  });
+  }, '$$updater');
 
   for (const modelType of modelManager.getModelList()) {
     for (const modelID of stateManager.getModelIDList(modelType)) {

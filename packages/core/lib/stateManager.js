@@ -9,31 +9,23 @@ export default modelManager => {
 
   let globalState = {};
   let modelState = modelManager.getModelList().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
-  let listeners = [];
+  let listeners = {};
 
   const updateListener = () => {
-    listeners.forEach(({ setState }) => setState({
-      modelState: modelState,
-      globalState: globalState
-    }));
+    Object.keys(listeners).forEach(id => listeners[id]());
   };
 
   return Object.seal({
     getInitializer,
     getClientStream,
 
-    registerListener(setState, id = generate()) {
-      listeners.push({ setState, id });
+    registerListener(func, id = generate()) {
+      listeners[id] = func;
       return id;
     },
 
     removeListener(id) {
-      for (let i = 0; i < listeners.length; ++i) {
-        if (listeners[i].id === id) {
-          listeners.splice(i, 1);
-          break;
-        }
-      }
+      if (listeners[id]) delete listeners[id];
     },
 
     getState(modelType, modelID) {
@@ -69,12 +61,7 @@ export default modelManager => {
     },
 
     getModelList() {
-      return Object.keys(modelState).reduce(
-        (obj, key) => ({
-          ...obj,
-          [key]: Object.keys(modelState[key])
-        }), {}
-      );
+      return Object.keys(modelState);
     },
 
     getModelIDList(modelType) {
