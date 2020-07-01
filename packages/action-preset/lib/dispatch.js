@@ -5,7 +5,7 @@ export default factory({
   creator: [
     { paras: ['function'], func: func => ({ func }) },
     {
-      paras: ['string', 'string', 'string', 'string'],
+      paras: ['string', 'string', 'string', 'object'],
       func: (type, id, action, payload) =>
         ({ type, id, action, payload })
     }
@@ -24,7 +24,7 @@ export default factory({
         modelType,
         modelID
       }) => {
-        let ret = task.func(payload, {
+        const { type, id, action, payload: retPayload } = task.func(payload, {
           state: getState(modelType, modelID),
           getGlobalState,
           getModelList,
@@ -32,7 +32,7 @@ export default factory({
           modelType,
           modelID
         });
-        await evaluateModelAction(ret.type, ret.id, ret.action, ret.payload);
+        await evaluateModelAction(type, id, action, retPayload || payload);
         return payload;
       },
       task => async (payload, {

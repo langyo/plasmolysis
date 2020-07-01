@@ -55,7 +55,7 @@ childCreator(async ({
   } catch (e) {
     log('error', e);
     return {
-      successFlag: true,
+      hasContentFlag: true,
       payload: {
         type: 'text/html', statusCode: 404, body: `
 <html>

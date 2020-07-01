@@ -30,7 +30,7 @@ export default ({
   const stateManager = createStateManager(modelManager);
   stateManager.setGlobalState({ ...globalState, $page: pageType });
   stateManager.createModel(pageType, pagePreloadState, '$page');
-  for (const modelType of Object.keys(modelManager.getModelList()))
+  for (const modelType of modelManager.getModelList())
     if (/^views?\./.test(modelType))
       stateManager.createModel(modelType, pagePreloadState, '$view');
 

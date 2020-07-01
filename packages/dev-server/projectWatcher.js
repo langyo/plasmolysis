@@ -3,7 +3,6 @@ import EventEmitter from 'events';
 import { serverLog as log } from 'nickelcat/utils/logger';
 
 import scanner from './projectScanner';
-import { writeFileSync } from 'fs';
 
 export default ({
   workDirPath,

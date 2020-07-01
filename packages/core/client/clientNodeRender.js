@@ -53,10 +53,9 @@ export default ({
   const stateManager = createStateManager(modelManager);
   stateManager.setGlobalState({ ...globalState, $page: pageType });
   stateManager.createModel(pageType, pagePreloadState, '$page');
-  for (const modelType of Object.keys(modelManager.getModelList()))
+  for (const modelType of modelManager.getModelList())
     if (/^views?\./.test(modelType))
       stateManager.createModel(modelType, pagePreloadState, '$view');
-  console.log(modelManager.getModelList())
 
   // Register the listeners and bind the render.
   const targetElement = document.getElementById(targetElementID);

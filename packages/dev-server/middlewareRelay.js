@@ -14,7 +14,7 @@ export default ({
           return;
         }
 
-        const { successFlag, payload: { type, body, statusCode } } = await sendFunc({
+        const { hasContentFlag, payload: { type, body, statusCode } } = await sendFunc({
           type: 'http',
           payload: {
             ip: ctx.request.ip,
@@ -32,7 +32,7 @@ export default ({
           }
         });
 
-        if (successFlag) {
+        if (hasContentFlag) {
           ctx.response.type = type;
           ctx.response.body = body;
           ctx.response.status = statusCode;

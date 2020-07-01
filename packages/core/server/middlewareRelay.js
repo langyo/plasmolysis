@@ -10,7 +10,7 @@ export default ({
   switch (libType) {
     case 'koa':
       return async (ctx, next) => {
-        const { successFlag, payload: { type, body } } = await sendFunc({
+        const { hasContentFlag, payload: { type, body } } = await sendFunc({
           type: 'http',
           payload: {
             ip: ctx.request.ip,
@@ -27,7 +27,7 @@ export default ({
           }
         });
 
-        if (successFlag) {
+        if (hasContentFlag) {
           ctx.response.type = type;
           ctx.response.body = body;
           await next();

@@ -6,7 +6,7 @@ import { Union } from 'unionfs';
 import * as realFs from 'fs';
 
 export default async (parseOption = {
-  parseFilterComponents: ['', 'dialog.', 'dialogs.', 'page.', 'pages.'],
+  parseFilterComponents: ['', 'dialog.', 'dialogs.', 'page.', 'pages.', 'view.', 'views.'],
   parseFilterServices: ['']
 }) => {
   let {
