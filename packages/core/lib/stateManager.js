@@ -8,11 +8,21 @@ export default modelManager => {
   let getClientStream = modelManager.getClientStream;
 
   let globalState = {};
-  let modelState = modelManager.getModelList().reduce((obj, key) => ({ ...obj, [key]: {} }), {});
+  let modelStateRoute = modelManager.getModelList().reduce((obj, key) => ({ ...obj, [key]: [] }), {});
+  let prevModelStateRoute = Object.keys(modelStateRoute).reduce((obj, modelType) => ({
+    ...obj,
+    [modelType]: [...modelStateRoute[modelType]]
+  }), {});
+  let modelState = {};
   let listeners = {};
 
   const updateListener = () => {
-    Object.keys(listeners).forEach(id => listeners[id]());
+    if(listeners.$$updater) listeners.$$updater(prevModelStateRoute, modelStateRoute);
+    Object.keys(listeners).filter(id => id !== '$$updater').forEach(id => listeners[id]());
+    prevModelStateRoute = Object.keys(modelStateRoute).reduce((obj, modelType) => ({
+      ...obj,
+      [modelType]: [...modelStateRoute[modelType]]
+    }), {});
   };
 
   return Object.seal({
@@ -30,21 +40,23 @@ export default modelManager => {
 
     getState(modelType, modelID) {
       // Check the container.
-      if (!(modelState[modelType])) modelState[modelType] = {};
-      if (!(modelState[modelType][modelID])) modelState[modelType][modelID] = {};
+      if (!(modelStateRoute[modelType])) modelStateRoute[modelType] = [];
+      if (modelStateRoute[modelType].indexOf(modelID) < 0) modelStateRoute[modelType].push(modelID);
+      if (!(modelState[modelID])) modelState[modelID] = {};
 
-      return modelState[modelType][modelID];
+      return modelState[modelID];
     },
 
     setState(modelType, modelID, state) {
       // Check the container.
-      if (!(modelState[modelType])) modelState[modelType] = {};
-      if (!(modelState[modelType][modelID])) modelState[modelType][modelID] = {};
+      if (!(modelStateRoute[modelType])) modelStateRoute[modelType] = [];
+      if (modelStateRoute[modelType].indexOf(modelID) < 0) modelStateRoute[modelType].push(modelID);
+      if (!(modelState[modelID])) modelState[modelID] = {};
 
       // Check the type.
       if (typeof state !== 'object') throw new Error('You must provide an object!');
 
-      modelState[modelType][modelID] = deepMerge(modelState[modelType][modelID], state);
+      modelState[modelID] = deepMerge(modelState[modelID], state);
       updateListener();
     },
 
@@ -61,34 +73,33 @@ export default modelManager => {
     },
 
     getModelList() {
-      return Object.keys(modelState);
+      return Object.keys(modelStateRoute);
     },
 
     getModelIDList(modelType) {
-      if (!modelState[modelType]) modelState[modelType] = {};
-      return Object.keys(modelState[modelType]);
+      if (!modelStateRoute[modelType]) modelStateRoute[modelType] = [];
+      return modelStateRoute[modelType];
     },
 
-    createModel(modelType, initState, id = generate()) {
+    createModel(modelType, initState, modelID = generate()) {
       // Check the type.
       if (typeof initState !== 'object') throw new Error('You must provide an object!');
+      if (modelManager.getModelList().indexOf(modelType) < 0) throw new Error('You must provide a valid model type!');
 
-      modelState = deepMerge(modelState, {
-        [modelType]: {
-          [id]: getInitializer(modelType)(initState)
-        }
-      });
+      if (!(modelStateRoute[modelType])) modelStateRoute[modelType] = [];
+      modelStateRoute[modelType].push(modelID);
+      modelState[modelID] = getInitializer(modelType)(initState);
+
       updateListener();
-      return id;
+      return modelID;
     },
 
     destoryModel(modelType, modelID) {
-      modelState = Object.assign({}, {
-        ...modelState,
-        [modelType]: (Object.keys(modelState[modelType])
-          .filter(key => key !== modelID)
-          .reduce((obj, key) => ({ ...obj, [key]: modelState[modelType][key] }), {}))
-      });
+      if (!(modelStateRoute[modelType])) throw new Error('You must provide a valid model type!');
+      if (modelStateRoute[modelType].indexOf(modelID) < 0) throw new Error(`Unknown model ID: ${modelID}`);
+
+      modelStateRoute[modelType].splice(modelStateRoute[modelType].indexOf(modelID), 1);
+      delete modelState[modelID];
       updateListener();
     },
 

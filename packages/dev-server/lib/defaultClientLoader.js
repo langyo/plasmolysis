@@ -12,6 +12,7 @@ nodeRender({
   actionManager,
   modelManager,
   ...window.__NICKELCAT_INIT__,
+  ...window.__NICKELCAT_PAGE_INFO__,
   targetElementID: 'nickelcat-root'
 }, actionManager);
 

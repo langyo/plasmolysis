@@ -28,19 +28,20 @@ export default ({
   pagePreloadState
 }) => {
   const stateManager = createStateManager(modelManager);
-  stateManager.setGlobalState({ ...globalState, $page: pageType });
-  stateManager.createModel(pageType, pagePreloadState, '$page');
+  const pageInfo = { type: pageType, id: stateManager.createModel(pageType, pagePreloadState)};
+  stateManager.setGlobalState({ ...globalState, $pageType: pageType, $pageID: pageInfo.id });
+  let viewInfoList = {};
   for (const modelType of modelManager.getModelList())
     if (/^views?\./.test(modelType))
-      stateManager.createModel(modelType, pagePreloadState, '$view');
+      viewInfoList[modelType] = stateManager.createModel(modelType, pagePreloadState);
 
-  let ret = {};
+  let nodes = {};
   for (const modelType of modelManager.getModelList()) {
     for (const modelID of stateManager.getModelIDList(modelType)) {
-      ret[`nickelcat-model-${modelType.split('.').join('-')}-${modelID}`] =
+      nodes[`nickelcat-model-${modelID}`] =
         createReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
     }
   }
 
-  return ret;
+  return { nodes, pageInfo, viewInfoList };
 };

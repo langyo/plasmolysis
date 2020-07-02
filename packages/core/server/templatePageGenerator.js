@@ -43,7 +43,7 @@ export default (pageType, actionManager) => async ({
       },
       pagePreloadState: modelManager.getInitializer(pageType)(payloadRetModelState)
     };
-    const nodes = nodeRender({
+    const { nodes, pageInfo, viewInfoList } = nodeRender({
       actionManager,
       modelManager,
       ...renderState,
@@ -93,6 +93,10 @@ ${renderHTML}
 </div>
 <script id="__NICKELCAT_INIT_STATE__">
 window.__NICKELCAT_INIT__ = (${JSON.stringify(renderState)});
+window.__NICKELCAT_PAGE_INFO__ = (${JSON.stringify({
+  pageInfo,
+  viewInfoList
+})})
 window.__NICKELCAT_SSR_CSS__ = (${JSON.stringify(Object.keys(renderCSS))});
 document.getElementById("__NICKELCAT_INIT_STATE__").parentElement.removeChild(document.getElementById("__NICKELCAT_INIT_STATE__"));
 </script>

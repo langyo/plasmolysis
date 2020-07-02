@@ -28,9 +28,9 @@ export default factory({
           modelType,
           modelID
         });
-        if (getGlobalState().$page) destoryModel(getGlobalState().$page, '$page');
-        createModel(ret.type, ret.initState, '$page');
-        setGlobalState({ $page: ret.type });
+        if (getGlobalState().$pageType) destoryModel(getGlobalState().$pageType, getGlobalState().$pageID);
+        const pageID = createModel(ret.type, ret.initState);
+        setGlobalState({ $pageType: ret.type, $pageID: pageID });
         history.pushState(
           ret.initState, '', `${ret.type}${
         ret.initState && typeof ret.initState === 'object' && Object.keys(ret.initState).length > 0 ?
@@ -60,9 +60,9 @@ export default factory({
         modelType,
         modelID
       }) => {
-        if (getGlobalState().$page) destoryModel(getGlobalState().$page, '$page');
-        createModel(task.type, task.initState, '$page');
-        setGlobalState({ $page: task.type });
+        if (getGlobalState().$pageType) destoryModel(getGlobalState().$pageType, getGlobalState().$pageID);
+        const pageID = createModel(task.type, task.initState);
+        setGlobalState({ $pageType: task.type, $pageID: pageID });
         history.pushState(
           task.initState, '', `${task.type}${
         task.initState && typeof ret.initState === 'object' && Object.keys(ret.initState).length > 0 ?

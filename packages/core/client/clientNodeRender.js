@@ -5,7 +5,7 @@ import createStream from './createStream';
 import { clientTranslator } from '../lib/translator';
 
 const loadReactComponent = (actionManager, stateManager, Component, modelType, modelID) => {
-  const elementID = `nickelcat-model-${modelType.split('.').join('-')}-${modelID}`;
+  const elementID = `nickelcat-model-${modelID}`;
   hydrate(createElement(Component, {
     ...stateManager.getState(modelType, modelID),
     ...stateManager.getGlobalState(),
@@ -48,57 +48,45 @@ export default ({
   pageType,
   globalState,
   pagePreloadState,
+  pageInfo,
+  viewInfoList,
   targetElementID = 'nickelcat-root'
 }) => {
   const stateManager = createStateManager(modelManager);
-  stateManager.setGlobalState({ ...globalState, $page: pageType });
-  stateManager.createModel(pageType, pagePreloadState, '$page');
-  for (const modelType of modelManager.getModelList())
-    if (/^views?\./.test(modelType))
-      stateManager.createModel(modelType, pagePreloadState, '$view');
+  stateManager.setGlobalState({
+    ...globalState,
+    $pageType: pageInfo.pageType,
+    $pageID: stateManager.createModel(pageType, pagePreloadState, pageInfo.id)
+  });
+  for (const modelType of Object.keys(viewInfoList)) stateManager.createModel(modelType, pagePreloadState, viewInfoList[modelType]);
 
   // Register the listeners and bind the render.
   const targetElement = document.getElementById(targetElementID);
   const appendModel = (modelType, modelID) => {
-    const elementID = `nickelcat-model-${modelType.split('.').join('-')}-${modelID}`;
+    const elementID = `nickelcat-model-${modelID}`;
     let nodePre = document.createElement('div');
     nodePre.id = elementID;
     targetElement.appendChild(nodePre);
     loadReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
   };
   const removeModel = (modelType, modelID) => {
-    const elementID = `nickelcat-model-${modelType.split('.').join('-')}-${modelID}`;
+    const elementID = `nickelcat-model-${modelID}`;
     const node = document.getElementById(elementID);
     targetElement.removeChild(node);
     stateManager.removeListener(modelID);
   };
 
-  stateManager.registerListener(() => {
-    const prevIDList = Array.from(targetElement.children)
-      .map(n => n.id)
-      .map(str => {
-        const ret = /^nickelcat-model-(.+)-(.+)$/.exec(str);
-        return { modelType: ret[1].split('-').join('.'), modelID: ret[2] };
-      })
-      .reduce((obj, { modelType, modelID }) => ({
-        ...obj,
-        [modelType]: obj[modelType] ? [...obj[modelType], modelID] : [modelID]
-      }), {});
-    const nextIDList = stateManager.getModelList().reduce((obj, modelType) => ({
-      ...obj,
-      [modelType]: stateManager.getModelIDList(modelType)
-    }), {});
-
+  stateManager.registerListener((prevIDList, nextIDList) => {
     for (const modelType of Object.keys(nextIDList)) {
       if (!prevIDList[modelType]) {
         for (const modelID of nextIDList[modelType])
           appendModel(modelType, modelID);
       } else {
         for (const modelID of nextIDList[modelType]) {
-          if (!prevIDList[modelType][modelID]) appendModel(modelType, modelID);
+          if (prevIDList[modelType].indexOf(modelID) < 0) appendModel(modelType, modelID);
         }
         for (const modelID of prevIDList[modelType]) {
-          if (!nextIDList[modelType][modelID]) removeModel(modelType, modelID);
+          if (nextIDList[modelType].indexOf(modelID) < 0) removeModel(modelType, modelID);
         }
       }
     }
