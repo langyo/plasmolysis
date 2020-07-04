@@ -18,7 +18,7 @@ const loadReactComponent = (actionManager, stateManager, Component, modelType, m
         }, {
           modelType,
           modelID
-        }, actionManager)
+        })
       }), {}
     ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
   }), document.getElementById(elementID));
@@ -35,7 +35,7 @@ const loadReactComponent = (actionManager, stateManager, Component, modelType, m
           }, {
             modelType,
             modelID
-          }, actionManager)
+          })
         }), {}
       ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
     }), document.getElementById(elementID));

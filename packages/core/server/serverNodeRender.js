@@ -15,7 +15,7 @@ const createReactComponent = (actionManager, stateManager, Component, modelType,
       }, {
         modelType,
         modelID
-      }, actionManager)
+      })
     }), {}
   ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
 });
