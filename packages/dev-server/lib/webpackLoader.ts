@@ -3,7 +3,7 @@ import TerserPlugin from 'terser-webpack-plugin';
 
 import { serverLog as log } from 'nickelcat/utils/logger';
 import EventEmitter from 'events';
-import scanner from './projectScanner';
+import scanner from '../utils/projectScanner';
 import { join } from 'path';
 
 export default async (webpackConfig, updateListener) => {

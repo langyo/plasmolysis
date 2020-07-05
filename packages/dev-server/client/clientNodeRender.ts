@@ -1,8 +1,8 @@
 import { createElement } from 'react';
 import { hydrate, render } from 'react-dom';
-import createStateManager from '../lib/stateManager';
+import createStateManager from 'nickelcat/stateManager';
 import createStream from './createStream';
-import { clientTranslator } from '../lib/translator';
+import { clientTranslator } from 'nickelcat/translator';
 
 const loadReactComponent = (actionManager, stateManager, Component, modelType, modelID) => {
   const elementID = `nickelcat-model-${modelID}`;

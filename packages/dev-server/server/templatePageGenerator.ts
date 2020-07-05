@@ -2,7 +2,7 @@ import React, { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import nodeRender from './serverNodeRender';
 
-import { serverLog as log } from '../utils/logger';
+import { serverLog as log } from 'nickelcat/utils/logger';
 import chalk from 'chalk';
 
 const defaultMetaData = [{

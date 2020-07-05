@@ -1,7 +1,7 @@
 import { createElement } from 'react';
-import createStateManager from '../lib/stateManager';
+import createStateManager from '../utils/stateManager';
 import createStream from './createStream';
-import { clientTranslator } from '../lib/translator';
+import { clientTranslator } from 'nickelcat/translator';
 
 const createReactComponent = (actionManager, stateManager, Component, modelType, modelID) => createElement(Component, {
   ...stateManager.getState(modelType, modelID),

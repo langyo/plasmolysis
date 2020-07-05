@@ -1,6 +1,6 @@
 import createStream from './createStream';
 
-import { serverLog as log } from '../utils/logger';
+import { serverLog as log } from 'nickelcat/utils/logger';
 import merge from '../utils/deepMerge';
 import templatePageGenerator from './templatePageGenerator';
 

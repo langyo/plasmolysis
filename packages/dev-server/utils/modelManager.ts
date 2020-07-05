@@ -2,7 +2,7 @@ import {
   clientTranslator,
   serverRouterTranslator,
   nativeRouterTranslator
-} from './translator';
+} from 'nickelcat/translator';
 
 export default (requireComponents, actionManager) => {
   let components = {};
