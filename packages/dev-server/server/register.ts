@@ -1,4 +1,4 @@
-import createStream from './createStream';
+import createStream from './streamGenerator';
 
 import { serverLog as log } from 'nickelcat/utils/logger';
 import merge from '../utils/deepMerge';

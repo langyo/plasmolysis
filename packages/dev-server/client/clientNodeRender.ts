@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { hydrate, render } from 'react-dom';
 import createStateManager from 'nickelcat/stateManager';
-import createStream from './createStream';
+import createStream from './streamGenerator';
 import { clientTranslator } from 'nickelcat/translator';
 
 const loadReactComponent = (actionManager, stateManager, Component, modelType, modelID) => {

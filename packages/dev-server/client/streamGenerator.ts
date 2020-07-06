@@ -1,4 +1,4 @@
-import { getActionEvaluator } from './actionCreator';
+import { getActionEvaluator } from './streamGenerator';
 
 import createStreamsFactory from '../lib/createStream';
 

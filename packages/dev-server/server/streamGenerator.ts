@@ -1,4 +1,4 @@
-import { getActionEvaluator } from './actionCreator';
+import { getActionEvaluator } from './serviceBridge';
 
 import createStreamsFactory from 'nickelcat/createStream';
 
