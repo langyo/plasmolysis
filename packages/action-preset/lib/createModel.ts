@@ -1,61 +1,52 @@
-import factory from 'nickelcat/utils/actionFactory';
+import {
+  ActionObject,
+  WebClientGlobalContext,
+  WebClientLocalContext,
+  WebClientActionGeneratorFunc
+} from '../type';
 
-export default factory({
-  $$type: 'createModel',
-  creator: [
-    {
-      paras: ['function'],
-      func: func => ({ func })
-    },
-    {
-      paras: ['string', 'object', 'string'],
-      func: (type, initState, name) => ({
-        type: type,
-        payload: initState === undefined ? {} : initState,
-        name: name || null
-      })
-    }
-  ],
-  executor: {
-    client: [
-      task => async (payload, {
-        setState,
-        getState,
-        setGlobalState,
-        getGlobalState,
-        getModelList,
-        createModel,
-        destoryModel,
-        evaluateModelAction,
-        modelType,
-        modelID
-      }) => {
-        let ret = task.func(payload, {
-          state: getState(modelType, modelID),
-          getGlobalState,
-          getModelList,
-          getState,
-          modelType,
-          modelID
-        });
-        createModel(ret.type, ret.initState, ret.name);
-        return payload;
-      },
-      task => async (payload, {
-        setState,
-        getState,
-        setGlobalState,
-        getGlobalState,
-        getModelList,
-        createModel,
-        destoryModel,
-        evaluateModelAction,
-        modelType,
-        modelID
-      }) => {
-        createModel(task.type, task.initState, task.name);
-        return payload;
-      }
-    ]
+interface GeneratorObject {
+  type: string,
+  initState?: object,
+  name?: string
+};
+type GeneratorFunc = (payload: object, globalContext: object, localContext: object) => GeneratorObject;
+
+export function webClientTranslator(func: GeneratorFunc): ActionObject;
+export function webClientTranslator(type: string, initState: object, name: string): ActionObject;
+export function webClientTranslator(arg0: GeneratorFunc | string, arg1?: object, arg2?: string): ActionObject {
+  if (typeof arg0 === 'string') return {
+    type: 'createModel',
+    args: { generator: () => ({ type: arg0, initState: arg1, name: arg2 }) }
   }
-});
+  else return {
+    type: 'createModel',
+    args: { generator: arg0 }
+  }
+};
+
+export function executor({ generator }: { generator: WebClientActionGeneratorFunc }) {
+  return async function (payload: Object, {
+    getState,
+    getGlobalState,
+    getModelList,
+    createModel
+  }: WebClientGlobalContext, {
+    modelType,
+    modelID
+  }: WebClientLocalContext) {
+    const { type, initState, name } = (<WebClientActionGeneratorFunc<{
+      type: string,
+      initState?: object,
+      name?: string
+    }>>generator)(payload, {
+      getState: () => getState(modelID),
+      getGlobalState,
+      getModelList,
+      modelType,
+      modelID
+    });
+    createModel(type, initState, name);
+    return payload;
+  };
+};
