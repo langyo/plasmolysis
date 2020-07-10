@@ -8,12 +8,16 @@ export interface PackageInfo {
 };
 
 export interface ActionInfo {
-  translator: { [key: string]: (...args: any) => ActionObject | ActionBridgeObject }
+  translator: {
+    // [key: string]: (...args: any[]) => ActionObject | ActionBridgeObject
+    [key: string]: unknown
+  },
   executor: {
-    [key: string]:
-      (obj: ActionObject | ActionBridgeObject) =>
-      (payload: object, globalContext: object, localContext: object) =>
-      object
+    // [key: string]:
+      // (obj: ActionObject | ActionBridgeObject) =>
+      // (payload: object, globalContext: object, localContext: object) =>
+      // Promise<object>
+    [key: string]: unknown
   }
 };
 
