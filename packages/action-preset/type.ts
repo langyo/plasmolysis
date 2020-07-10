@@ -50,10 +50,11 @@ export interface WebClientLocalContext {
   modelID: string
 };
 
-export type WebClientActionGeneratorFunc<T = object> = (payload: object, utils: {
-  modelType: string,
-  modelID: string,
-  getState: () => object,
-  getGlobalState: () => object,
-  getModelList: () => { [modelType: string]: Array<string> }
-}) => T;
+export interface NodeServerGlobalContext {
+  getSessionList: () => Promise<Array<string>>
+};
+
+export interface NodeServerLocalContext {
+  ip: string,
+  sessionID: string
+};

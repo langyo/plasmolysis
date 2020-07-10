@@ -2,8 +2,7 @@ import {
   ActionInfo,
   ActionObject,
   WebClientGlobalContext,
-  WebClientLocalContext,
-  WebClientActionGeneratorFunc
+  WebClientLocalContext
 } from '../type';
 
 interface GeneratorObject {
@@ -11,7 +10,13 @@ interface GeneratorObject {
   initState?: object,
   name?: string
 };
-type GeneratorFunc = (payload: object, globalContext: object, localContext: object) => GeneratorObject;
+type GeneratorFunc = (payload: object, utils: {
+  modelType: string,
+  modelID: string,
+  getState: () => object,
+  getGlobalState: () => object,
+  getModelList: () => { [modelType: string]: Array<string> }
+}) => GeneratorObject;
 
 function webClientTranslator(func: GeneratorFunc): ActionObject;
 function webClientTranslator(type: string, initState: object, name: string): ActionObject;
@@ -26,8 +31,8 @@ function webClientTranslator(arg0: GeneratorFunc | string, arg1?: object, arg2?:
   }
 };
 
-function webClientExecutor({ generator }: { generator: WebClientActionGeneratorFunc }) {
-  return async function (payload: Object, {
+function webClientExecutor({ generator }: { generator: GeneratorFunc }) {
+  return async function (payload: object, {
     getState,
     getGlobalState,
     getModelList,
@@ -36,7 +41,7 @@ function webClientExecutor({ generator }: { generator: WebClientActionGeneratorF
     modelType,
     modelID
   }: WebClientLocalContext) {
-    const { type, initState, name } = (<WebClientActionGeneratorFunc<GeneratorObject>>generator)
+    const { type, initState, name } = (<GeneratorFunc>generator)
       (payload, {
         getState: () => getState(modelID),
         getGlobalState,
