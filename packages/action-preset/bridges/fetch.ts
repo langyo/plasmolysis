@@ -1,5 +1,7 @@
 import factory from 'nickelcat/utils/actionFactory';
 
+// TODO: Refactoring.
+
 export default factory({
   $$type: 'fetch',
   creator: [{

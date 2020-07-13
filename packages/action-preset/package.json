@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "dependencies": {
-    "nickelcat": "latest"
+    "nickelcat": "latest",
+    "shortid": "^2.2.15"
   }
 }
