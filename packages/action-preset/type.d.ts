@@ -24,10 +24,12 @@ declare interface ActionObject<GeneratorObject extends object = {}> {
   args: GeneratorObject
 }
 
-declare interface ActionBridgeObject {
-  source: string,
-  target: string,
-  stream: Array<ActionObject | ActionBridgeObject>
+declare interface ActionBridgeObject<SourceGeneratorObject extends object = {}> {
+  sourcePlatform: string,
+  sourceActionType: string,
+  sourceAction: SourceGeneratorObject,
+  targetPlatform: string,
+  targetStream: Array<ActionObject | ActionBridgeObject>
 }
 
 // TODO Maybe the context generator should also move to the action package?
