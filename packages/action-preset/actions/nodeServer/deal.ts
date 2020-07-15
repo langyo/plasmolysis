@@ -1,3 +1,8 @@
+import {
+  NodeServerGlobalContext,
+  NodeServerLocalContext
+} from "../../type";
+
 type CustomFuncType = (payload: object, globalContext: object, localContext: object) => Promise<object>;
 
 export function translator(func: CustomFuncType) {

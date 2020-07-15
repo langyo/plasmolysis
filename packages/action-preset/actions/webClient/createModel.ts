@@ -1,3 +1,9 @@
+import {
+  ActionObject,
+  WebClientGlobalContext,
+  WebClientLocalContext
+} from "../../type";
+
 import { generate } from 'shortid';
 
 interface GeneratorRetObj {

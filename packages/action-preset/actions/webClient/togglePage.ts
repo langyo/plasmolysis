@@ -1,3 +1,9 @@
+import {
+  ActionObject,
+  WebClientGlobalContext,
+  WebClientLocalContext
+} from "../../type";
+
 interface GeneratorRetObj {
   type: string,
   initState: object

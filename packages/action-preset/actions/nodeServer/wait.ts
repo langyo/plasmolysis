@@ -1,3 +1,9 @@
+import {
+  ActionObject,
+  NodeServerGlobalContext,
+  NodeServerLocalContext
+} from "../../type";
+
 interface GeneratorRetObj {
   length: number
 };

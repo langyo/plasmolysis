@@ -1,4 +1,4 @@
-declare interface PackageInfo {
+export interface PackageInfo {
   name: string,
   description?: string,
   author?: string,
@@ -7,7 +7,7 @@ declare interface PackageInfo {
   actions: Array<ActionInfo>
 }
 
-declare interface ActionInfo<GeneratorObject extends object = {}> {
+export interface ActionInfo<GeneratorObject extends object = {}> {
   translator: {
     [key: string]: (...args: any[]) => ({ type: string, args: GeneratorObject })
   },
@@ -19,12 +19,12 @@ declare interface ActionInfo<GeneratorObject extends object = {}> {
   }
 }
 
-declare interface ActionObject<GeneratorObject extends object = {}> {
+export interface ActionObject<GeneratorObject extends object = {}> {
   type: string,
   args: GeneratorObject
 }
 
-declare interface ActionBridgeObject<SourceGeneratorObject extends object = {}> {
+export interface ActionBridgeObject<SourceGeneratorObject extends object = {}> {
   sourcePlatform: string,
   sourceActionType: string,
   sourceAction: SourceGeneratorObject,
@@ -34,7 +34,7 @@ declare interface ActionBridgeObject<SourceGeneratorObject extends object = {}> 
 
 // TODO Maybe the context generator should also move to the action package?
 
-declare interface WebClientGlobalContext {
+export interface WebClientGlobalContext {
   setState: (modelID: string, combineState: object) => void,
   getState: (modelID: string) => object,
   setGlobalState: (combineState: object) => void,
@@ -49,16 +49,16 @@ declare interface WebClientGlobalContext {
   evaluateModelAction: (modelID: string, actionType: string, payload: object) => object
 }
 
-declare interface WebClientLocalContext {
+export interface WebClientLocalContext {
   modelType: string,
   modelID: string
 }
 
-declare interface NodeServerGlobalContext {
+export interface NodeServerGlobalContext {
   getSessionList: () => Promise<Array<string>>
 }
 
-declare interface NodeServerLocalContext {
+export interface NodeServerLocalContext {
   ip: string,
   sessionID: string
 }

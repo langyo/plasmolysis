@@ -1,3 +1,10 @@
+import {
+  ActionObject,
+  ActionBridgeObject,
+  WebClientGlobalContext,
+  WebClientLocalContext
+} from "../type";
+
 interface TranslatorRetObj {
   path: string,
   translator: PayloadTranslatorFunc,

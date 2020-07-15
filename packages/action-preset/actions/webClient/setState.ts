@@ -1,3 +1,9 @@
+import {
+  ActionObject,
+  WebClientGlobalContext,
+  WebClientLocalContext
+} from "../../type";
+
 type GeneratorFunc = (payload: object, utils: {
   modelType: string,
   modelID: string,
