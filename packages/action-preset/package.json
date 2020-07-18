@@ -19,7 +19,9 @@
   },
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "dependencies": {
+    "@types/react": "^16.9.43",
     "nickelcat": "latest",
+    "seamless-immutable": "^7.1.4",
     "shortid": "^2.2.15"
   }
 }

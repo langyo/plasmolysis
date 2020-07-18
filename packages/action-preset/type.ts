@@ -32,33 +32,18 @@ export interface ActionBridgeObject<SourceGeneratorObject extends object = {}> {
   targetStream: Array<ActionObject | ActionBridgeObject>
 }
 
-// TODO Maybe the context generator should also move to the action package?
+import {
+  WebClientGlobalContext,
+  WebClientLocalContext
+} from'./contexts/webClient/modelManager';
+import {
+  NodeServerGlobalContext,
+  NodeServerLocalContext
+} from './contexts/nodeServer/modelManager';
 
-export interface WebClientGlobalContext {
-  setState: (modelID: string, combineState: object) => void,
-  getState: (modelID: string) => object,
-  setGlobalState: (combineState: object) => void,
-  getGlobalState: () => ({
-    $pageType?: string,
-    $pageID?: string,
-    [key: string]: unknown
-  }),
-  getModelList: () => ({ [modelType: string]: Array<string> }),
-  createModel: (modelType: string, initState?: object, modelID?: string) => void,
-  destoryModel: (modelID: string) => void,
-  evaluateModelAction: (modelID: string, actionType: string, payload: object) => object
-}
-
-export interface WebClientLocalContext {
-  modelType: string,
-  modelID: string
-}
-
-export interface NodeServerGlobalContext {
-  getSessionList: () => Promise<Array<string>>
-}
-
-export interface NodeServerLocalContext {
-  ip: string,
-  sessionID: string
-}
+export {
+  WebClientGlobalContext,
+  WebClientLocalContext,
+  NodeServerGlobalContext,
+  NodeServerLocalContext
+};
