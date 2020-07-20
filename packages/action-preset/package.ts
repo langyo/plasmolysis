@@ -1,4 +1,4 @@
-import { PackageInfo } from './type';
+import { PackageInfo } from '../core/type';
 
 export default <PackageInfo> {
   name: 'preset',
@@ -6,9 +6,8 @@ export default <PackageInfo> {
   author: 'langyo',
   repository: 'https://github.com/langyo/nickelcat.git',
 
-  actions: [
-    {
-      
-    }
-  ]
+  actions: {
+    'webClient': {},
+    'nodeServer': {}
+  }
 };

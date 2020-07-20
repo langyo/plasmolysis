@@ -1,7 +1,7 @@
 import {
   ActionObject,
   ActionBridgeObject
-} from '../../type';
+} from '../../../core/type';
 import React from 'react';
 
 export interface WebClientGlobalContext {
@@ -49,7 +49,7 @@ interface IStreamRuntimes {
   }
 }
 
-export default (requireComponents: ISourceComponentRequireObj) => {
+export default (requireComponents: ISourceComponentRequireObj, createStreamRunner) => {
   let components: { [key: string]: IComponent } = {};
   let originControllerStreams = {};
 

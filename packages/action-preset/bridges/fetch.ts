@@ -1,9 +1,11 @@
 import {
   ActionObject,
-  ActionBridgeObject,
+  ActionBridgeObject
+} from '../../core/type';
+import {
   WebClientGlobalContext,
   WebClientLocalContext
-} from "../type";
+} from "../contexts/webClient/modelManager";
 
 interface TranslatorRetObj {
   path: string,

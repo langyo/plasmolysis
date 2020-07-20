@@ -1,8 +1,11 @@
 import {
-  ActionObject,
+  ActionObject
+} from '../../../core/type';
+import {
   WebClientGlobalContext,
   WebClientLocalContext
-} from "../../type";
+} from "../../contexts/webClient/modelManager";
+
 
 type GeneratorFunc = (payload: object, utils: {
   modelType: string,

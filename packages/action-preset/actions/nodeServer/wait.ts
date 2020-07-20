@@ -1,8 +1,10 @@
 import {
-  ActionObject,
+  ActionObject
+} from '../../../core/type';
+import {
   NodeServerGlobalContext,
   NodeServerLocalContext
-} from "../../type";
+} from "../../contexts/nodeServer/modelManager";
 
 interface GeneratorRetObj {
   length: number

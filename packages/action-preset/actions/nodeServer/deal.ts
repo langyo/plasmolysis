@@ -1,7 +1,7 @@
 import {
   NodeServerGlobalContext,
   NodeServerLocalContext
-} from "../../type";
+} from "../../contexts/nodeServer/modelManager";
 
 type CustomFuncType = (payload: object, globalContext: object, localContext: object) => Promise<object>;
 

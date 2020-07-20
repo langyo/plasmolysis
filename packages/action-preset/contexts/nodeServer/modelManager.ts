@@ -1,7 +1,7 @@
 import {
   ActionObject,
   ActionBridgeObject
-} from '../../type';
+} from '../../../core/type';
 import React from 'react';
 
 export interface NodeServerGlobalContext {

@@ -1,8 +1,11 @@
 import {
-  ActionObject,
+  ActionObject
+} from '../../../core/type';
+import {
   WebClientGlobalContext,
   WebClientLocalContext
-} from "../../type";
+} from "../../contexts/webClient/modelManager";
+
 
 import { generate } from 'shortid';
 

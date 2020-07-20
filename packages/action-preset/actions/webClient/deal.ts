@@ -1,7 +1,8 @@
 import {
   WebClientGlobalContext,
   WebClientLocalContext
-} from "../../type";
+} from "../../contexts/webClient/modelManager";
+
 
 type CustomFuncType = (payload: object, globalContext: object, localContext: object) => Promise<object>;
 
