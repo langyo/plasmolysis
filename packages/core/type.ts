@@ -1,4 +1,4 @@
-type Platforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordovaClient' | 'flutterClient';
+export type Platforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordovaClient' | 'flutterClient';
 
 export interface PackageInfo {
   name: string,
@@ -32,11 +32,14 @@ export interface ActionInfo<GeneratorObject extends object = {}> {
 }
 
 export interface ActionObject<GeneratorObject extends object = {}> {
+  disc: 'ActionObject',
   type: string,
+  platform: Platforms,
   args: GeneratorObject
 }
 
 export interface ActionBridgeObject<SourceGeneratorObject extends object = {}> {
+  disc: 'ActionBridgeObject',
   sourcePlatform: string,
   sourceActionType: string,
   sourceAction: SourceGeneratorObject,

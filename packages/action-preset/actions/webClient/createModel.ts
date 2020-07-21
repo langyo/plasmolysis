@@ -29,10 +29,14 @@ export function translator(func: GeneratorFunc): ActionObject<TranslatorRetObj>;
 export function translator(type: string, initState?: object, name?: string): ActionObject<TranslatorRetObj>;
 export function translator(arg0: GeneratorFunc | string, arg1?: object, arg2?: string): ActionObject<TranslatorRetObj> {
   if (typeof arg0 === 'string') return {
+    disc: 'ActionObject',
+    platform: 'webClient',
     type: 'createModel',
     args: { generator: () => ({ type: arg0, initState: arg1 || {}, name: arg2 || generate() }) }
   }
   else return {
+    disc:'ActionObject',
+    platform: 'webClient',
     type: 'createModel',
     args: { generator: arg0 }
   }

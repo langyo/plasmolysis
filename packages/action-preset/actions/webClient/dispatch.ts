@@ -30,11 +30,15 @@ export function translator(arg0: GeneratorFunc | string, arg1?: string, arg2?: o
     if (typeof arg1 !== 'string') throw new Error('You must provide a string as the action name.');
     if (typeof arg2 !== 'object') throw new Error('You must provide an object as the payload.');
     return {
+      disc:'ActionObject',
+      platform: 'webClient',
       type: 'dispatch',
       args: { generator: () => ({ id: arg0, action: arg1, payload: arg2 }) }
     };
   }
   else return {
+    disc:'ActionObject',
+    platform: 'webClient',
     type: 'dispatch',
     args: { generator: arg0 }
   }

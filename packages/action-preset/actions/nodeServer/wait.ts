@@ -18,10 +18,14 @@ export function translator(func: GeneratorFunc): ActionObject<TranslatorRetObj>;
 export function translator(length: number): ActionObject<TranslatorRetObj>;
 export function translator(arg0: GeneratorFunc | number): ActionObject<TranslatorRetObj> {
   if (typeof arg0 === 'number') return {
+    disc:'ActionObject',
+    platform: 'nodeServer',
     type: 'wait',
     args: { generator: () => ({ length }) }
   }
   else return {
+    disc:'ActionObject',
+    platform:'nodeServer',
     type: 'wait',
     args: { generator: arg0 }
   }

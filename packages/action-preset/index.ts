@@ -1,14 +1,3 @@
-export default {
-  $routers: {
-    server: {
-      http: async (payload, routes, configs) => {
-        if (!routes[payload.path]) return;
-        return await routes[payload.path](payload, configs);
-      }
-    }
-  }
-};
-
 export function createModel() {
 
 };

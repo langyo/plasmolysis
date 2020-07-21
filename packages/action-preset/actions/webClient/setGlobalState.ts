@@ -19,10 +19,14 @@ export function translator(func: GeneratorFunc): ActionObject<object>;
 export function translator(combinedObj: object): ActionObject<object>;
 export function translator(arg0: GeneratorFunc | object): ActionObject<object> {
   if (typeof arg0 === 'object') return {
+    disc:'ActionObject',
+    platform: 'webClient',
     type: 'setGlobalState',
     args: { generator: () => arg0 }
   }
   else return {
+    disc:'ActionObject',
+    platform: 'webClient',
     type: 'setGlobalState',
     args: { generator: arg0 }
   }

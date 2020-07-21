@@ -27,11 +27,15 @@ export function translator(type: string, initState: object): ActionObject<Transl
 export function translator(arg0: GeneratorFunc | string, arg1?: object): ActionObject<TranslatorRetObj> {
   if (typeof arg0 === 'string') {
     return {
+      disc:'ActionObject',
+      platform: 'webClient',
       type: 'togglePage',
       args: { generator: () => ({ type: arg0, initState: arg1 || {} }) }
     };
   }
   else return {
+    disc:'ActionObject',
+    platform: 'webClient',
     type: 'togglePage',
     args: { generator: arg0 }
   }
