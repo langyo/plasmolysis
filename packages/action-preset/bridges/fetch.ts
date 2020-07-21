@@ -40,6 +40,7 @@ export function translator(
       translator,
       options: options || {}
     },
+    targetStreamKey: path,
     targetStream: stream
   };
 }
