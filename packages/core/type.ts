@@ -24,25 +24,23 @@ export interface PackageInfo {
   // }
 };
 
-export interface ActionInfo<GeneratorObject extends object = {}> {
-  translator: (...args: any[]) => ({ type: string, args: GeneratorObject })
-  executor: (obj: GeneratorObject) =>
-    (payload: object, globalContext: object, localContext: object) =>
-      Promise<object>
-};
+export type TranslatorFunc<T extends object = {}> = (...args: any[]) => ({ type: string, args: T });
+export type ExecutorFunc<T extends object = {}> = (obj: T) =>
+  (payload: object, globalContext: object, localContext: object) =>
+    Promise<object>;
 
-export interface ActionObject<GeneratorObject extends object = {}> {
+export interface ActionObject<T extends object = {}> {
   disc: 'ActionObject',
   type: string,
   platform: Platforms,
-  args: GeneratorObject
+  args: T
 };
 
-export interface ActionBridgeObject<SourceGeneratorObject extends object = {}> {
+export interface ActionBridgeObject<T extends object = {}> {
   disc: 'ActionBridgeObject',
   sourcePlatform: Platforms,
   sourceActionType: string,
-  sourceAction: SourceGeneratorObject,
+  sourceAction: T,
   targetPlatform: Platforms,
   targetStreamKey: string,
   targetStream: Array<ActionObject | ActionBridgeObject>
