@@ -6,28 +6,33 @@ export interface PackageInfo {
   author?: string,
   repository?: string,
 
-  // actions: {
-  //   [platform in Platforms]: {
-  //     [actionName: string]: ActionInfo
-  //   }
-  // }
+  actions?: {
+    [platform in Platforms]?: {
+      [actionName: string]: ActionInfo
+    }
+  }
 
-  // bridges?: {
-  //   [sourcePlatform in Platforms]: {
-  //     [targetPlatform in Platforms]: {
-  //       // When the framework compiles the action flow of the client, it will delete
-  //       // all the information related to the server and convert the remaining part
-  //       // into the part that can be directly recognized by the client action flow.
-  //       [actionName: string]: ActionInfo
-  //     }
-  //   }
-  // }
+  bridges?: {
+    [sourcePlatform in Platforms]?: {
+      [targetPlatform in Platforms]?: {
+        // When the framework compiles the action flow of the client, it will delete
+        // all the information related to the server and convert the remaining part
+        // into the part that can be directly recognized by the client action flow.
+        [actionName: string]: ActionInfo
+      }
+    }
+  }
 };
 
-export type TranslatorFunc<T extends object = {}> = (...args: any[]) => ({ type: string, args: T });
+export type TranslatorFunc<T extends object = {}> = (...args: any[]) => ActionObject<T> | ActionBridgeObject<T>;
 export type ExecutorFunc<T extends object = {}> = (obj: T) =>
   (payload: object, globalContext: object, localContext: object) =>
     Promise<object>;
+
+export type ActionInfo<T extends object = {}> = {
+  translator: TranslatorFunc<T>,
+  executor: ExecutorFunc<T>
+};
 
 export interface ActionObject<T extends object = {}> {
   disc: 'ActionObject',

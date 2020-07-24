@@ -31,7 +31,23 @@ let executors: Executors = {
   flutterClient: {}
 };
 
-export function loadPackage(packageInfo: PackageInfo) {
+export function loadPackage(packageInfo: PackageInfo): void {
+  for (const platform of Object.keys(packageInfo.actions)) {
+    for (const actionName of Object.keys(packageInfo.actions[platform])) {
+      translators[platform][actionName] = packageInfo.actions[platform][actionName].translator;
+      executors[platform][actionName] = packageInfo.actions[platform][actionName].executor;
+    }
+  }
+  for (const sourcePlatform of Object.keys(packageInfo.bridges)) {
+    for (const targetPlatform of Object.keys(packageInfo.bridges[sourcePlatform])) {
+      for (const actionName of Object.keys(packageInfo[sourcePlatform][targetPlatform])) {
+        translators[sourcePlatform][actionName] =
+          packageInfo.bridges[sourcePlatform][targetPlatform][actionName].translator;
+        executors[sourcePlatform][actionName] =
+          packageInfo.bridges[sourcePlatform][targetPlatform][actionName].executor;
+      }
+    }
+  }
 }
 
 export function getTranslator(platform: Platforms, name: string): TranslatorFunc {
