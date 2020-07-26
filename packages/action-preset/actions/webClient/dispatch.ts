@@ -1,5 +1,5 @@
 import {
-  ActionObject
+  ActionNormalObject
 } from '../../../core/type';
 import {
   WebClientGlobalContext,
@@ -23,21 +23,21 @@ type GeneratorFunc = (payload: object, utils: {
   getModelList: () => { [modelType: string]: Array<string> }
 }) => GeneratorRetObj;
 
-export function translator(func: GeneratorFunc): ActionObject<TranslatorRetObj>;
-export function translator(id: string, action: string, payload: object): ActionObject<TranslatorRetObj>;
-export function translator(arg0: GeneratorFunc | string, arg1?: string, arg2?: object): ActionObject<TranslatorRetObj> {
+export function translator(func: GeneratorFunc): ActionNormalObject<TranslatorRetObj>;
+export function translator(id: string, action: string, payload: object): ActionNormalObject<TranslatorRetObj>;
+export function translator(arg0: GeneratorFunc | string, arg1?: string, arg2?: object): ActionNormalObject<TranslatorRetObj> {
   if (typeof arg0 === 'string') {
     if (typeof arg1 !== 'string') throw new Error('You must provide a string as the action name.');
     if (typeof arg2 !== 'object') throw new Error('You must provide an object as the payload.');
     return {
-      disc:'ActionObject',
+      kind:'ActionNormalObject',
       platform: 'webClient',
       type: 'dispatch',
       args: { generator: () => ({ id: arg0, action: arg1, payload: arg2 }) }
     };
   }
   else return {
-    disc:'ActionObject',
+    kind:'ActionNormalObject',
     platform: 'webClient',
     type: 'dispatch',
     args: { generator: arg0 }

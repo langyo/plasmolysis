@@ -31,7 +31,7 @@ export function translator(
   options?: FetchOptions
 ): ActionBridgeObject<TranslatorRetObj> {
   return {
-    disc: 'ActionBridgeObject',
+    kind: 'ActionBridgeObject',
     sourcePlatform: 'webClient',
     targetPlatform: 'nodeServer',
     sourceActionType: 'fetch',

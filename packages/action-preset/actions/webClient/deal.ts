@@ -1,5 +1,5 @@
 import {
-  ActionObject
+  ActionNormalObject
 } from '../../../core/type';
 import {
   WebClientGlobalContext,
@@ -11,9 +11,9 @@ interface TranslatorRetType {
   func: CustomFuncType
 };
 
-export function translator(func: CustomFuncType): ActionObject<TranslatorRetType> {
+export function translator(func: CustomFuncType): ActionNormalObject<TranslatorRetType> {
   return {
-    disc: 'ActionObject',
+    kind: 'ActionNormalObject',
     platform: 'webClient',
     type: 'deal',
     args: { func }

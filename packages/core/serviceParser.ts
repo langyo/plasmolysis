@@ -1,14 +1,12 @@
 import {
   Platforms,
-  ActionObject,
-  ActionBridgeObject,
-  PureActionObject
+  ActionObject
 } from './type';
 import streamGenerator from './streamGenerator';
 
 type IStorageSubStreams = {
   [platform in Platforms]?: {
-    [key: string]: Array<PureActionObject>;
+    [key: string]: Array<ActionObject>;
   };
 };
 
@@ -16,11 +14,12 @@ let storageStreams: IStorageSubStreams = {};
 
 export function parse(
   platform: Platforms,
-  stream: Array<ActionObject | ActionBridgeObject>
+  stream: Array<ActionObject>
 ): void {
   for (const obj of stream)
-    switch (obj.disc) {
-      case 'ActionObject':
+    switch (obj.kind) {
+      case 'ActionNormalObject':
+      case 'ActionJudgeObject':
         break;
       case 'ActionBridgeObject':
         if (obj.targetPlatform !== platform) break;

@@ -24,34 +24,51 @@ export interface PackageInfo {
   }
 };
 
-export type TranslatorFunc<T extends object = {}> = (...args: any[]) => ActionObject<T> | ActionBridgeObject<T>;
-export type ExecutorFunc<T extends object = {}> = (obj: T) =>
+export type TranslatorFunc = (...args: any[]) => ActionObject;
+export type ExecutorFunc = (obj: object) =>
   (payload: object, globalContext: object, localContext: object) =>
     Promise<object>;
 
-export type ActionInfo<T extends object = {}> = {
-  translator: TranslatorFunc<T>,
-  executor: ExecutorFunc<T>
+export type ActionInfo = {
+  translator: TranslatorFunc,
+  executor: ExecutorFunc
 };
 
-export interface ActionObject<T extends object = {}> {
-  disc: 'ActionObject',
+export type ActionObject =
+  ActionNormalObject | ActionBridgeObject | ActionJudgeObject |
+  ActionSubStream | ActionLoopTag;
+
+export interface ActionNormalObject<T extends object = {}> {
+  kind: 'ActionNormalObject',
   type: string,
-  platform: Platforms,
-  args: T
+  platform?: Platforms,
+  args: T,
+  catch?: Array<ActionObject>
 };
 
 export interface ActionBridgeObject<T extends object = {}> {
-  disc: 'ActionBridgeObject',
+  kind: 'ActionBridgeObject',
   sourcePlatform: Platforms,
   sourceActionType: string,
   sourceAction: T,
+  sourceActionCatch?: Array<ActionObject>,
   targetPlatform: Platforms,
   targetStreamKey: string,
-  targetStream: Array<ActionObject | ActionBridgeObject>
+  targetStream: Array<ActionObject>
 };
 
-export interface PureActionObject<GeneratorObject extends object = {}> {
-  type: string,
-  args: GeneratorObject
+export interface ActionJudgeObject {
+  kind: 'ActionJudgeObject',
+  cond: (payload: object, globalContext: object, localContext: object) => boolean
+};
+
+export interface ActionSubStream {
+  kind: 'ActionSubStream',
+  stream: Array<ActionObject>
+};
+
+export interface ActionLoopTag {
+  kind: 'ActionLoopTag',
+  mode: 'fixed' | 'unlimited',
+  wait?: number
 };

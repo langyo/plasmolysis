@@ -1,5 +1,5 @@
 import {
-  ActionObject
+  ActionNormalObject
 } from '../../../core/type';
 import {
   NodeServerGlobalContext,
@@ -14,17 +14,17 @@ interface TranslatorRetObj {
 };
 type GeneratorFunc = (payload: object, utils: NodeServerGlobalContext & NodeServerLocalContext) => GeneratorRetObj;
 
-export function translator(func: GeneratorFunc): ActionObject<TranslatorRetObj>;
-export function translator(length: number): ActionObject<TranslatorRetObj>;
-export function translator(arg0: GeneratorFunc | number): ActionObject<TranslatorRetObj> {
+export function translator(func: GeneratorFunc): ActionNormalObject<TranslatorRetObj>;
+export function translator(length: number): ActionNormalObject<TranslatorRetObj>;
+export function translator(arg0: GeneratorFunc | number): ActionNormalObject<TranslatorRetObj> {
   if (typeof arg0 === 'number') return {
-    disc:'ActionObject',
+    kind:'ActionNormalObject',
     platform: 'nodeServer',
     type: 'wait',
     args: { generator: () => ({ length }) }
   }
   else return {
-    disc:'ActionObject',
+    kind:'ActionNormalObject',
     platform:'nodeServer',
     type: 'wait',
     args: { generator: arg0 }

@@ -1,5 +1,5 @@
 import {
-  ActionObject
+  ActionNormalObject
 } from '../../../core/type';
 import {
   WebClientGlobalContext,
@@ -15,17 +15,17 @@ type GeneratorFunc = (payload: object, utils: {
   getModelList: () => { [modelType: string]: Array<string> }
 }) => object;
 
-export function translator(func: GeneratorFunc): ActionObject<object>;
-export function translator(combinedObj: object): ActionObject<object>;
-export function translator(arg0: GeneratorFunc | object): ActionObject<object> {
+export function translator(func: GeneratorFunc): ActionNormalObject<object>;
+export function translator(combinedObj: object): ActionNormalObject<object>;
+export function translator(arg0: GeneratorFunc | object): ActionNormalObject<object> {
   if (typeof arg0 === 'object') return {
-    disc:'ActionObject',
+    kind:'ActionNormalObject',
     platform: 'webClient',
     type: 'setState',
     args: { generator: () => arg0 }
   }
   else return {
-    disc:'ActionObject',
+    kind:'ActionNormalObject',
     platform: 'webClient',
     type: 'setState',
     args: { generator: arg0 }
