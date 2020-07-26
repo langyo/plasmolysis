@@ -1,27 +1,26 @@
-import { parentCreator } from './lib/childProcessCreator';
+import vmLoader from './vmLoader';
 import middlewareRelay from './middlewareRelay';
 import webpackLoader from './webpackLoader';
 import projectWatcher from './projectWatcher';
 
-import { serverLog as log } from 'nickelcat/utils/logger';
 import { resolve } from 'path';
 
 export default async ({
   workDirPath
 }) => {
   const watcher = projectWatcher({ workDirPath });
-  let clientBundleContent  = '';
+  let clientBundleContent = '';
 
   const webpackClientSide = await webpackLoader({
     entry: resolve(process.cwd(), './__nickelcat_defaultClientLoader.js'),
     target: 'web'
   }, watcher);
-  webpackClientSide.once('ready', content => {
-    log('info', `Webpack has been compiled to the static file.`);
+  webpackClientSide.once('ready', (content: string) => {
+    console.log(`The static render file is ready.`);
     clientBundleContent = content;
   });
-  webpackClientSide.on('change', content => {
-    log('info', `Webpack has been compiled to the up-to-date static file.`);
+  webpackClientSide.on('change', (content: string) => {
+    console.log('info', `The static render file has been updated.`);
     clientBundleContent = content;
   });
 
@@ -31,12 +30,11 @@ export default async ({
   }, watcher);
 
   return new Promise(resolveFunc => webpackServerSide.once('ready', async content => {
-    const { send, restart } = await parentCreator(content);
-    log('info', `The server has ready.`);
+    const { send, restart } = await vmLoader(content);
+    console.log(`The service is ready.`);
     webpackServerSide.on('change', async content => {
-      log('info', `Restarting service...`);
-      await restart(content);
-      log('info', `The up-to-date service has running.`);
+      restart(content);
+      console.log(`The service has been updated.`);
     });
     resolveFunc(middlewareRelay({
       sendFunc: send,

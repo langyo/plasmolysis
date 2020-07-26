@@ -1,6 +1,5 @@
 import { watch } from 'chokidar';
-import EventEmitter from 'events';
-import { serverLog as log } from 'nickelcat/utils/logger';
+import { EventEmitter } from 'events';
 
 import scanner from './projectScanner';
 
@@ -23,7 +22,6 @@ export default ({
         delayUpdate();
       } else {
         delayWaiting = false;
-        log('info', 'The project files were updated, rebuilding the environment...')
         emitter.emit('update');
       }
     }, aggregate);

@@ -5,39 +5,63 @@ import { Volume } from 'memfs';
 import { Union } from 'unionfs';
 import * as realFs from 'fs';
 
-export default async (parseOption = {
+interface IParseOption {
+  parseFilterComponents: Array<string>,
+  parseFilterServices: Array<string>
+};
+
+const defaultParseOption: IParseOption = {
   parseFilterComponents: ['', 'dialog.', 'dialogs.', 'page.', 'pages.', 'view.', 'views.'],
   parseFilterServices: ['']
-}) => {
-  let {
-    parseFilterComponents,
-    parseFilterServices
-  } = parseOption;
+};
 
-  let components = [];
-  let services = [];
-  let configs = {};
+export default async ({
+  parseFilterComponents,
+  parseFilterServices
+}: IParseOption = defaultParseOption) => {
+  let components: Array<{
+    name: string,
+    componentPath: string,
+    controllerPath: string
+  }> = [];
+  let services: Array<{
+    name: string,
+    servicePath: string
+  }> = [];
+  let configs: {
+    index: boolean
+    initState: boolean
+  } = {
+    index: false,
+    initState: false
+  };
 
-  const scanDfs = (path, route = '') => {
-    let list = [];
-    for (let fileName of readdirSync(path))
+  const scanDfs = (path: string, route: string = '') => {
+    let list: Array<{
+      fileName: string,
+      path: string,
+      route: string
+    }> = [];
+    for (const fileName of readdirSync(path))
       if (statSync(join(path, fileName)).isDirectory())
         list = list.concat(scanDfs(join(path, fileName), `${route}${fileName}.`));
       else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName))
-        list.push({ fileName: `${route}${fileName.slice(0, fileName.lastIndexOf('.'))}`, path: join(path, fileName), route });
+        list.push({
+          fileName: `${route}${fileName.slice(0, fileName.lastIndexOf('.'))}`,
+          path: join(path, fileName),
+          route
+        });
     return list;
   }
 
   if (
     existsSync(resolve(process.cwd(), './components')) && statSync(resolve(process.cwd(), './components')).isDirectory() &&
-    existsSync(resolve(process.cwd(), './controllers')) && statSync(resolve(process.cwd(), './controllers')).isDirectory()
+    existsSync(resolve(process.cwd(), './controllers')) &&
+    statSync(resolve(process.cwd(), './controllers')).isDirectory()
   ) {
-    let componentsPath = scanDfs(resolve(process.cwd(), './components'));
-    let controllersPath = scanDfs(resolve(process.cwd(), './controllers'));
-
-    for (const component of componentsPath) {
+    for (const component of scanDfs(resolve(process.cwd(), './components'))) {
       if (parseFilterComponents.indexOf(component.route) >= 0) {
-        for (const controller of controllersPath) {
+        for (const controller of scanDfs(resolve(process.cwd(), './controllers'))) {
           if (component.route === controller.route && component.fileName === controller.fileName) {
             components.push({
               name: component.fileName,
@@ -52,15 +76,14 @@ export default async (parseOption = {
   }
 
   if (
-    existsSync(resolve(process.cwd(), './services')) && statSync(resolve(process.cwd(), './services')).isDirectory()
+    existsSync(resolve(process.cwd(), './services')) &&
+    statSync(resolve(process.cwd(), './services')).isDirectory()
   ) {
-    let servicesPath = scanDfs(resolve(process.cwd(), './services'));
-
-    for (const services of servicesPath) {
-      if (parseFilterServices.indexOf(services.route) >= 0) {
+    for (const service of scanDfs(resolve(process.cwd(), './services'))) {
+      if (parseFilterServices.indexOf(service.route) >= 0) {
         services.push({
-          name: services.fileName,
-          servicePath: services.path.split('\\').join('\\\\')
+          name: service.fileName,
+          servicePath: service.path.split('\\').join('\\\\')
         });
       }
     }
@@ -89,19 +112,21 @@ export default async (parseOption = {
       }`).join(',\n')}
   },
   configs: {
-    index: ${configs.index ? `require("${join(process.cwd(), './configs/index.js').split('\\').join('\\\\')}").default || require("${join(process.cwd(), './configs/index.js').split('\\').join('\\\\')}")` : '{}'},
-    initState: ${configs.initState ? `require("${join(process.cwd(), './configs/initState.js').split('\\').join('\\\\')}").default || require("${join(process.cwd(), './configs/initState.js').split('\\').join('\\\\')}")` : '{}'}
+    index: ${configs.index ?
+        `require("${join(process.cwd(), './configs/index.js').split('\\').join('\\\\')}").default ||
+       require("${join(process.cwd(), './configs/index.js').split('\\').join('\\\\')}")` : '{}'},
+    initState: ${configs.initState ?
+        `require("${join(process.cwd(), './configs/initState.js').split('\\').join('\\\\')}").default ||
+       require("${join(process.cwd(), './configs/initState.js').split('\\').join('\\\\')}")` : '{}'}
   }
 };`,
     [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]: readFileSync(join(__dirname, './lib/defaultClientLoader.js'), 'utf8'),
-    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]: readFileSync(join(__dirname, './lib/defaultServerLoader.js'), 'utf8'),
-    [join(process.cwd(), './__nickelcat_childProcessCreator.js')]: readFileSync(join(__dirname, './lib/childProcessCreator.js'), 'utf8'),
-    [join(process.cwd(), './__nickelcat_childProcessShell.js')]: readFileSync(join(__dirname, './lib/childProcessShell.js'), 'utf8')
+    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]: readFileSync(join(__dirname, './lib/defaultServerLoader.js'), 'utf8')
   };
   const mfs = Volume.fromJSON(virtualFiles);
   const fs = new Union();
-  fs.use(realFs).use(mfs);
-  if (!fs.join) fs.join = join;
+  fs.use(realFs).use(<any>mfs);
+  if (typeof fs['join'] === 'undefined') fs['join'] = join;
 
   return fs;
 };
