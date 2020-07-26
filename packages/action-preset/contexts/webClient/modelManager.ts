@@ -2,7 +2,7 @@ import {
   ActionObject,
   ActionBridgeObject
 } from '../../../core/type';
-import React from 'react';
+import React = require('react');
 
 export interface WebClientGlobalContext {
   setState: (modelID: string, combineState: object) => void,

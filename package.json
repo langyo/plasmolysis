@@ -22,9 +22,12 @@
   "devDependencies": {
     "del": "^5.1.0",
     "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "lerna": "^3.22.0",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "merge2": "^1.4.1"
   }
 }

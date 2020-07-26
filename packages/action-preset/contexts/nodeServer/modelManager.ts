@@ -2,7 +2,7 @@ import {
   ActionObject,
   ActionBridgeObject
 } from '../../../core/type';
-import React from 'react';
+import React = require('react');
 
 export interface NodeServerGlobalContext {
   getSessionList: () => Promise<Array<string>>

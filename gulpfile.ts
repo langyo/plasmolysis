@@ -11,8 +11,9 @@ import {
 } from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
-import babel = require('gulp-babel');
+import ts = require('gulp-typescript');
 import del = require('del');
+import merge = require('merge2');
 
 const readdir = promisify(readdirOld);
 const symlink = promisify(symlinkOld);
@@ -32,33 +33,18 @@ const writeFile = promisify(writeFileOld);
 
 export const clean = () => del('./dist/');
 
-const compile = () => src([
-  './packages/**/*.js',
-  '!./packages/**/node_modules/**/*',
-  '!./packages/create-app/templates/**/*'
-])
-  .pipe(babel({
-    "presets": [
-      [
-        "@babel/preset-env"
-      ],
-      [
-        "@babel/preset-react"
-      ]
-    ],
-    "plugins": [
-      [
-        "@babel/plugin-proposal-class-properties",
-        {
-          "loose": true
-        }
-      ],
-      [
-        "@babel/plugin-transform-runtime"
-      ]
-    ]
-  }))
-  .pipe(dest('./dist/'));
+const compile = () => {
+  let { dts, js } = src([
+    './packages/**/*.ts',
+    '!./packages/**/node_modules/**/*',
+    '!./packages/create-app/templates/**/*'
+  ])
+    .pipe(ts({ declaration: true }));
+  return merge([
+    dts.pipe(dest('./dist/')),
+    js.pipe(dest('./dist/'))
+  ]);
+};
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./dist')))) {
@@ -76,7 +62,7 @@ export const link = async () => {
   }
 
   for (const pkg of (await readdir(resolve('./packages')))) {
-    const pkgInfo = JSON.parse(await readFile(resolve(`./packages/${pkg}/package.json`)));
+    const pkgInfo = JSON.parse(await readFile(resolve(`./packages/${pkg}/package.json`), { encoding: 'utf8' }));
     const deps = pkgInfo.dependencies ? Object.keys(pkgInfo.dependencies).reduce((list, str) => {
       if (str === 'nickelcat') return [...list, { insideName: 'core', name: 'nickelcat' }];
       if (/^nickelcat/.test(str)) return [...list, { insideName: str.substr(10), name: str }];
@@ -110,11 +96,11 @@ export const build_pub_ver = series(
     }
   },
   async () => {
-    const { version } = JSON.parse(await readFile(resolve('./lerna.json')));
+    const { version } = JSON.parse(await readFile(resolve('./lerna.json'), { encoding: 'utf8' }));
     let pkgs = {};
     for (const pkg of (await readdir(resolve('./dist')))) {
       if (await access(resolve(`./dist/${pkg}/package.json`))) {
-        pkgs[pkg] = JSON.parse(await readFile(resolve(`./dist/${pkg}/package.json`)));
+        pkgs[pkg] = JSON.parse(await readFile(resolve(`./dist/${pkg}/package.json`), { encoding: 'utf8' }));
       }
     }
     for (const pkg of Object.keys(pkgs)) {
