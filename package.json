@@ -8,12 +8,10 @@
     "install-pkg:action-preset": "cd ./packages/action-preset && yarn && cd ..",
     "install-pkg:dev-server": "cd ./packages/dev-server && yarn && cd ..",
     "install-pkg:create-app": "cd ./packages/create-app && yarn && cd ..",
-
     "build": "gulp build",
     "clean": "gulp clean",
     "publish": "gulp build_pub_ver && lerna publish --force-publish",
     "watch": "gulp watch",
-
     "link": "gulp link",
     "global-link": "npm run global-link:core && npm run global-link:action-preset && npm run global-link:dev-server && npm run global-link:create-app",
     "global-link:core": "cd ./dist/core && yarn link && cd ..",
@@ -22,17 +20,11 @@
     "global-link:create-app": "cd ./dist/create-app && yarn link nickelcat && yarn link && cd .."
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.1",
-    "@babel/core": "^7.10.2",
-    "@babel/node": "^7.10.1",
-    "@babel/plugin-proposal-class-properties": "^7.10.1",
-    "@babel/plugin-transform-runtime": "^7.10.1",
-    "@babel/preset-env": "^7.10.2",
-    "@babel/preset-react": "^7.10.1",
-    "@babel/register": "^7.10.1",
     "del": "^5.1.0",
     "gulp": "^4.0.2",
     "gulp-babel": "^8.0.0",
-    "lerna": "^3.22.0"
+    "lerna": "^3.22.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
   }
 }

@@ -11,8 +11,8 @@ import {
 } from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
-import babel from 'gulp-babel';
-import del from 'del';
+import babel = require('gulp-babel');
+import del = require('del');
 
 const readdir = promisify(readdirOld);
 const symlink = promisify(symlinkOld);
