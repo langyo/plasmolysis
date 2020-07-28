@@ -2,16 +2,20 @@ import vmLoader from './vmLoader';
 import middlewareRelay from './middlewareRelay';
 import webpackLoader from './webpackLoader';
 import projectWatcher from './projectWatcher';
+import { EventEmitter } from 'events';
 
 import { resolve } from 'path';
 
-export default async ({
-  workDirPath
-}) => {
-  const watcher = projectWatcher({ workDirPath });
-  let clientBundleContent = '';
+export default async (workDirPath: string = process.cwd()) => {
+  const watcher = projectWatcher({
+    workDirPath,
+    aggregate: 1000,
+    aggregateAtInitialize: 5000,
+    ignored: /(node_modules)|(\.git)/
+  });
+  let clientBundleContent: string = '';
 
-  const webpackClientSide = await webpackLoader({
+  const webpackClientSide: EventEmitter = await webpackLoader({
     entry: resolve(process.cwd(), './__nickelcat_defaultClientLoader.js'),
     target: 'web'
   }, watcher);
@@ -24,7 +28,7 @@ export default async ({
     clientBundleContent = content;
   });
 
-  const webpackServerSide = await webpackLoader({
+  const webpackServerSide: EventEmitter = await webpackLoader({
     entry: resolve(process.cwd(), './__nickelcat_defaultServerLoader.js'),
     target: 'node'
   }, watcher);

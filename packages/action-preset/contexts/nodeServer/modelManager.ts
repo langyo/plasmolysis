@@ -13,7 +13,7 @@ export interface NodeServerLocalContext {
   sessionID: string
 }
 
-interface ISourceComponentRequireObj {
+export interface ISourceComponentRequireObj {
   [key: string]: {
     component: IComponent,
     controller: IController

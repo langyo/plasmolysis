@@ -3,17 +3,24 @@ import { EventEmitter } from 'events';
 
 import scanner from './projectScanner';
 
+interface IOptions {
+  workDirPath: string,
+  aggregate: number,
+  aggregateAtInitialize: number,
+  ignored: RegExp
+};
+
 export default ({
   workDirPath,
-  aggregate = 1000,
-  aggregateAtInitialize = 10000,
-  ignored = /(node_modules)|(\.git)/
-}) => {
-  const emitter = new EventEmitter();
+  aggregate,
+  aggregateAtInitialize,
+  ignored
+}: IOptions): EventEmitter => {
+  const emitter: EventEmitter = new EventEmitter();
 
-  let changedDuringDelay = false;
-  let delayWaiting = false;
-  let initlaizeWaitDone = false;
+  let changedDuringDelay: boolean = false;
+  let delayWaiting: boolean = false;
+  let initlaizeWaitDone: boolean = false;
   const delayUpdate = () => {
     delayWaiting = true;
     setTimeout(() => {
@@ -30,7 +37,7 @@ export default ({
 
   watch(workDirPath, {
     ignored
-  }).on('all', async (event, path) => {
+  }).on('all', async () => {
     if (!initlaizeWaitDone) return;
     await scanner();
 
