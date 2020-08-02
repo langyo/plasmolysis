@@ -1,9 +1,4 @@
-import {
-  Platforms,
-  TranslatorFunc,
-  ExecutorFunc,
-  PackageInfo
-} from "./type";
+/// <reference path="type.d.ts" />
 
 type Translators = {
   [platform in Platforms]: {

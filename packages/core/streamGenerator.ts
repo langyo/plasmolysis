@@ -1,7 +1,4 @@
-import {
-  Platforms,
-  ActionObject
-} from './type';
+/// <reference path="type.d.ts" />
 
 export default function streamGenerator(
   platform: Platforms,

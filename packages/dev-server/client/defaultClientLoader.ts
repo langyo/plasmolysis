@@ -1,9 +1,11 @@
+/// <reference path="../type.d.ts" />
+
 import nodeRender from './clientNodeRender';
 import createModelManager from 'nickelcat/lib/modelManager';
 
-import presetActionPackage from 'nickelcat-action-preset';
+import { packageInfo } from 'nickelcat-action-preset';
 import createActionMangager from 'nickelcat/lib/actionManager';
-const actionManager = createActionMangager(presetActionPackage);
+const actionManager = createActionMangager(packageInfo);
 
 const { components, services } = require('./__nickelcat_staticRequire.js');
 const modelManager = createModelManager(components, actionManager);

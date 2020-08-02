@@ -1,7 +1,5 @@
 import createStream from './streamGenerator';
 
-import { serverLog as log } from 'nickelcat/utils/logger';
-import merge from '../utils/deepMerge';
 import templatePageGenerator from './templatePageGenerator';
 
 let routes = {};

@@ -1,8 +1,6 @@
+/// <reference path="type.d.ts" />
+
 import { getExecutor } from './actionManager';
-import {
-  Platforms,
-  ActionObject
-} from './type';
 
 interface ITasksInfo {
   tasks: Array<ActionObject>,

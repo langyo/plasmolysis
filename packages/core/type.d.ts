@@ -1,6 +1,6 @@
-export type Platforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordovaClient' | 'flutterClient';
+declare type Platforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordovaClient' | 'flutterClient'
 
-export interface PackageInfo {
+declare interface PackageInfo {
   name: string,
   description?: string,
   author?: string,
@@ -22,31 +22,31 @@ export interface PackageInfo {
       }
     }
   }
-};
+}
 
-export type TranslatorFunc = (...args: any[]) => ActionObject;
-export type ExecutorFunc = (obj: object) =>
+declare type TranslatorFunc = (...args: any[]) => ActionObject
+declare type ExecutorFunc = (obj: object) =>
   (payload: object, globalContext: object, localContext: object) =>
-    Promise<object>;
+    Promise<object>
 
-export type ActionInfo = {
+declare type ActionInfo = {
   translator: TranslatorFunc,
   executor: ExecutorFunc
-};
+}
 
-export type ActionObject =
+declare type ActionObject =
   ActionNormalObject | ActionBridgeObject | ActionJudgeObject |
-  ActionSubStream | ActionLoopTag;
+  ActionSubStream | ActionLoopTag
 
-export interface ActionNormalObject<T extends object = {}> {
+declare interface ActionNormalObject<T extends object = {}> {
   kind: 'ActionNormalObject',
   type: string,
   platform?: Platforms,
   args: T,
   catch?: Array<ActionObject>
-};
+}
 
-export interface ActionBridgeObject<T extends object = {}> {
+declare interface ActionBridgeObject<T extends object = {}> {
   kind: 'ActionBridgeObject',
   sourcePlatform: Platforms,
   sourceActionType: string,
@@ -55,20 +55,20 @@ export interface ActionBridgeObject<T extends object = {}> {
   targetPlatform: Platforms,
   targetStreamKey: string,
   targetStream: Array<ActionObject>
-};
+}
 
-export interface ActionJudgeObject {
+declare interface ActionJudgeObject {
   kind: 'ActionJudgeObject',
   cond: (payload: object, globalContext: object, localContext: object) => boolean
-};
+}
 
-export interface ActionSubStream {
+declare interface ActionSubStream {
   kind: 'ActionSubStream',
   stream: Array<ActionObject>
-};
+}
 
-export interface ActionLoopTag {
+declare interface ActionLoopTag {
   kind: 'ActionLoopTag',
   mode: 'fixed' | 'unlimited',
   wait?: number
-};
+}

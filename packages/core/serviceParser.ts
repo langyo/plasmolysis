@@ -1,7 +1,5 @@
-import {
-  Platforms,
-  ActionObject
-} from './type';
+/// <reference path="type.d.ts" />
+
 import streamGenerator from './streamGenerator';
 
 type IStorageSubStreams = {
