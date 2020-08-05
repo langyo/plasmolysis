@@ -1,20 +1,11 @@
-export default ({
-  sendFunc,
-  libType = 'koa',
-  routePath = '/spa.js',
-  getClientStaticFile
-}) => {
-  if (typeof sendFunc !== 'function') throw new Error('You must provide a function to exchange the data between two models.');
+/// <reference path="../type.d.ts" />
 
+export default (send) => (libType: string) => {
   switch (libType) {
     case 'koa':
       return async (ctx, next) => {
-        if (ctx.request.path === routePath) {
-          ctx.response.body = getClientStaticFile();
-          return;
-        }
 
-        const { hasContentFlag, payload: { type, body, statusCode } } = await sendFunc({
+        const { hasContentFlag, payload: { type, body, statusCode } } = await send({
           type: 'http',
           payload: {
             ip: ctx.request.ip,
@@ -26,9 +17,6 @@ export default ({
             type: ctx.request.type,
             cookies: ctx.request.cookies,
             body: ctx.request.body
-          },
-          configs: {
-            staticClientPath: routePath
           }
         });
 

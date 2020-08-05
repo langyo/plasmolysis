@@ -1,21 +1,16 @@
-import vmLoader from './vmLoader';
+import { build, send } from './vmLoader';
 import middlewareRelay from './middlewareRelay';
-import webpackLoader from './webpackLoader';
-import projectWatcher from './projectWatcher';
+import { loader } from './webpackLoader';
+import { watch } from './projectWatcher';
 import { EventEmitter } from 'events';
 
 import { resolve } from 'path';
 
-export default async (workDirPath: string = process.cwd()) => {
-  const watcher = projectWatcher({
-    workDirPath,
-    aggregate: 1000,
-    aggregateAtInitialize: 5000,
-    ignored: /(node_modules)|(\.git)/
-  });
+export default async function () {
+  const watcher = watch();
   let clientBundleContent: string = '';
 
-  const webpackClientSide: EventEmitter = await webpackLoader({
+  const webpackClientSide: EventEmitter = await loader({
     entry: resolve(process.cwd(), './__nickelcat_defaultClientLoader.js'),
     target: 'web'
   }, watcher);
@@ -28,21 +23,18 @@ export default async (workDirPath: string = process.cwd()) => {
     clientBundleContent = content;
   });
 
-  const webpackServerSide: EventEmitter = await webpackLoader({
+  const webpackServerSide: EventEmitter = await loader({
     entry: resolve(process.cwd(), './__nickelcat_defaultServerLoader.js'),
     target: 'node'
   }, watcher);
 
-  return new Promise(resolveFunc => webpackServerSide.once('ready', async content => {
-    const { send, restart } = await vmLoader(content);
+  return new Promise(resolve => webpackServerSide.once('ready', async (code: string) => {
+    build(code);
     console.log(`The service is ready.`);
-    webpackServerSide.on('change', async content => {
-      restart(content);
+    webpackServerSide.on('change', async (code: string) => {
+      build(code)
       console.log(`The service has been updated.`);
     });
-    resolveFunc(middlewareRelay({
-      sendFunc: send,
-      getClientStaticFile: () => clientBundleContent
-    }));
+    resolve(middlewareRelay(send));
   }));
 };

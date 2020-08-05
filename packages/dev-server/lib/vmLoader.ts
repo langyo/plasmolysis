@@ -1,18 +1,20 @@
 import { Script, createContext } from 'vm';
 
-export default async (code: string) => {
-  let vm = new Script(code);
+let extraContext: object = {};
+let vm = new Script('');
 
-  return {
-    send: async (payload: object) => {
-      return await new Promise(resolve => {
-        const context = createContext({
-          __payload: payload,
-          __callback: resolve
-        });
-        vm.runInContext(context);
-      });
-    },
-    restart: (code: string) => vm = new Script(code)
-  };
+export function build(code: string, context?: object) {
+  vm = new Script(code);
+  extraContext = context;
+};
+
+export async function send(payload: object) {
+  return await new Promise(resolve => {
+    const context = createContext({
+      ...extraContext,
+      __payload: payload,
+      __callback: resolve
+    });
+    vm.runInContext(context);
+  });
 };

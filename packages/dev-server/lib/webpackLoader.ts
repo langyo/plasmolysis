@@ -2,15 +2,16 @@ import webpack from 'webpack';
 import TerserPlugin from 'terser-webpack-plugin';
 
 import { EventEmitter } from 'events';
-import scanner from './projectScanner';
+import { scan } from './projectWatcher';
 import { join } from 'path';
 
-export default async (webpackConfig, updateListener) => {
-  const fs = await scanner();
+export async function loader(webpackConfig: object, updateListener: EventEmitter): Promise<EventEmitter> {
+  const fs = await scan();
   const emitter = new EventEmitter();
 
   const compiler = webpack({
-    mode: process.env.NODE_ENV || 'development',
+    mode: process.env.NODE_ENV === 'development' ? 'development': 'production',
+    context: process.cwd(),
     module: {
       rules: [
         {
@@ -45,11 +46,11 @@ export default async (webpackConfig, updateListener) => {
     ...webpackConfig
   });
   compiler.inputFileSystem = fs;
-  compiler.outputFileSystem = fs;
+  compiler.outputFileSystem = <any>fs;
 
   function compile() {
-    compiler.run((err: string, status) => {
-      if (err) throw new Error(err);
+    compiler.run((err: Error, status) => {
+      if (err) throw err;
 
       if (status.hasErrors()) {
         const info = status.toJson();
