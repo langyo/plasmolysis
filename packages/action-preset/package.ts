@@ -6,7 +6,6 @@ import * as webClient_destoryModel from './actions/webClient/destoryModel';
 import * as webClient_dispatch from './actions/webClient/dispatch';
 import * as webClient_setGlobalState from './actions/webClient/setGlobalState';
 import * as webClient_setState from './actions/webClient/setState';
-import * as webClient_togglePage from './actions/webClient/togglePage';
 import * as webClient_wait from './actions/webClient/wait';
 
 import * as nodeServer_deal from './actions/nodeServer/deal';
@@ -28,7 +27,6 @@ export default <PackageInfo> {
       dispatch: webClient_dispatch,
       setGlobalState: webClient_setGlobalState,
       setState: webClient_setState,
-      togglePage: webClient_togglePage,
       wait: webClient_wait
     },
     nodeServer: {

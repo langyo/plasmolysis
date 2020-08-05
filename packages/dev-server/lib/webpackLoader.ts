@@ -15,7 +15,7 @@ export async function loader(webpackConfig: object, updateListener: EventEmitter
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.[jt]sx?$/,
           loader: 'babel-loader',
           exclude: /node_modules/,
           options: {
