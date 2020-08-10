@@ -1,8 +1,5 @@
-import { createStream } from 'nickelcat';
-import {
-  WebClientGlobalContext,
-  WebClientLocalContext
-} from './modelManager';
+/// <reference path="../../type.d.ts" />
+
 import { generate } from 'shortid';
 import { from, merge, without } from "seamless-immutable";
 
@@ -16,13 +13,13 @@ export interface IGlobalState {
   [key: string]: unknown
 };
 
-export default (modelManager): WebClientGlobalContext => {
-  let globalState: Readonly<object> = from({});
+export default (projectPackage: ProjectPackage, getContext: GetContextFuncType): StateManager => {
+  let globalState: Readonly<{ [key: string]: any }> = from({});
   let modelStateRoute: IModelStateRoute = from({});
   let modelIDMap: { [modelID: string]: string } = from({});
-  let modelState: Readonly<object> = from({});
+  let modelState: Readonly<{ [key: string]: any }> = from({});
 
-  function setState(modelID: string, combineState: object): void {
+  function setState(modelID: string, combineState: { [key: string]: any }): void {
     if (
       typeof modelState[modelID] === 'undefined' ||
       typeof modelIDMap[modelID] === 'undefined'
@@ -30,12 +27,12 @@ export default (modelManager): WebClientGlobalContext => {
     modelState = merge(modelState, { [modelID]: combineState });
   }
 
-  function getState(modelID: string): Readonly<object> {
+  function getState(modelID: string): Readonly<{ [key: string]: any }> {
     if (typeof modelState[modelID] === 'undefined') throw new Error(`The model '${modelID}' doesn't exist.`);
     return from(modelState[modelID]);
   }
 
-  function setGlobalState(combineState: object): void {
+  function setGlobalState(combineState: { [key: string]: any }): void {
     globalState = merge(globalState, combineState);
   }
 
@@ -47,7 +44,7 @@ export default (modelManager): WebClientGlobalContext => {
     return from(modelStateRoute);
   }
 
-  function createModel(modelType: string, initState?: object, modelID?: string): void {
+  function createModel(modelType: string, initState?: { [key: string]: any }, modelID?: string): string {
     if (typeof initState === 'undefined') initState = {};
     if (typeof modelID === 'undefined') modelID = generate();
 
@@ -58,10 +55,12 @@ export default (modelManager): WebClientGlobalContext => {
 
     modelState = merge(modelState, {
       [modelID]:
-        modelManager.getStreamRuntime('webClient', modelType).$init(initState)
+        (getContext('streamManager') as StreamManager)
+          .runStream('webClient', modelType, '$init', initState, { modelType, modelID })
     });
     modelStateRoute = merge(modelStateRoute, { [modelType]: [...modelStateRoute[modelType], modelID] });
     modelIDMap = merge(modelIDMap, { [modelID]: modelType });
+    return modelID;
   }
 
   function destoryModel(modelID: string): void {
@@ -75,18 +74,17 @@ export default (modelManager): WebClientGlobalContext => {
     modelIDMap = without(modelState, modelID);
   }
 
-  function evaluateModelAction(modelID: string, actionType: string, payload: object): Readonly<object> {
+  function evaluateModelAction(modelID: string, actionType: string, payload: { [key: string]: any }): Readonly<{ [key: string]: any }> {
     if (
       Object.keys(modelState).indexOf(modelID) < 0 ||
       Object.keys(modelIDMap).indexOf(modelID) < 0
     ) throw new Error(`The model '${modelID}' doesn't exist.`);
     const modelType = modelIDMap[modelID];
-    const streams = modelManager.getStreamRuntime('webClient', modelType);
-    if (typeof streams[actionType] === 'undefined') throw new Error(`Unknown action type '${actionType}'.`);
-    return streams[actionType](payload);
+    return (getContext('streamManager') as StreamManager)
+      .runStream('webClient', modelType, actionType, payload, { modelType, modelID });
   }
 
-  const stateManager = Object.seal({
+  const stateManager = Object.freeze({
     getState,
     setState,
     getGlobalState,

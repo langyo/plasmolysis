@@ -1,46 +1,38 @@
-import {
-  ActionNormalObject
-} from '../../../core/type';
-import {
-  NodeServerGlobalContext,
-  NodeServerLocalContext
-} from "../../contexts/nodeServer/modelManager";
+/// <reference path="../../type.d.ts" />
 
-interface GeneratorRetObj {
-  length: number
-};
-interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
-};
-type GeneratorFunc = (payload: object, utils: NodeServerGlobalContext & NodeServerLocalContext) => GeneratorRetObj;
+import { TranslatorRetObj } from '../../factorys/nodeServer/wait';
 
-export function translator(func: GeneratorFunc): ActionNormalObject<TranslatorRetObj>;
-export function translator(length: number): ActionNormalObject<TranslatorRetObj>;
-export function translator(arg0: GeneratorFunc | number): ActionNormalObject<TranslatorRetObj> {
-  if (typeof arg0 === 'number') return {
-    kind:'ActionNormalObject',
+export function translator(
+  args: TranslatorRetObj,
+  getContext: GetContextFuncType
+): Array<ActionNormalObject<TranslatorRetObj>> {
+  return [{
+    kind: 'ActionNormalObject',
     platform: 'nodeServer',
     type: 'wait',
-    args: { generator: () => ({ length }) }
-  }
-  else return {
-    kind:'ActionNormalObject',
-    platform:'nodeServer',
-    type: 'wait',
-    args: { generator: arg0 }
-  }
-};
+    args
+  }];
+}
 
 export function executor({ generator }: TranslatorRetObj) {
-  return async (payload: object, globalContext: NodeServerGlobalContext, localContext: NodeServerLocalContext) => {
-    const { length } = (<GeneratorFunc>generator)
-      (payload, {
-        ...globalContext,
-        ...localContext
-      });
+  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, {
+    modelType,
+    modelID
+  }: WebClientLocalContext) => {
+    const {
+      getState,
+      getGlobalState,
+      getModelList
+    }: StateManager = getContext('stateManager');
+    const { length } = generator(payload, {
+      getState: () => getState(modelID),
+      getGlobalState,
+      getModelList,
+      modelType,
+      modelID
+    });
     return await (new Promise(resolve =>
       setTimeout(() => resolve(payload), length)
     ));
   };
 };
- 

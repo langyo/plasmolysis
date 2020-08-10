@@ -1,67 +1,37 @@
-import {
-  ActionNormalObject
-} from '../../../core/type';
-import {
-  WebClientGlobalContext,
-  WebClientLocalContext
-} from "../../contexts/webClient/modelManager";
+/// <reference path="../../type.d.ts" />
 
+import { TranslatorRetObj } from "../../factorys/webClient/dispatch";
 
-interface GeneratorRetObj {
-  id: string,
-  action: string,
-  payload: object
-};
-interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
-};
-type GeneratorFunc = (payload: object, utils: {
-  modelType: string,
-  modelID: string,
-  getState: () => object,
-  getGlobalState: () => object,
-  getModelList: () => { [modelType: string]: Array<string> }
-}) => GeneratorRetObj;
-
-export function translator(func: GeneratorFunc): ActionNormalObject<TranslatorRetObj>;
-export function translator(id: string, action: string, payload: object): ActionNormalObject<TranslatorRetObj>;
-export function translator(arg0: GeneratorFunc | string, arg1?: string, arg2?: object): ActionNormalObject<TranslatorRetObj> {
-  if (typeof arg0 === 'string') {
-    if (typeof arg1 !== 'string') throw new Error('You must provide a string as the action name.');
-    if (typeof arg2 !== 'object') throw new Error('You must provide an object as the payload.');
-    return {
-      kind:'ActionNormalObject',
-      platform: 'webClient',
-      type: 'dispatch',
-      args: { generator: () => ({ id: arg0, action: arg1, payload: arg2 }) }
-    };
-  }
-  else return {
-    kind:'ActionNormalObject',
+export function translator(
+  args: TranslatorRetObj,
+  getContext: GetContextFuncType
+): Array<ActionNormalObject<TranslatorRetObj>> {
+  return [{
+    kind: 'ActionNormalObject',
     platform: 'webClient',
     type: 'dispatch',
-    args: { generator: arg0 }
-  }
+    args
+  }];
 };
 
 export function executor({ generator }: TranslatorRetObj) {
-  return async (payload: object, {
-    getState,
-    getGlobalState,
-    getModelList,
-    evaluateModelAction
-  }: WebClientGlobalContext, {
+  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, {
     modelType,
     modelID
   }: WebClientLocalContext) => {
-    const { id, action, payload: retPayload } = (<GeneratorFunc>generator)
-      (payload, {
-        getState: () => getState(modelID),
-        getGlobalState,
-        getModelList,
-        modelType,
-        modelID
-      });
+    const {
+      getState,
+      getGlobalState,
+      getModelList,
+      evaluateModelAction
+    }: StateManager = getContext('stateManager');
+    const { id, action, payload: retPayload } = generator(payload, {
+      getState: () => getState(modelID),
+      getGlobalState,
+      getModelList,
+      modelType,
+      modelID
+    });
     evaluateModelAction(id, action, retPayload);
     return payload;
   }

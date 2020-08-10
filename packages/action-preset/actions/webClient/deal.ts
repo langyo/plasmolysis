@@ -1,27 +1,21 @@
-import {
-  ActionNormalObject
-} from '../../../core/type';
-import {
-  WebClientGlobalContext,
-  WebClientLocalContext
-} from "../../contexts/webClient/modelManager";
+/// <reference path="../../type.d.ts" />
 
-type CustomFuncType = (payload: object, globalContext: object, localContext: object) => Promise<object>;
-interface TranslatorRetType {
-  func: CustomFuncType
-};
+import { TranslatorRetObj } from '../../factorys/webClient/deal';
 
-export function translator(func: CustomFuncType): ActionNormalObject<TranslatorRetType> {
-  return {
+export function translator(
+  args: TranslatorRetObj,
+  getContext: GetContextFuncType
+): Array<ActionNormalObject<TranslatorRetObj>> {
+  return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
     type: 'deal',
-    args: { func }
-  };
+    args
+  }];
 }
 
-export function executor({ func }: TranslatorRetType) {
-  return async (payload: object, globalContext: WebClientGlobalContext, localContext: WebClientLocalContext) => {
+export function executor({ func }: TranslatorRetObj) {
+  return async (payload: { [key: string]: any }, globalContext: GetContextFuncType, localContext: WebClientLocalContext) => {
     return await func.call(null, payload, globalContext, localContext);
   };
 }

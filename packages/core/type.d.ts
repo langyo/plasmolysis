@@ -1,3 +1,6 @@
+/// <reference types="react" />
+/// <reference types="vue" />
+
 declare type Platforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordovaClient' | 'flutterClient'
 
 declare interface PackageInfo {
@@ -12,22 +15,18 @@ declare interface PackageInfo {
     }
   }
 
-  bridges?: {
-    [sourcePlatform in Platforms]?: {
-      [targetPlatform in Platforms]?: {
-        // When the framework compiles the action flow of the client, it will delete
-        // all the information related to the server and convert the remaining part
-        // into the part that can be directly recognized by the client action flow.
-        [actionName: string]: ActionInfo
-      }
+  contexts?: {
+    [platform in Platforms]: {
+      [key: string]: (projectPackage: ProjectPackage, getContext: GetContextFuncType) =>
+        ({ [name: string]: (...args: any[]) => any })
     }
   }
 }
 
 declare type TranslatorFunc = (...args: any[]) => ActionObject
-declare type ExecutorFunc = (obj: object) =>
-  (payload: object, globalContext: object, localContext: object) =>
-    Promise<object>
+declare type ExecutorFunc = (obj: { [key: string]: any }) =>
+  (payload: { [key: string]: any }, globalContext: { [key: string]: any }, localContext: { [key: string]: any }) =>
+    Promise<{ [key: string]: any }>
 
 declare type ActionInfo = {
   translator: TranslatorFunc,
@@ -35,10 +34,10 @@ declare type ActionInfo = {
 }
 
 declare type ActionObject =
-  ActionNormalObject | ActionBridgeObject | ActionJudgeObject |
+  ActionNormalObject | ActionJudgeObject |
   ActionSubStream | ActionLoopTag
 
-declare interface ActionNormalObject<T extends object = {}> {
+declare interface ActionNormalObject<T extends { [key: string]: any } = {}> {
   kind: 'ActionNormalObject',
   type: string,
   platform?: Platforms,
@@ -46,20 +45,9 @@ declare interface ActionNormalObject<T extends object = {}> {
   catch?: Array<ActionObject>
 }
 
-declare interface ActionBridgeObject<T extends object = {}> {
-  kind: 'ActionBridgeObject',
-  sourcePlatform: Platforms,
-  sourceActionType: string,
-  sourceAction: T,
-  sourceActionCatch?: Array<ActionObject>,
-  targetPlatform: Platforms,
-  targetStreamKey: string,
-  targetStream: Array<ActionObject>
-}
-
 declare interface ActionJudgeObject {
   kind: 'ActionJudgeObject',
-  cond: (payload: object, globalContext: object, localContext: object) => boolean
+  cond: (payload: { [key: string]: any }, globalContext: { [key: string]: any }, localContext: { [key: string]: any }) => boolean
 }
 
 declare interface ActionSubStream {
@@ -72,3 +60,51 @@ declare interface ActionLoopTag {
   mode: 'fixed' | 'unlimited',
   wait?: number
 }
+
+declare type WebClientComponentType =
+  (props: WebClientComponentPropsType) => string | React.Component | Vue.Component;
+
+declare interface WebClientComponentPropsType {
+  state: { [key: string]: unknown },
+  trigger: { [key: string]: (payload: { [key: string]: any }) => void }
+}
+
+declare type ProjectPackage = {
+  webClient?: {
+    [modelType: string]: {
+      component: WebClientComponentType,
+      controller: {
+        $init?: (payload: { [key: string]: any }, globalContext: GetContextFuncType, localContext: { [key: string]: any }) => { [key: string]: any }
+      }
+    }
+  }
+};
+
+declare type GetContextFuncType =
+  (type: 'actionManager' | 'streamManager' | string) => any;
+
+declare interface ActionManager {
+  readonly getContext: (platform: Platforms) => GetContextFuncType,
+  readonly getTranslator: (platform: Platforms, name: string) => TranslatorFunc,
+  readonly getExecutor: (platform: Platforms, name: string) => ExecutorFunc,
+  readonly loadPackage: (packageInfo: PackageInfo) => void
+}
+
+declare interface StreamManager {
+  readonly loadStream: (
+    stream: Array<ActionObject>,
+    platform: Platforms,
+    tag: string,
+    streamName: string
+  ) => void,
+  readonly runStream: (
+    platform: Platforms,
+    tag: string,
+    streamName: string,
+    payload: { [key: string]: any },
+    localContext: { [key: string]: any }
+  ) => { [key: string]: any }
+}
+
+declare module 'nickelcat-action-preset/package';
+declare module 'nickelcat-action-routes/package';

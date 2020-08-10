@@ -1,66 +1,38 @@
-import {
-  ActionNormalObject
-} from '../../../core/type';
-import {
-  WebClientGlobalContext,
-  WebClientLocalContext
-} from "../../contexts/webClient/modelManager";
+/// <reference path="../../type.d.ts" />
 
+import { TranslatorRetObj } from '../../factorys/webClient/togglePage';
 
-interface GeneratorRetObj {
-  type: string,
-  initState: object
-};
-interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
-};
-type GeneratorFunc = (payload: object, utils: {
-  modelType: string,
-  modelID: string,
-  getState: () => object,
-  getGlobalState: () => object,
-  getModelList: () => { [modelType: string]: Array<string> }
-}) => GeneratorRetObj;
-
-export function translator(func: GeneratorFunc): ActionNormalObject<TranslatorRetObj>;
-export function translator(type: string, initState: object): ActionNormalObject<TranslatorRetObj>;
-export function translator(arg0: GeneratorFunc | string, arg1?: object): ActionNormalObject<TranslatorRetObj> {
-  if (typeof arg0 === 'string') {
-    return {
-      kind:'ActionNormalObject',
-      platform: 'webClient',
-      type: 'togglePage',
-      args: { generator: () => ({ type: arg0, initState: arg1 || {} }) }
-    };
-  }
-  else return {
-    kind:'ActionNormalObject',
+export function translator(
+  args: TranslatorRetObj,
+  getContext: GetContextFuncType
+): Array<ActionNormalObject<TranslatorRetObj>> {
+  return [{
+    kind: 'ActionNormalObject',
     platform: 'webClient',
     type: 'togglePage',
-    args: { generator: arg0 }
-  }
+    args
+  }];
 };
 
 export function executor({ generator }: TranslatorRetObj) {
-  return async (payload: object, {
+  return async (payload: { [key: string]: any }, {
     getState,
     getGlobalState,
     getModelList,
     setGlobalState,
     createModel,
     destoryModel
-  }: WebClientGlobalContext, {
+  }: StateManager, {
     modelType,
     modelID
   }: WebClientLocalContext) => {
-    const { type, initState } = (<GeneratorFunc>generator)
-      (payload, {
-        getState: () => getState(modelID),
-        getGlobalState,
-        getModelList,
-        modelType,
-        modelID
-      });
+    const { type, initState } = generator(payload, {
+      getState: () => getState(modelID),
+      getGlobalState,
+      getModelList,
+      modelType,
+      modelID
+    });
 
     if (getGlobalState().$pageType) destoryModel(getGlobalState().$pageID);
     const pageID = createModel(type, initState);

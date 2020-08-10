@@ -1,55 +1,37 @@
-import {
-  ActionNormalObject
-} from '../../../core/type';
-import {
-  WebClientGlobalContext,
-  WebClientLocalContext
-} from "../../contexts/webClient/modelManager";
+/// <reference path="../../type.d.ts" />
 
+import { TranslatorRetObj } from "../../factorys/webClient/setGlobalState";
 
-type GeneratorFunc = (payload: object, utils: {
-  modelType: string,
-  modelID: string,
-  getState: () => object,
-  getGlobalState: () => object,
-  getModelList: () => { [modelType: string]: Array<string> }
-}) => object;
-
-export function translator(func: GeneratorFunc): ActionNormalObject<object>;
-export function translator(combinedObj: object): ActionNormalObject<object>;
-export function translator(arg0: GeneratorFunc | object): ActionNormalObject<object> {
-  if (typeof arg0 === 'object') return {
-    kind:'ActionNormalObject',
+export function translator(
+  args: TranslatorRetObj,
+  getContext: GetContextFuncType
+): Array<ActionNormalObject<TranslatorRetObj>> {
+  return [{
+    kind: 'ActionNormalObject',
     platform: 'webClient',
     type: 'setGlobalState',
-    args: { generator: () => arg0 }
-  }
-  else return {
-    kind:'ActionNormalObject',
-    platform: 'webClient',
-    type: 'setGlobalState',
-    args: { generator: arg0 }
-  }
+    args
+  }];
 };
 
-export function executor({ generator }: { generator: GeneratorFunc }) {
-  return async (payload: object, {
-    getState,
-    getGlobalState,
-    getModelList,
-    setGlobalState
-  }: WebClientGlobalContext, {
+export function executor({ generator }: TranslatorRetObj) {
+  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, {
     modelType,
     modelID
   }: WebClientLocalContext) => {
-    const ret = (<GeneratorFunc>generator)
-      (payload, {
-        getState: () => getState(modelID),
-        getGlobalState,
-        getModelList,
-        modelType,
-        modelID
-      });
+    const {
+      getState,
+      getGlobalState,
+      getModelList,
+      setGlobalState
+    }: StateManager = getContext('stateManager');
+    const ret = generator(payload, {
+      getState: () => getState(modelID),
+      getGlobalState,
+      getModelList,
+      modelType,
+      modelID
+    });
     setGlobalState(ret);
     return payload;
   }

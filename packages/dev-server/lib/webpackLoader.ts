@@ -5,7 +5,7 @@ import { EventEmitter } from 'events';
 import { scan } from './projectWatcher';
 import { join } from 'path';
 
-export async function loader(webpackConfig: object, updateListener: EventEmitter): Promise<EventEmitter> {
+export async function loader(webpackConfig:{ [key: string]: any }, updateListener: EventEmitter): Promise<EventEmitter> {
   const fs = await scan();
   const emitter = new EventEmitter();
 

@@ -4,6 +4,8 @@ export default function streamGenerator(
   platform: Platforms,
   stream: Array<ActionObject>
 ): Array<ActionObject> {
+  // TODO: Every action object are now must be machinged by the truly translator functions,
+  //       and concat them because these return type is the array.
   let ret: Array<ActionObject> = [];
   let isHead: boolean = true;
   for (const obj of stream) {
@@ -28,14 +30,6 @@ export default function streamGenerator(
           catch: obj.catch && streamGenerator(obj.platform, obj.catch) || null
         });
         break;
-      case 'ActionBridgeObject':
-        if (obj.sourcePlatform === platform) ret.push({
-          kind: 'ActionNormalObject',
-          type: obj.sourceActionType,
-          args: obj.sourceAction,
-          catch: obj.sourceActionCatch && streamGenerator(obj.sourcePlatform, obj.sourceActionCatch) || null
-        });
-        break;
       case 'ActionLoopTag':
         if (isHead) ret.push({
           kind: 'ActionLoopTag',
@@ -45,8 +39,8 @@ export default function streamGenerator(
         else throw new Error('The loop tag must be declared on the head of the stream.');
         break;
       case 'ActionJudgeObject':
-        // The origin stream don't have this kind of the objects.
-        throw new Error('Can\'t support the action object.');
+        // The origin stream don't have this kind of the{ [key: string]: any }s.
+        throw new Error('Can\'t support the action{ [key: string]: any }.');
     }
     isHead = false;
   }
