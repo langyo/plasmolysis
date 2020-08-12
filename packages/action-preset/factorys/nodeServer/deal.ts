@@ -3,6 +3,11 @@ export interface TranslatorRetObj {
   func: CustomFuncType
 };
 
-export default function factory(func: CustomFuncType): TranslatorRetObj {
-  return { func };
+export default function factory(func: CustomFuncType): OriginalActionObject<TranslatorRetObj> {
+  return {
+    platform: 'nodeServer',
+    pkg: 'preset',
+    type: 'deal',
+    args: { func }
+  };
 }

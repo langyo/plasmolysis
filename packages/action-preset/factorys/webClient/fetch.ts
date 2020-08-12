@@ -1,7 +1,7 @@
 export interface TranslatorRetObj {
   path: string,
   translator?: PayloadTranslatorFunc,
-  stream?: Array<ActionObject>,
+  stream?: Array<OriginalActionObject>,
   options?: FetchOptions
 };
 interface FetchOptions {
@@ -16,7 +16,7 @@ type PayloadTranslatorFunc = (payload: { [key: string]: any }, utils: {
   getModelList: () => { [modelType: string]: Array<string> }
 }) => { [key: string]: any };
 
-function factory(path: string, stream?: Array<ActionObject>): OriginalActionObject<TranslatorRetObj>
+function factory(path: string, stream?: Array<OriginalActionObject>): OriginalActionObject<TranslatorRetObj>
 function factory(
   path: string,
   translator: PayloadTranslatorFunc,
@@ -25,13 +25,13 @@ function factory(
 function factory(
   path: string,
   translator: PayloadTranslatorFunc,
-  stream: Array<ActionObject>,
+  stream: Array<OriginalActionObject>,
   options?: FetchOptions
 ): OriginalActionObject<TranslatorRetObj>;
 function factory(
   path: string,
-  arg0?: PayloadTranslatorFunc | Array<ActionObject>,
-  arg1?: Array<ActionObject> | FetchOptions,
+  arg0?: PayloadTranslatorFunc | Array<OriginalActionObject>,
+  arg1?: Array<OriginalActionObject> | FetchOptions,
   arg2?: FetchOptions
 ): OriginalActionObject<TranslatorRetObj> {
   if (Array.isArray(arg0)) return {

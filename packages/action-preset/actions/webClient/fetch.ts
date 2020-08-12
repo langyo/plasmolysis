@@ -2,15 +2,17 @@
 
 import { TranslatorRetObj } from '../../factorys/webClient/fetch';
 
-export function translator({
-  path, translator, stream, options
-}: TranslatorRetObj, getContext: GetContextFuncType): Array<ActionNormalObject<TranslatorRetObj>> {
+export function translator(
+  { args: { path, stream, translator, options } }: OriginalActionObject<TranslatorRetObj>,
+  getContext: GetContextFuncType
+): Array<ActionNormalObject<TranslatorRetObj>> {
   if (typeof stream !== 'undefined') {
     (getContext('streamManager') as StreamManager).loadStream(stream, 'nodeServer', 'http', path);
   }
   if (typeof translator !== undefined) return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
+    pkg: 'preset',
     type: 'fetch',
     args: {
       path,

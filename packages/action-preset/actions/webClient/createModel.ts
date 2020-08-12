@@ -3,12 +3,13 @@
 import { TranslatorRetObj } from '../../factorys/webClient/createModel';
 
 export function translator(
-  args: OriginalActionObject<TranslatorRetObj>,
+  { args }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
 ): Array<ActionNormalObject<TranslatorRetObj>> {
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
+    pkg: 'preset',
     type: 'createModel',
     args
   }];

@@ -3,12 +3,13 @@
 import { TranslatorRetObj } from '../../factorys/webClient/setState';
 
 export function translator(
-  args: TranslatorRetObj,
+  { args }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
 ): Array<ActionNormalObject<TranslatorRetObj>> {
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
+    pkg: 'preset',
     type: 'setState',
     args
   }];

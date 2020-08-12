@@ -3,12 +3,13 @@
 import { TranslatorRetObj } from '../../factorys/nodeServer/wait';
 
 export function translator(
-  args: TranslatorRetObj,
+  { args }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
 ): Array<ActionNormalObject<TranslatorRetObj>> {
   return [{
     kind: 'ActionNormalObject',
     platform: 'nodeServer',
+    pkg: 'preset',
     type: 'wait',
     args
   }];
