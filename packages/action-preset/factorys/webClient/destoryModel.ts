@@ -13,11 +13,21 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getModelList: () => { [modelType: string]: Array<string> }
 }) => GeneratorRetObj;
 
-function factory(func: GeneratorFunc): TranslatorRetObj;
-function factory(id: string): TranslatorRetObj;
-function factory(arg0: GeneratorFunc | string): TranslatorRetObj {
-  if (typeof arg0 === 'string') return { generator: () => ({ id: arg0 }) };
-  else return { generator: arg0 };
+function factory(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
+function factory(id: string): OriginalActionObject<TranslatorRetObj>;
+function factory(arg0: GeneratorFunc | string): OriginalActionObject<TranslatorRetObj> {
+  if (typeof arg0 === 'string') return {
+    platform: 'webClient',
+    pkg: 'preset',
+    type: 'destoryModel',
+    args: { generator: () => ({ id: arg0 }) }
+  };
+  else return {
+    platform: 'webClient',
+    pkg: 'preset',
+    type: 'destoryModel',
+    args: { generator: arg0 }
+  };
 };
 
 export default factory;

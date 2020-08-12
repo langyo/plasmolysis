@@ -21,8 +21,8 @@ export default function (
     flutterClient: {}
   };
 
-  function loadStream(stream: Array<ActionObject>, platform: Platforms, tag: string, streamName: string): void {
-    streams[platform][tag][streamName] = streamGenerator(platform, stream);
+  function loadStream(stream: Array<OriginalActionObject>, platform: Platforms, tag: string, streamName: string): void {
+    streams[platform][tag][streamName] = streamGenerator(platform, stream, getContext('actionManager') as ActionManager);
   };
 
   for (const platform of Object.keys(projectPackage)) {

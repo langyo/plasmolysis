@@ -14,15 +14,33 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getModelList: () => { [modelType: string]: Array<string> }
 }) => GeneratorRetObj;
 
-function factory(func: GeneratorFunc): TranslatorRetObj;
-function factory(id: string, action: string, payload: { [key: string]: any }): TranslatorRetObj;
-function factory(arg0: GeneratorFunc | string, arg1?: string, arg2?: { [key: string]: any }): TranslatorRetObj {
+function factory(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
+function factory(
+  id: string,
+  action: string,
+  payload: { [key: string]: any }
+): OriginalActionObject<TranslatorRetObj>;
+function factory(
+  arg0: GeneratorFunc | string,
+  arg1?: string,
+  arg2?: { [key: string]: any }
+): OriginalActionObject<TranslatorRetObj> {
   if (typeof arg0 === 'string') {
     if (typeof arg1 !== 'string') throw new Error('You must provide a string as the action name.');
     if (typeof arg2 !== 'object') throw new Error('You must provide an{ [key: string]: any } as the payload.');
-    return { generator: () => ({ id: arg0, action: arg1, payload: arg2 }) };
+    return {
+      platform: 'webClient',
+      pkg: 'preset',
+      type: 'dispatch',
+      args: { generator: () => ({ id: arg0, action: arg1, payload: arg2 }) }
+    };
   }
-  else return { generator: arg0 };
+  else return {
+    platform: 'webClient',
+    pkg: 'preset',
+    type: 'dispatch',
+    args: { generator: arg0 }
+  };
 };
 
 export default factory;

@@ -10,7 +10,6 @@
     "url": "git+https://github.com/langyo/nickelcat.git"
   },
   "keywords": [
-    "react"
   ],
   "author": "langyo",
   "license": "Apache-2.0",
@@ -22,6 +21,7 @@
     "@types/react": "^16.9.43",
     "nickelcat": "latest",
     "seamless-immutable": "^7.1.4",
-    "shortid": "^2.2.15"
+    "shortid": "^2.2.15",
+    "vue": "^2.6.11"
   }
 }

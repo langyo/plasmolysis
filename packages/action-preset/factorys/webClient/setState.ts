@@ -9,11 +9,21 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getModelList: () => { [modelType: string]: Array<string> }
 }) => { [key: string]: any };
 
-function factory(func: GeneratorFunc): TranslatorRetObj;
-function factory(combinedObj: { [key: string]: any }): TranslatorRetObj;
-function factory(arg0: GeneratorFunc | { [key: string]: any }): TranslatorRetObj {
-  if (typeof arg0 === 'object') return { generator: () => arg0 };
-  else return { generator: arg0 };
+function factory(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
+function factory(combinedObj: { [key: string]: any }): OriginalActionObject<TranslatorRetObj>;
+function factory(arg0: GeneratorFunc | { [key: string]: any }): OriginalActionObject<TranslatorRetObj> {
+  if (typeof arg0 === 'object') return {
+    platform: 'webClient',
+    pkg: 'preset',
+    type: 'setState',
+    args: { generator: () => arg0 }
+  };
+  else return {
+    platform: 'webClient',
+    pkg: 'preset',
+    type: 'setState',
+    args: { generator: arg0 }
+  };
 };
 
 export default factory;

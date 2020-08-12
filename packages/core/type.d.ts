@@ -16,22 +16,29 @@ declare interface PackageInfo {
   }
 
   contexts?: {
-    [platform in Platforms]: {
-      [key: string]: (projectPackage: ProjectPackage, getContext: GetContextFuncType) =>
-        ({ [name: string]: (...args: any[]) => any })
+    [platform in Platforms]?: {
+      [key: string]: (projectPackage: ProjectPackage, getContext: GetContextFuncType) => any
     }
   }
 }
 
-declare type TranslatorFunc = (...args: any[]) => ActionObject
+declare type TranslatorFunc = (...args: any[]) => Array<ActionObject>;
 declare type ExecutorFunc = (obj: { [key: string]: any }) =>
   (payload: { [key: string]: any }, globalContext: { [key: string]: any }, localContext: { [key: string]: any }) =>
-    Promise<{ [key: string]: any }>
+    Promise<{ [key: string]: any }>;
 
 declare type ActionInfo = {
   translator: TranslatorFunc,
   executor: ExecutorFunc
 }
+
+declare type OriginalActionObject<T = any> = {
+  platform: Platforms,
+  pkg: string,
+  type: string,
+  args: T
+  catch?: Array<OriginalActionObject>
+};
 
 declare type ActionObject =
   ActionNormalObject | ActionJudgeObject |
@@ -39,6 +46,7 @@ declare type ActionObject =
 
 declare interface ActionNormalObject<T extends { [key: string]: any } = {}> {
   kind: 'ActionNormalObject',
+  pkg: string,
   type: string,
   platform?: Platforms,
   args: T,
@@ -62,20 +70,28 @@ declare interface ActionLoopTag {
 }
 
 declare type WebClientComponentType =
-  (props: WebClientComponentPropsType) => string | React.Component | Vue.Component;
-
-declare interface WebClientComponentPropsType {
-  state: { [key: string]: unknown },
-  trigger: { [key: string]: (payload: { [key: string]: any }) => void }
-}
+  (props: {
+    state: { [key: string]: unknown },
+    trigger: { [key: string]: (payload: { [key: string]: any }) => void }
+  }) => string | React.Component | Vue.Component;
 
 declare type ProjectPackage = {
   webClient?: {
     [modelType: string]: {
       component: WebClientComponentType,
       controller: {
-        $init?: (payload: { [key: string]: any }, globalContext: GetContextFuncType, localContext: { [key: string]: any }) => { [key: string]: any }
+        $init?: (
+          payload: { [key: string]: any },
+          globalContext: GetContextFuncType,
+          localContext: { [key: string]: any }
+        ) => { [key: string]: any },
+        [actionName: string]: Array<{ type: string, args: any }> | any
       }
+    }
+  },
+  nodeServer?: {
+    [protocol: string]: {
+      [path: string]: Array<{ type: string, args: any }>
     }
   }
 };
@@ -84,15 +100,15 @@ declare type GetContextFuncType =
   (type: 'actionManager' | 'streamManager' | string) => any;
 
 declare interface ActionManager {
-  readonly getContext: (platform: Platforms) => GetContextFuncType,
-  readonly getTranslator: (platform: Platforms, name: string) => TranslatorFunc,
-  readonly getExecutor: (platform: Platforms, name: string) => ExecutorFunc,
+  readonly getContextFactory: (platform: Platforms) => GetContextFuncType,
+  readonly getTranslator: (platform: Platforms, packageName: string, actionName: string) => TranslatorFunc,
+  readonly getExecutor: (platform: Platforms, packageName: string, actionName: string) => ExecutorFunc,
   readonly loadPackage: (packageInfo: PackageInfo) => void
 }
 
 declare interface StreamManager {
   readonly loadStream: (
-    stream: Array<ActionObject>,
+    stream: Array<OriginalActionObject>,
     platform: Platforms,
     tag: string,
     streamName: string

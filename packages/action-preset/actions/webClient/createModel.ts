@@ -3,7 +3,7 @@
 import { TranslatorRetObj } from '../../factorys/webClient/createModel';
 
 export function translator(
-  args: TranslatorRetObj,
+  args: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
 ): Array<ActionNormalObject<TranslatorRetObj>> {
   return [{

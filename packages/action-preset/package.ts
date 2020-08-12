@@ -1,6 +1,5 @@
 /// <reference path="../core/type.d.ts" />
 
-// TODO
 import * as actions from './actions';
 import * as contexts from './contexts';
 

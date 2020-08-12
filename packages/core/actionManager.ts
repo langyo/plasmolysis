@@ -6,12 +6,16 @@ import actionRoutesPackage from 'nickelcat-action-routes/package';
 
 type Translators = {
   [platform in Platforms]: {
-    [name: string]: TranslatorFunc
+    [packageType: string]: {
+      [actionType: string]: TranslatorFunc
+    }
   }
 };
 type Executors = {
   [platform in Platforms]: {
-    [name: string]: ExecutorFunc
+    [packageType: string]: {
+      [actionType: string]: ExecutorFunc
+    }
   }
 };
 type Contexts = {
@@ -44,12 +48,12 @@ export default function (projectPackage: ProjectPackage): ActionManager {
     cordovaClient: {},
     flutterClient: {}
   };
-  const sharedStreamManager: StreamManager = streamManager(projectPackage, getContext);
+  const sharedStreamManager: StreamManager = streamManager(projectPackage, getContextFactory);
 
-  function getContext(platform: Platforms): GetContextFuncType {
+  function getContextFactory(platform: Platforms): GetContextFuncType {
     return function (type: string): any {
       if (type === 'actionManager') return Object.freeze({
-        getContext,
+        getContext: getContextFactory,
         getExecutor,
         getTranslator,
         loadPackage
@@ -61,14 +65,20 @@ export default function (projectPackage: ProjectPackage): ActionManager {
     };
   }
 
-  function getTranslator(platform: Platforms, name: string): TranslatorFunc {
-    if (typeof translators[platform][name] === 'undefined') throw new Error(`Unknown translator '${name}'`);
-    return translators[platform][name];
+  function getTranslator(platform: Platforms, packageName: string, actionName: string): TranslatorFunc {
+    if (
+      typeof translators[platform][packageName] === 'undefined' ||
+      typeof translators[platform][packageName][actionName] === "undefined"
+    ) throw new Error(`Unknown translator '${actionName}' in the package '${packageName}'.`);
+    return translators[platform][packageName][actionName];
   }
 
-  function getExecutor(platform: Platforms, name: string): ExecutorFunc {
-    if (typeof executors[platform][name] === 'undefined') throw new Error(`Unknown executor '${name}'`);
-    return executors[platform][name];
+  function getExecutor(platform: Platforms, packageName: string, actionName: string): ExecutorFunc {
+    if (
+      typeof executors[platform][packageName] === 'undefined' ||
+      typeof executors[platform][packageName][actionName] === 'undefined'
+    ) throw new Error(`Unknown executor '${actionName}' in the package '${packageName}'.`);
+    return executors[platform][packageName][actionName];
   }
 
   function loadPackage(packageInfo: PackageInfo): void {
@@ -80,7 +90,8 @@ export default function (projectPackage: ProjectPackage): ActionManager {
     }
     for (const platform of Object.keys(packageInfo.contexts)) {
       for (const type of Object.keys(packageInfo.contexts[platform])) {
-        contexts[platform][type] = packageInfo.contexts[platform][type](projectPackage, getContext);
+        contexts[platform][type] =
+          packageInfo.contexts[platform][type](projectPackage, getContextFactory(platform as Platforms));
       }
     }
   }
@@ -90,7 +101,7 @@ export default function (projectPackage: ProjectPackage): ActionManager {
   loadPackage(actionRoutesPackage);
 
   return Object.freeze({
-    getContext,
+    getContextFactory,
     getExecutor,
     getTranslator,
     loadPackage

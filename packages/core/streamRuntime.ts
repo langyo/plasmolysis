@@ -10,7 +10,7 @@ export default function (platform: Platforms, globalContext: GetContextFuncType)
           switch (task.kind) {
             case 'ActionNormalObject':
               payload = await (globalContext('actionManager') as ActionManager)
-                .getExecutor(platform, task.type)(tasks[i])(payload, globalContext, localContext);
+                .getExecutor(platform, task.pkg, task.type)(tasks[i])(payload, globalContext, localContext);
               break;
             case 'ActionJudgeObject':
               if (!task.cond(payload, globalContext, localContext)) return payload;

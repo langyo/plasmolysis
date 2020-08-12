@@ -1,4 +1,6 @@
 /// <reference path="../core/type.d.ts" />
+/// <reference types="react" />
+/// <reference types="vue" />
 
 declare interface WebClientLocalContext {
   modelType: string,
@@ -8,7 +10,7 @@ declare interface WebClientLocalContext {
 declare type ComponentType = (props: {
   state: { [key: string]: any },
   trigger: { [key: string]: (payload: { [key: string]: any }) => void }
-}) => string | React.Component;
+}) => string | React.Component | Vue.Component;
 
 declare interface StateManager {
   readonly setState: (modelID: string, combineState: { [key: string]: any }) => void,
