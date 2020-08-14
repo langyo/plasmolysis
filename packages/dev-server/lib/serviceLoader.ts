@@ -1,12 +1,14 @@
+/// <reference path="../type.d.ts" />
+import * as Koa from 'koa';
+
 import { build, send } from './vmLoader';
-import middlewareRelay from './middlewareRelay';
 import { loader } from './webpackLoader';
 import { watch } from './projectWatcher';
 import { EventEmitter } from 'events';
 
 import { resolve } from 'path';
 
-export default async function () {
+export default async function (): Promise<(libType: string) => any> {
   const watcher = watch();
   let clientBundleContent: string = '';
 
@@ -32,9 +34,37 @@ export default async function () {
     build(code);
     console.log(`The service is ready.`);
     webpackServerSide.on('change', async (code: string) => {
-      build(code)
+      build(code);
       console.log(`The service has been updated.`);
     });
-    resolve(middlewareRelay(send));
+    resolve((libType: string) => {
+      switch (libType) {
+        case 'koa':
+          return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
+            const { processed, code, type, body } = await send({
+              ip: ctx.ip,
+              path: ctx.path,
+              query: ctx.query,
+              host: ctx.host,
+              protocol: ctx.protocol,
+              cookies: {
+                get: (ctx as any).cookies.get,  // BUG - The type declaration file has not defined 'cookies'.
+                set: (ctx as any).cookies.set
+              }
+            });
+
+            if (processed) {
+              ctx.type = type;
+              ctx.body = body;
+              ctx.status = code;
+              await next();
+            } else {
+              await next();
+            }
+          };
+        default:
+          throw new Error(`Unsupported library type: ${libType}`);
+      }
+    });
   }));
 };
