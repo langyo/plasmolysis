@@ -1,4 +1,4 @@
-/// <reference path="../type.d.ts" />
+/// <reference path="type.d.ts" />
 import * as Koa from 'koa';
 
 import { build, send } from './vmLoader';

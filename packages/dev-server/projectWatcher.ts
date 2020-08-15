@@ -60,12 +60,12 @@ module.exports = {
   components: {${components.map(component => `"${component.name}": "${component.path}"`).join(',\n')}},
   configs: ${configPath}
 };`,
-    [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]: `require("${join(__dirname, './lib/defaultClientLoader.ts')}")`,
-    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]: `require("${join(__dirname, './lib/defaultServerLoader.ts')}")`
+    [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]: `require("${join(__dirname, './defaultClientLoader.ts')}")`,
+    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]: `require("${join(__dirname, './defaultServerLoader.ts')}")`
   };
   const mfs = Volume.fromJSON(virtualFiles);
   const fs = new Union();
-  fs.use(realFs).use(<any>mfs);
+  fs.use(realFs).use(mfs as any);
   if (typeof fs['join'] === 'undefined') fs['join'] = join;
 
   return fs;

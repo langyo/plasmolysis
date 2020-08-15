@@ -1,4 +1,4 @@
-/// <reference path="../type.d.ts" />
+/// <reference path="type.d.ts" />
 
 import { Script, createContext } from 'vm';
 

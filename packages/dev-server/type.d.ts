@@ -1,4 +1,5 @@
 /// <reference types="node" />
+/// <reference path="../action-preset/type.d.ts" />
 
 declare module 'nickelcat-action-preset' {
   export const packageInfo: any;
