@@ -1,4 +1,4 @@
-/// <reference types="koa" />
+/// <reference types="node" />
 
 declare module 'nickelcat-action-preset' {
   export const packageInfo: any;
