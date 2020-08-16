@@ -76,6 +76,7 @@ declare type WebClientComponentType =
   }) => string | React.Component | Vue.Component;
 
 declare type ProjectPackage = {
+  // TODO - It needs some space for configs.
   webClient?: {
     [modelType: string]: {
       component: WebClientComponentType,
