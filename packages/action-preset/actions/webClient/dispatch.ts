@@ -26,10 +26,14 @@ export function executor({ generator }: TranslatorRetObj) {
       getModelList,
       evaluateModelAction
     }: StateManager = getContext('stateManager');
+    const {
+      getPageType
+    }: RouteManager = getContext('routeManager');
     const { id, action, payload: retPayload } = generator(payload, {
       getState: () => getState(modelID),
       getGlobalState,
       getModelList,
+      getPageType,
       modelType,
       modelID
     });

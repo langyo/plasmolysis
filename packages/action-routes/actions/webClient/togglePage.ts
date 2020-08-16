@@ -9,34 +9,36 @@ export function translator(
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
+    pkg: 'preset-router',
     type: 'togglePage',
     args
   }];
 };
 
 export function executor({ generator }: TranslatorRetObj) {
-  return async (payload: { [key: string]: any }, {
-    getState,
-    getGlobalState,
-    getModelList,
-    setGlobalState,
-    createModel,
-    destoryModel
-  }: StateManager, {
+  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, {
     modelType,
     modelID
   }: WebClientLocalContext) => {
+    const {
+      getState,
+      getGlobalState,
+      getModelList
+    }: StateManager = getContext('stateManager');
+    const {
+      loadPage,
+      getPageType
+    }: RouteManager = getContext('routeManager');
     const { type, initState } = generator(payload, {
       getState: () => getState(modelID),
       getGlobalState,
       getModelList,
+      getPageType,
       modelType,
       modelID
     });
 
-    if (getGlobalState().$pageType) destoryModel(getGlobalState().$pageID);
-    const pageID = createModel(type, initState);
-    setGlobalState({ $pageType: type, $pageID: pageID });
+    loadPage(type, initState);
     window.history.pushState(initState, '', `${type}${
       initState && typeof initState === 'object' && Object.keys(initState).length > 0 ?
         `?${

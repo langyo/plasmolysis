@@ -33,10 +33,14 @@ export function executor({ path, translator, options }: TranslatorRetObj) {
       getGlobalState,
       getModelList
     }: StateManager = getContext('stateManager');
+    const {
+      getPageType
+    }: RouteManager = getContext('routeManager');
     const body = translator(payload, {
       getState: () => getState(modelID),
       getGlobalState,
       getModelList,
+      getPageType,
       modelType,
       modelID
     });

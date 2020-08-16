@@ -13,7 +13,8 @@ type PayloadTranslatorFunc = (payload: { [key: string]: any }, utils: {
   modelID: string,
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
-  getModelList: () => { [modelType: string]: Array<string> }
+  getModelList: () => { [modelType: string]: Array<string> },
+  getPageType: () => string
 }) => { [key: string]: any };
 
 function factory(path: string, stream?: Array<OriginalActionObject>): OriginalActionObject<TranslatorRetObj>

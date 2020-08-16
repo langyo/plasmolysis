@@ -1,4 +1,4 @@
-/// <reference path="../..//type.d.ts" />
+/// <reference path="../../type.d.ts" />
 
 import { TranslatorRetObj } from '../../factorys/webClient/createModel';
 
@@ -26,10 +26,14 @@ export function executor({ generator }: TranslatorRetObj) {
       getModelList,
       createModel
     }: StateManager = getContext('stateManager');
+    const {
+      getPageType
+    }: RouteManager = getContext('routeManager');
     const { type, initState, name } = generator(payload, {
       getState: () => getState(modelID),
       getGlobalState,
       getModelList,
+      getPageType,
       modelType,
       modelID
     });

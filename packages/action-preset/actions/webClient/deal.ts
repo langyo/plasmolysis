@@ -16,7 +16,7 @@ export function translator(
 }
 
 export function executor({ func }: TranslatorRetObj) {
-  return async (payload: { [key: string]: any }, globalContext: GetContextFuncType, localContext: WebClientLocalContext) => {
-    return await func.call(null, payload, globalContext, localContext);
+  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, localContext: WebClientLocalContext) => {
+    return await func.call(null, payload, getContext, localContext);
   };
 }

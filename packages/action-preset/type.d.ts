@@ -1,4 +1,5 @@
 /// <reference path="../core/type.d.ts" />
+/// <reference path="../action-routes/type.d.ts" />
 /// <reference types="react" />
 /// <reference types="vue" />
 
