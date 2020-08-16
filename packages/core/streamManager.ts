@@ -34,6 +34,11 @@ export default function (
     }
   }
 
+  function getStreamList(platform: Platforms, tag: string): Array<string> {
+    if (typeof streams[platform][tag] === 'undefined') throw new Error(`Unknown tag '${tag} at the platform '${platform}'.`);
+    return Object.keys(streams[platform][tag]);
+  }
+
   function runStream(
     platform: Platforms,
     tag: string,
@@ -42,7 +47,7 @@ export default function (
     localContext: { [key: string]: any }
   ): { [key: string]: any } {
     if (typeof streams[platform][streamName] === 'undefined')
-      throw new Error(`Unknown stream '${streamName}' at the platform '${platform}'`);
+      throw new Error(`Unknown stream '${streamName}' at the platform '${platform}'.`);
     return streamRuntime(platform, getContext)(
       streams[platform][tag][streamName],
       `[${platform}]${streamName}${typeof localContext.modelID !== 'undefined'}`,
@@ -52,6 +57,7 @@ export default function (
 
   return Object.freeze({
     loadStream,
+    getStreamList,
     runStream
   });
 };

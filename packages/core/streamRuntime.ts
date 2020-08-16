@@ -2,7 +2,7 @@
 
 export default function (platform: Platforms, globalContext: GetContextFuncType) {
   return function createTasks(tasks: Array<ActionObject>, path: string, localContext: { [key: string]: any }) {
-    return (async (payload: { [key: string]: any }): Promise<{ [key: string]: any }> => {
+    return async function (payload: { [key: string]: any }): Promise<{ [key: string]: any }> {
       let isUnlimitedLoop: boolean = false;
       for (let i = 0; i < tasks.length; ++i) {
         const task = tasks[i];
@@ -45,6 +45,6 @@ export default function (platform: Platforms, globalContext: GetContextFuncType)
       if (isUnlimitedLoop) setTimeout(() => createTasks(tasks, path, localContext)(payload), 0);
 
       return payload;
-    });
+    };
   };
 };

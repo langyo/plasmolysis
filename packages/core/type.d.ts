@@ -113,6 +113,7 @@ declare interface StreamManager {
     tag: string,
     streamName: string
   ) => void,
+  readonly getStreamList: (platform: Platforms, tag: string) => Array<string>,
   readonly runStream: (
     platform: Platforms,
     tag: string,

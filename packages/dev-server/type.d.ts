@@ -1,11 +1,34 @@
 /// <reference types="node" />
 /// <reference path="../action-preset/type.d.ts" />
+/// <reference path="../core/type.d.ts" />
 
 declare module 'nickelcat-action-preset' {
   export const packageInfo: any;
 }
 declare module 'nickelcat-action-routes' {
   export const packageInfo: any;
+}
+declare module 'nickelcat' {
+  export const actionManager: (projectPackage: ProjectPackage) => ActionManager;
+  export const streamManager: (
+    projectPackage: ProjectPackage,
+    getContext: GetContextFuncType
+  ) => StreamManager;
+  export const streamGenerator: (
+    platform: Platforms,
+    stream: Array<OriginalActionObject>,
+    actionManager: ActionManager
+  ) => Array<ActionObject>;
+  export const streamRuntime: (
+    platform: Platforms,
+    globalContext: GetContextFuncType
+  ) => (
+    tasks: Array<ActionObject>,
+    path: string,
+    localContext: { [key: string]: any }
+  ) => (
+    payload: { [key: string]: any }
+  ) => Promise<{ [key: string]: any }>;
 }
 
 declare type RequestForwardFuncType = (sessionInfo: {
