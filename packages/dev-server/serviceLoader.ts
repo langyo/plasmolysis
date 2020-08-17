@@ -41,7 +41,7 @@ export default async function (): Promise<(libType: string) => any> {
       switch (libType) {
         case 'koa':
           return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
-            const { processed, code, type, body } = await send({
+            const { processed, code, type, body }: RequestForwardObjectType = await send({
               ip: ctx.ip,
               path: ctx.path,
               query: ctx.query,

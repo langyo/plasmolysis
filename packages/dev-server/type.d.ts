@@ -23,15 +23,15 @@ declare module 'nickelcat' {
     platform: Platforms,
     globalContext: GetContextFuncType
   ) => (
-    tasks: Array<ActionObject>,
-    path: string,
-    localContext: { [key: string]: any }
-  ) => (
-    payload: { [key: string]: any }
-  ) => Promise<{ [key: string]: any }>;
+      tasks: Array<ActionObject>,
+      path: string,
+      localContext: { [key: string]: any }
+    ) => (
+        payload: { [key: string]: any }
+      ) => Promise<{ [key: string]: any }>;
 }
 
-declare type RequestForwardFuncType = (sessionInfo: {
+declare interface SessionInfo {
   ip: string,
   protocol: string,
   host: string,
@@ -50,9 +50,13 @@ declare type RequestForwardFuncType = (sessionInfo: {
       signed?: boolean
     }) => void
   }
-}) => Promise<{
+}
+
+declare type RequestForwardFuncType = (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType>;
+
+declare interface RequestForwardObjectType {
   processed: boolean,
   code: number,
   type: 'text/html' | 'application/json',
   body: string
-}>;
+}

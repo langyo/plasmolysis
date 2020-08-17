@@ -1,6 +1,9 @@
 import createStream from './streamGenerator';
 
-import templatePageGenerator from './templatePageGenerator';
+// TODO
+// 我们需要在 defaultServerLoader 中初始化时手动为 streamManager 中的 nodeServer 部分加一批控制流，
+// 以 http 协议返回给客户端渲染好的页面
+import templatePageGenerator from './templatePageGenerator'; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 let routes = {};
 

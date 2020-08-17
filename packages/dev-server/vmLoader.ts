@@ -2,21 +2,37 @@
 
 import { Script, createContext } from 'vm';
 
-let extraContext: { [key: string]: any } = {};
 let vm = new Script('');
+let caller: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType> = async sessionInfo => {
+  return {
+    processed: true,
+    code: 500,
+    type: 'text/html',
+    body: `
+<html>
+<head>
+    <title>RUNTIME ERROR</title>
+</head>
+<body>
+  <h2>Oops!</h2>
+  <p>The server isn't ready to provide services.</p>
+  </body>
+</html>
+    `
+  }
+};
 
 export function build(code: string, context?: { [key: string]: any }) {
   vm = new Script(code);
-  extraContext = context;
+  createContext({
+    ...context,
+    __callback: (func: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType>) => {
+      caller = func;
+    }
+  });
+  vm.runInContext(context);
 };
 
-export const send: RequestForwardFuncType = async (payload: { [key: string]: any }) => {
-  return await new Promise(resolve => {
-    const context = createContext({
-      ...extraContext,
-      __payload: payload,
-      __callback: resolve
-    });
-    vm.runInContext(context);
-  });
+export const send: RequestForwardFuncType = async (sessionInfo: SessionInfo) => {
+  return await caller(sessionInfo);
 };

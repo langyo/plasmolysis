@@ -1,9 +1,5 @@
 import React, { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import nodeRender from './serverNodeRender';
-
-import { serverLog as log } from 'nickelcat/utils/logger';
-import chalk from 'chalk';
 
 const defaultMetaData = [{
   name: "viewport",
@@ -11,12 +7,30 @@ const defaultMetaData = [{
   content: "width=device-width, initial-scale=1"
 }];
 
+function createReactComponent(Component, modelType, modelID) {
+  return createElement(Component, {
+    ...stateManager.getState(modelType, modelID),
+    ...stateManager.getGlobalState(),
+    ...((stream => Object.keys(stream).reduce(
+      (obj, key) => ({
+        ...obj,
+        [key]: createStream({ stateManager, actionManager })({
+          tasks: stream[key],
+          path: `${modelType}[${modelID}]`
+        }, {
+          modelType,
+          modelID
+        })
+      }), {}
+    ))(clientTranslator(stateManager.getClientStream(modelType), actionManager)))
+  });
+}
+
 export default (pageType, actionManager) => async ({
   ip, path, query, host, charset, protocol, type, cookies
 }, {
   staticClientPath,
   pageTitle,
-  allowMobileConsole = true,
   rootGuide: {
     modelManager,
     initState,
@@ -35,20 +49,20 @@ export default (pageType, actionManager) => async ({
     const { payload: payloadRetModelState = {}, globalState: payloadRetGlobalState = {} } = await modelManager.getPreloader(pageType)({
       ip, path, query, host, charset, protocol, type, cookies
     });
-    const renderState = {
-      pageType,
-      globalState: {
-        ...initState,
-        ...payloadRetGlobalState
-      },
-      pagePreloadState: modelManager.getInitializer(pageType)(payloadRetModelState)
-    };
-    const { nodes, pageInfo, viewInfoList } = nodeRender({
-      actionManager,
-      modelManager,
-      ...renderState,
-      targetElementID
-    });
+    const pageInfo = { type: pageType, id: stateManager.createModel(pageType, pagePreloadState) };
+    stateManager.setGlobalState({ ...globalState, $pageType: pageType, $pageID: pageInfo.id });
+    let viewInfoList = {};
+    for (const modelType of modelManager.getModelList())
+      if (/^views?\./.test(modelType))
+        viewInfoList[modelType] = stateManager.createModel(modelType, pagePreloadState);
+
+    let nodes = {};
+    for (const modelType of modelManager.getModelList()) {
+      for (const modelID of stateManager.getModelIDList(modelType)) {
+        nodes[`nickelcat-model-${modelID}`] =
+          createReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
+      }
+    }
     const { renderCSS, renderHTML, renderMeta } = (result => ({
       renderCSS: {},
       renderHTML: {},
@@ -94,27 +108,17 @@ ${renderHTML}
 <script id="__NICKELCAT_INIT_STATE__">
 window.__NICKELCAT_INIT__ = (${JSON.stringify(renderState)});
 window.__NICKELCAT_PAGE_INFO__ = (${JSON.stringify({
-  pageInfo,
-  viewInfoList
-})})
+        pageInfo,
+        viewInfoList
+      })})
 window.__NICKELCAT_SSR_CSS__ = (${JSON.stringify(Object.keys(renderCSS))});
 document.getElementById("__NICKELCAT_INIT_STATE__").parentElement.removeChild(document.getElementById("__NICKELCAT_INIT_STATE__"));
 </script>
 <script src=${staticClientPath}></script>
-${allowMobileConsole && `<script id="__NICKELCAT_MOBILE_DEBUG_FLAG__">
-;(function () {
-var src = '//cdn.jsdelivr.net/npm/eruda';
-if (!/mobile_dev=true/.test(window.location)) return;
-document.write('<scr' + 'ipt src="' + src + '"></scr' + 'ipt>');
-document.write('<scr' + 'ipt>eruda.init();</scr' + 'ipt>');
-document.getElementById('__NICKELCAT_MOBILE_DEBUG_FLAG__').parentElement.removeChild(document.getElementById('__NICKELCAT_MOBILE_DEBUG_FLAG__'));
-})();
-</script>` || ''}
 </body>
 </html>`;
     return { type: 'text/html', statusCode: 200, body };
   } catch (e) {
-    log('error', chalk.redBright('Page preload crash'), chalk.yellow(pageType), e);
     return {
       type: 'text/html', statusCode: 503, body: `
 <html>
