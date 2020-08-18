@@ -3,7 +3,9 @@
 
 interface RouteManager {
   readonly loadPage: (pageType: string, initState: { [key: string]: any }) => void,
-  readonly getPageType: () => string
+  readonly getPageType: () => string,
+  readonly setPageTitle: (title: string) => void,
+  readonly getPageTitle: () => string
 }
 
 interface SessionManager {

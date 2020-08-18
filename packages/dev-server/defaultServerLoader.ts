@@ -11,9 +11,23 @@ const streamManager: StreamManager = actionManager.getContextFactory('nodeServer
 const modelManager: ModelManager = actionManager.getContextFactory('nodeServer')('modelManager');
 const sessionManager: SessionManager = actionManager.getContextFactory('nodeServer')('sessionManager');
 
+import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 
 const pageList = modelManager.getModelList().filter(name => /^pages?.+$/.test(name)).map(name => /^pages?(.+)$/.exec(name)[1]);
+
+function loadReactComponent(Component: WebClientComponentType, modelType: string, pageState: { [key: string]: any }) {
+  renderToString(createElement(Component as any, {
+    ...pageState,
+    ...streamManager.getStreamList('webClient', modelType).reduce((obj, key) => ({
+      ...obj,
+      [key]: (payload: { [key: string]: any }) => streamManager.runStream('webClient', modelType, key, payload, {
+        modelType,
+        modelID: '$page'
+      })
+    }), {})
+  }));
+};
 
 __callback(async ({
   ip, protocol, host, path, query, cookies
@@ -22,7 +36,7 @@ __callback(async ({
     if (streamManager.getStreamList('nodeServer', 'http').indexOf(path) >= 0) {
       // Custom request processor.
       return {
-        processed: true,
+        status: 'processed',
         code: 200,
         type: 'application/json',
         body: JSON.stringify(streamManager.runStream('nodeServer', 'http', path, query, {
@@ -37,19 +51,13 @@ __callback(async ({
           throw new Error(`Cannot initialize the page ${pageName}`);
         const {
           pageTitle,
-          pageState
+          pageState,
+          globalState
         } = streamManager.runStream('webClient', pageName, '$preload', {}, {
           ip, protocol, host, path, query, cookies
         });
 
-        let nodes = {};
-        for (const modelType of modelManager.getModelList()) {
-          for (const modelID of stateManager.getModelIDList(modelType)) {
-            nodes[`nickelcat-model-${modelID}`] =
-              createReactComponent(actionManager, stateManager, modelManager.loadComponent(modelType), modelType, modelID);
-          }
-        }
-
+        const pageNodeString = loadReactComponent(modelManager.loadComponent(pageName), pageName, pageState);
         const body = `
 <html>
 <head>
@@ -66,21 +74,28 @@ __callback(async ({
 <head>
 <body>
   <div id="nickelcat-root">
-      
+    <div id="nickelcat-model-$page">
+      ${pageNodeString}
+    </div>
   </div>
-  <textarea id="nickelcat-server-side-data">${JSON.stringify(pageState)}</textarea>
+  <textarea id="nickelcat-server-side-data">${JSON.stringify({
+    pageTitle,
+    pageName,
+    pageState,
+    globalState
+  })}</textarea>
   <script src="${'./spa.js'}"></script>
   </body>
 </html>`;
         return {
-          processed: true,
+          status: 'processed',
           code: 200,
           type: 'text/html',
           body
         };
       } catch (e) {
         return {
-          processed: true,
+          status: 'processed',
           code: 503,
           type: 'text/html',
           body: `
@@ -99,13 +114,16 @@ __callback(async ({
       }
     } else {
       return {
-        processed: false
+        status: 'ignored',
+        code: null,
+        type: null,
+        body: null
       };
     }
   } catch (e) {
     return {
-      processed: true,
-      code: 404,
+      status: 'processed',
+      code: 500,
       type: 'text/html',
       body: `
 <html>

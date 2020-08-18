@@ -8,11 +8,6 @@ declare interface WebClientLocalContext {
   modelID: string
 }
 
-declare type ComponentType = (props: {
-  state: { [key: string]: any },
-  trigger: { [key: string]: (payload: { [key: string]: any }) => void }
-}) => string | React.Component | Vue.Component;
-
 declare interface StateManager {
   readonly setState: (modelID: string, combineState: { [key: string]: any }) => void,
   readonly getState: (modelID: string) => Readonly<{ [key: string]: any }>,
@@ -32,7 +27,7 @@ declare interface StateManager {
 }
 
 declare interface ModelManager {
-  readonly storageModel: (modelType: string, component: ComponentType) => void,
-  readonly loadComponent: (type: string) => ComponentType,
+  readonly storageModel: (modelType: string, component: WebClientComponentType) => void,
+  readonly loadComponent: (type: string) => WebClientComponentType,
   readonly getModelList: () => Array<string>
 }

@@ -55,8 +55,13 @@ declare interface SessionInfo {
 declare type RequestForwardFuncType = (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType>;
 
 declare type RequestForwardObjectType = {
-  processed: true,
+  status: 'processed',
   code: number,
   type: 'text/html' | 'application/json',
   body: string
-} | { processed: false };
+} | {
+  status: 'ignored',
+  code: null,
+  type: null,
+  body: null
+};

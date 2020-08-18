@@ -5,7 +5,7 @@ import { Script, createContext } from 'vm';
 let vm = new Script('');
 let caller: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType> = async sessionInfo => {
   return {
-    processed: true,
+    status: 'processed',
     code: 500,
     type: 'text/html',
     body: `

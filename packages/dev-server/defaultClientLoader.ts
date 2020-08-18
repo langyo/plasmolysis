@@ -9,7 +9,8 @@ const modelManager: ModelManager = actionManager.getContextFactory('webClient')(
 const routeManager: RouteManager = actionManager.getContextFactory('webClient')('routeManager');
 
 const {
-  pageType,
+  pageTitle,
+  pageName,
   globalState,
   pageState
 } = JSON.parse((document.getElementById('nickelcat-server-side-data') as any).value);
@@ -18,9 +19,9 @@ document.getElementById('nickelcat-server-side-data').parentElement.removeChild(
 import { createElement } from 'react';
 import { hydrate, render } from 'react-dom';
 
-function loadReactComponent(Component, modelType: string, modelID: string) {
+function loadReactComponent(Component: WebClientComponentType, modelType: string, modelID: string) {
   const elementID = `nickelcat-model-${modelID}`;
-  hydrate(createElement(Component, {
+  hydrate(createElement(Component as any, {
     ...stateManager.getState(modelID),
     ...stateManager.getGlobalState(),
     ...streamManager.getStreamList('webClient', modelType).reduce((obj, key) => ({
@@ -32,7 +33,7 @@ function loadReactComponent(Component, modelType: string, modelID: string) {
     }), {})
   }), document.getElementById(elementID));
   stateManager.appendListener(() => {
-    render(createElement(Component, {
+    render(createElement(Component as any, {
       ...stateManager.getState(modelID),
       ...stateManager.getGlobalState(),
       ...streamManager.getStreamList('webClient', modelType).reduce((obj, key) => ({
@@ -78,8 +79,6 @@ stateManager.appendListener((
   }
 }, '$$updater');
 
-const modelIDList = stateManager.getModelIDList();
-for (const modelID of Object.keys(modelIDList)) {
-  const modelType = modelIDList[modelID];
-  loadReactComponent(modelManager.loadComponent(modelType), modelType, modelID);
-}
+stateManager.setGlobalState(globalState);
+routeManager.setPageTitle(pageTitle);
+routeManager.loadPage(pageName, pageState);

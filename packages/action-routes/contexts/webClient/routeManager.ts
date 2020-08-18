@@ -1,6 +1,8 @@
 /// <reference path="../../type.d.ts" />
 
 export default (projectPackage: ProjectPackage, getContext: GetContextFuncType): RouteManager => {
+  let title: string = '';
+
   function loadPage(pageType: string, initState: { [key: string]: any }): void {
     const {
       getModelIDList,
@@ -21,8 +23,19 @@ export default (projectPackage: ProjectPackage, getContext: GetContextFuncType):
     else return getModelIDList()['$page'];
   }
 
+  function setPageTitle(currentTitle: string): void {
+    title = currentTitle;
+    document.title = title;
+  }
+
+  function getPageTitle(): string {
+    return title;
+  }
+
   return Object.freeze({
     loadPage,
-    getPageType
+    getPageType,
+    setPageTitle,
+    getPageTitle
   });
 }
