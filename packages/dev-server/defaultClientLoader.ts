@@ -3,21 +3,20 @@
 import { actionManager as ActionManagerFactory } from 'nickelcat';
 const projectPackage: ProjectPackage = require('./__nickelcat_staticRequire.js');
 const actionManager: ActionManager = ActionManagerFactory(projectPackage);
-
-const {
-  // pageType,
-  // globalState,
-  // pagePreloadState,
-  // pageInfo,
-  // viewInfoList,
-} = JSON.parse((document.getElementById('nickelcat-server-side-data') as any).value);
-
-import { createElement } from 'react';
-import { hydrate, render } from 'react-dom';
-
 const streamManager: StreamManager = actionManager.getContextFactory('webClient')('streamManager');
 const stateManager: StateManager = actionManager.getContextFactory('webClient')('stateManager');
 const modelManager: ModelManager = actionManager.getContextFactory('webClient')('modelManager');
+const routeManager: RouteManager = actionManager.getContextFactory('webClient')('routeManager');
+
+const {
+  pageType,
+  globalState,
+  pageState
+} = JSON.parse((document.getElementById('nickelcat-server-side-data') as any).value);
+document.getElementById('nickelcat-server-side-data').parentElement.removeChild(document.getElementById('nickelcat-server-side-data'));
+
+import { createElement } from 'react';
+import { hydrate, render } from 'react-dom';
 
 function loadReactComponent(Component, modelType: string, modelID: string) {
   const elementID = `nickelcat-model-${modelID}`;
@@ -46,13 +45,6 @@ function loadReactComponent(Component, modelType: string, modelID: string) {
     }), document.getElementById(elementID));
   }, modelID);
 };
-
-// stateManager.setGlobalState({
-//   ...globalState,
-//   $pageType: pageInfo.pageType,
-//   $pageID: stateManager.createModel(pageType, pagePreloadState, pageInfo.id)
-// });
-// for (const modelType of Object.keys(viewInfoList)) stateManager.createModel(modelType, pagePreloadState, viewInfoList[modelType]);
 
 // Register the listeners and bind the render.
 const targetElement = document.getElementById('nickelcat-root');
