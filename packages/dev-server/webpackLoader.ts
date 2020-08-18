@@ -1,5 +1,5 @@
-import webpack from 'webpack';
-import TerserPlugin from 'terser-webpack-plugin';
+import * as webpack from 'webpack';
+import * as TerserPlugin from 'terser-webpack-plugin';
 
 import { EventEmitter } from 'events';
 import { scan } from './projectWatcher';

@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import chalk from 'chalk';
+import * as chalk from 'chalk';
 
 console.log(`${chalk.bold('Nickelcat App Creator')} 0.2.0`);
 

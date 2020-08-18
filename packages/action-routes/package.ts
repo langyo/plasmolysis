@@ -1,8 +1,9 @@
 /// <reference path="../core/type.d.ts" />
 
 // TODO
-import * as actions from './actions';
-import * as contexts from './contexts';
+import * as togglePageAction from './actions/webClient/togglePage';
+import sessionManager from './contexts/nodeServer/sessionManager';
+import routeManager from './contexts/webClient/routeManager';
 
 export default <PackageInfo> {
   name: 'preset',
@@ -10,6 +11,17 @@ export default <PackageInfo> {
   author: 'langyo',
   repository: 'https://github.com/langyo/nickelcat.git',
 
-  actions,
-  contexts
+  actions: {
+    webClient: {
+      togglePage: togglePageAction
+    }
+  },
+  contexts: {
+    webClient: {
+      routeManager
+    },
+    nodeServer: {
+      sessionManager
+    }
+  }
 };
