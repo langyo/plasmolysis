@@ -1,0 +1,120 @@
+{
+  "rules": {
+    "member-access": true,
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "public-static-field",
+          "public-static-method",
+          "protected-static-field",
+          "protected-static-method",
+          "private-static-field",
+          "private-static-method",
+          "public-instance-field",
+          "protected-instance-field",
+          "private-instance-field",
+          "public-constructor",
+          "protected-constructor",
+          "private-constructor",
+          "public-instance-method",
+          "protected-instance-method",
+          "private-instance-method"
+        ]
+      }
+    ],
+    "no-empty-interface": true,
+    "no-parameter-reassignment": true,
+    "prefer-for-of": true,
+    "await-promise": true,
+    "curly": true,
+    "forin": true,
+    "no-arg": true,
+    "no-conditional-assignment": true,
+    "no-console": false,
+    "no-debugger": true,
+    "no-duplicate-super": true,
+    "no-empty": true,
+    "no-eval": true,
+    "no-for-in-array": true,
+    "no-invalid-template-strings": true,
+    "no-invalid-this": true,
+    "no-null-keyword": true,
+    "no-sparse-arrays": false,
+    "no-string-throw": true,
+    "no-switch-case-fall-through": true,
+    "no-unsafe-finally": true,
+    "no-unused-expression": true,
+    "no-use-before-declare": true,
+    "no-var-keyword": true,
+    "radix": true,
+    "restrict-plus-operands": true,
+    "triple-equals": true,
+    "use-isnan": true,
+    "indent": [
+      true,
+      "spaces",
+      2
+    ],
+    "linebreak-style": [
+      true,
+      "CR/LF"
+    ],
+    "max-classes-per-file": [
+      true,
+      1
+    ],
+    "max-file-line-count": [
+      true,
+      500
+    ],
+    "max-line-length": [
+      true,
+      80
+    ],
+    "no-default-export": true,
+    "no-duplicate-imports": true,
+    "align": [
+      true,
+      "parameters",
+      "arguments",
+      "statements",
+      "members",
+      "elements"
+    ],
+    "array-type": [
+      true,
+      "array"
+    ],
+    "class-name": true,
+    "comment-format": [
+      true,
+      "check-space"
+    ],
+    "encoding": true,
+    "import-spacing": true,
+    "interface-name": [
+      true,
+      "always-prefix"
+    ],
+    "jsdoc-format": true,
+    "new-parens": true,
+    "no-consecutive-blank-lines": [
+      true,
+      2
+    ],
+    "no-trailing-whitespace": [
+      true,
+      "ignore-comments",
+      "ignore-jsdoc"
+    ],
+    "no-unnecessary-initializer": true,
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "allow-trailing-underscore",
+      "ban-keywords"
+    ]
+  }
+}
