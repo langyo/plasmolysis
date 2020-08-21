@@ -2,6 +2,7 @@
   "packages": [
     "dist/core",
     "dist/action-preset",
+    "dist/action-routes",
     "dist/create-app",
     "dist/dev-server"
   ],

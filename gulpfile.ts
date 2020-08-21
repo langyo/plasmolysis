@@ -1,4 +1,4 @@
-import { src, dest, series, parallel, watch as watchFiles } from 'gulp';
+import { src, dest, series, watch as watchFiles } from 'gulp';
 import {
   readdir as readdirOld,
   symlink as symlinkOld,
@@ -11,9 +11,11 @@ import {
 } from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
-import ts = require('gulp-typescript');
-import del = require('del');
-import merge = require('merge2');
+import { exec } from 'child_process';
+
+import * as ts from 'gulp-typescript';
+import * as del from 'del';
+import * as merge from 'merge2';
 
 const readdir = promisify(readdirOld);
 const symlink = promisify(symlinkOld);
@@ -45,6 +47,15 @@ const compile = () => {
     js.pipe(dest('./dist/'))
   ]);
 };
+
+export const install = series(
+  () => exec('npm i yarn -g'),
+  () => exec('yarn', { cwd: resolve('./packages/action-preset') }),
+  () => exec('yarn', { cwd: resolve('./packages/action-routes') }),
+  () => exec('yarn', { cwd: resolve('./packages/core') }),
+  () => exec('yarn', { cwd: resolve('./packages/create-app') }),
+  () => exec('yarn', { cwd: resolve('./packages/dev-server') })
+);
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./dist')))) {
@@ -78,6 +89,15 @@ export const link = async () => {
     }
   }
 };
+
+export const debug_global_link = series(
+  () => exec('npm i yarn -g'),
+  () => exec('yarn link', { cwd: resolve('./packages/action-preset') }),
+  () => exec('yarn link', { cwd: resolve('./packages/action-routes') }),
+  () => exec('yarn link', { cwd: resolve('./packages/core') }),
+  () => exec('yarn link', { cwd: resolve('./packages/create-app') }),
+  () => exec('yarn link', { cwd: resolve('./packages/dev-server') })
+);
 
 export const build = series(clean, compile, link);
 

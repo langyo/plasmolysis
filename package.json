@@ -2,22 +2,13 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "postinstall": "npm run install-pkg && npm run build",
-    "install-pkg": "npm run install-pkg:core && npm run install-pkg:action-preset && npm run install-pkg:dev-server && npm run install-pkg:create-app",
-    "install-pkg:core": "cd ./packages/core && yarn && cd ..",
-    "install-pkg:action-preset": "cd ./packages/action-preset && yarn && cd ..",
-    "install-pkg:dev-server": "cd ./packages/dev-server && yarn && cd ..",
-    "install-pkg:create-app": "cd ./packages/create-app && yarn && cd ..",
+    "postinstall": "gulp install",
     "build": "gulp build",
     "clean": "gulp clean",
     "publish": "gulp build_pub_ver && lerna publish --force-publish",
     "watch": "gulp watch",
     "link": "gulp link",
-    "global-link": "npm run global-link:core && npm run global-link:action-preset && npm run global-link:dev-server && npm run global-link:create-app",
-    "global-link:core": "cd ./dist/core && yarn link && cd ..",
-    "global-link:action-preset": "cd ./dist/action-preset && yarn link nickelcat && yarn link && cd ..",
-    "global-link:dev-server": "cd ./dist/dev-server && yarn link nickelcat && yarn link nickelcat-action-preset && yarn link && cd ..",
-    "global-link:create-app": "cd ./dist/create-app && yarn link nickelcat && yarn link && cd .."
+    "debug-global-link": "gulp debug_global_link"
   },
   "devDependencies": {
     "del": "^5.1.0",
@@ -25,10 +16,8 @@
     "gulp-typescript": "^6.0.0-alpha.1",
     "lerna": "^3.22.0",
     "merge2": "^1.4.1",
+    "tslint": "^6.1.3",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
-  },
-  "dependencies": {
-    "tslint": "^6.1.3"
   }
 }
