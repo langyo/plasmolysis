@@ -11,7 +11,7 @@ import {
 } from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 
 import * as ts from 'gulp-typescript';
 import * as del from 'del';
@@ -41,97 +41,185 @@ const compile = () => {
     '!./packages/**/node_modules/**/*',
     '!./packages/create-app/templates/**/*'
   ])
-    .pipe(ts({ declaration: true }));
+    .inherit(ts({ declaration: true }));
   return merge([
-    dts.pipe(dest('./dist/')),
-    js.pipe(dest('./dist/'))
+    dts.inherit(dest('./dist/')),
+    js.inherit(dest('./dist/'))
   ]);
 };
 
 export const install = series(
-  () => exec('npm i yarn -g'),
-  () => exec('yarn', { cwd: resolve('./packages/action-preset') }),
-  () => exec('yarn', { cwd: resolve('./packages/action-routes') }),
-  () => exec('yarn', { cwd: resolve('./packages/core') }),
-  () => exec('yarn', { cwd: resolve('./packages/create-app') }),
-  () => exec('yarn', { cwd: resolve('./packages/dev-server') })
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
+    cwd: resolve('./packages/action-preset'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
+    cwd: resolve('./packages/action-routes'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
+    cwd: resolve('./packages/core'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
+    cwd: resolve('./packages/create-app'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
+    cwd: resolve('./packages/dev-server'),
+    stdio: 'inherit'
+  })
 );
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./dist')))) {
     if (await access(resolve(`./packages/${pkg}/package.json`))) {
-      if (await access(resolve(`./dist/${pkg}/package.json`))) await unlink(`./dist/${pkg}/package.json`);
-      await symlink(resolve(`./packages/${pkg}/package.json`), resolve(`./dist/${pkg}/package.json`));
+      if (await access(resolve(`./dist/${pkg}/package.json`))) {
+        await unlink(`./dist/${pkg}/package.json`);
+      }
+      await symlink(
+        resolve(`./packages/${pkg}/package.json`),
+        resolve(`./dist/${pkg}/package.json`)
+      );
     }
   }
 
   for (const pkg of (await readdir(resolve('./dist')))) {
     if (await access(resolve(`./packages/${pkg}/node_modules`))) {
-      if (await access(resolve(`./dist/${pkg}/node_modules`))) await unlink(`./dist/${pkg}/node_modules`);
-      await symlink(resolve(`./packages/${pkg}/node_modules`), resolve(`./dist/${pkg}/node_modules`), 'dir');
+      if (await access(resolve(`./dist/${pkg}/node_modules`))) {
+        await unlink(`./dist/${pkg}/node_modules`);
+      }
+      await symlink(
+        resolve(`./packages/${pkg}/node_modules`),
+        resolve(`./dist/${pkg}/node_modules`),
+        'dir'
+      );
     }
   }
 
   for (const pkg of (await readdir(resolve('./packages')))) {
-    const pkgInfo = JSON.parse(await readFile(resolve(`./packages/${pkg}/package.json`), { encoding: 'utf8' }));
-    const deps = pkgInfo.dependencies ? Object.keys(pkgInfo.dependencies).reduce((list, str) => {
-      if (str === 'nickelcat') return [...list, { insideName: 'core', name: 'nickelcat' }];
-      if (/^nickelcat/.test(str)) return [...list, { insideName: str.substr(10), name: str }];
-      return list;
-    }, []) : [];
+    const pkgInfo = JSON.parse(
+      await readFile(resolve(`./packages/${pkg}/package.json`), { encoding: 'utf8' })
+    );
+    const deps = pkgInfo.dependencies ?
+      Object.keys(pkgInfo.dependencies).reduce((list, str) => {
+        if (str === 'nickelcat') {
+          return [...list, { insideName: 'core', name: 'nickelcat' }];
+        }
+        if (/^nickelcat/.test(str)) {
+          return [...list, { insideName: str.substr(10), name: str }];
+        }
+        return list;
+      }, []) : [];
     for (const { insideName, name } of deps) {
       if (await access(resolve(`./packages/${pkg}/node_modules/${name}`))) {
-        if ((await stat(resolve(`./packages/${pkg}/node_modules/${name}`))).isDirectory())
-          await rmdir(resolve(`./packages/${pkg}/node_modules/${name}`), { recursive: true });
-        else await unlink(`./packages/${pkg}/node_modules/${name}`);
+        if (
+          (await stat(resolve(`./packages/${pkg}/node_modules/${name}`)))
+            .isDirectory()
+        ) {
+          await rmdir(
+            resolve(`./packages/${pkg}/node_modules/${name}`),
+            { recursive: true }
+          );
+        }
+        else {
+          await unlink(`./packages/${pkg}/node_modules/${name}`);
+        }
       }
-      await symlink(resolve(`./dist/${insideName}/`), resolve(`./packages/${pkg}/node_modules/${name}`), 'dir');
+      await symlink(
+        resolve(`./dist/${insideName}/`),
+        resolve(`./packages/${pkg}/node_modules/${name}`),
+        'dir'
+      );
     }
   }
 };
 
-export const debug_global_link = series(
-  () => exec('npm i yarn -g'),
-  () => exec('yarn link', { cwd: resolve('./packages/action-preset') }),
-  () => exec('yarn link', { cwd: resolve('./packages/action-routes') }),
-  () => exec('yarn link', { cwd: resolve('./packages/core') }),
-  () => exec('yarn link', { cwd: resolve('./packages/create-app') }),
-  () => exec('yarn link', { cwd: resolve('./packages/dev-server') })
+export const debugGlobalLink = series(
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
+    cwd: resolve('./packages/action-preset'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
+    cwd: resolve('./packages/action-routes'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
+    cwd: resolve('./packages/core'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
+    cwd: resolve('./packages/create-app'),
+    stdio: 'inherit'
+  }),
+  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
+    cwd: resolve('./packages/dev-server'),
+    stdio: 'inherit'
+  })
 );
 
 export const build = series(clean, compile, link);
 
-export const build_pub_ver = series(
+export const publish = series(
   build,
+  // TODO - Add the CLI for check the publish responsibilitiy
+  //        and publish new version.
   async () => {
     for (const pkg of (await readdir(resolve('./dist')))) {
       if (await access(resolve(`./dist/${pkg}/package.json`))) {
         await unlink(resolve(`./dist/${pkg}/package.json`));
-        await writeFile(resolve(`./dist/${pkg}/package.json`), await readFile(resolve(`./packages/${pkg}/package.json`)));
+        await writeFile(
+          resolve(`./dist/${pkg}/package.json`),
+          await readFile(resolve(`./packages/${pkg}/package.json`))
+        );
       }
     }
     for (const pkg of (await readdir(resolve('./dist')))) {
-      if (await access(resolve(`./dist/${pkg}/node_modules`)))
+      if (await access(resolve(`./dist/${pkg}/node_modules`))) {
         await unlink(resolve(`./dist/${pkg}/node_modules`));
+      }
     }
   },
   async () => {
-    const { version } = JSON.parse(await readFile(resolve('./lerna.json'), { encoding: 'utf8' }));
+    const { version } = JSON.parse(
+      await readFile(resolve('./lerna.json'), { encoding: 'utf8' })
+    );
     let pkgs = {};
     for (const pkg of (await readdir(resolve('./dist')))) {
       if (await access(resolve(`./dist/${pkg}/package.json`))) {
-        pkgs[pkg] = JSON.parse(await readFile(resolve(`./dist/${pkg}/package.json`), { encoding: 'utf8' }));
+        pkgs[pkg] = JSON.parse(
+          await readFile(resolve(`./dist/${pkg}/package.json`), { encoding: 'utf8' })
+        );
       }
     }
     for (const pkg of Object.keys(pkgs)) {
       pkgs[pkg].version = version;
       for (const ownPkg of Object.keys(pkgs)) {
-        if (pkgs[pkg].dependencies && pkgs[pkg].dependencies[pkgs[ownPkg].name]) pkgs[pkg].dependencies[pkgs[ownPkg].name] = `^${version}`;
-        if (pkgs[pkg].devDependencies && pkgs[pkg].devDependencies[pkgs[ownPkg].name]) pkgs[pkg].devDependencies[pkgs[ownPkg].name] = `^${version}`;
+        if (
+          pkgs[pkg].dependencies &&
+          pkgs[pkg].dependencies[pkgs[ownPkg].name]
+        ) {
+          pkgs[pkg].dependencies[pkgs[ownPkg].name] = `^${version}`;
+        }
+        if (
+          pkgs[pkg].devDependencies &&
+          pkgs[pkg].devDependencies[pkgs[ownPkg].name]
+        ) {
+          pkgs[pkg].devDependencies[pkgs[ownPkg].name] = `^${version}`;
+        }
       }
-      await writeFile(resolve(`./dist/${pkg}/package.json`), JSON.stringify(pkgs[pkg]));
+      await writeFile(
+        resolve(`./dist/${pkg}/package.json`),
+        JSON.stringify(pkgs[pkg])
+      );
     }
   }
 );
 
-export const watch = series(build, () => watchFiles(['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'], compile));
+export const watch = series(
+  build,
+  () => watchFiles(
+    ['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'],
+    compile
+  )
+);
