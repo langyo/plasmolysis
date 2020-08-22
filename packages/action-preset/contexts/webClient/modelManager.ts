@@ -1,14 +1,19 @@
-/// <reference path="../../type.d.ts" />
+import {
+  IProjectPackage,
+  IGetContextFuncType,
+  IModelManager,
+  IWebClientComponentType
+} from '../../type';
 
 export function modelManager(
-  projectPackage: ProjectPackage,
-  getContext: GetContextFuncType
-): ModelManager {
-  let components: { [key: string]: WebClientComponentType } = {};
+  projectPackage: IProjectPackage,
+  getContext: IGetContextFuncType
+): IModelManager {
+  let components: { [key: string]: IWebClientComponentType } = {};
 
   function storageModel(
     modelType: string,
-    component: WebClientComponentType
+    component: IWebClientComponentType
   ): void {
     components[modelType] = component;
   };
@@ -17,7 +22,7 @@ export function modelManager(
     storageModel(modelType, projectPackage.webClient[modelType].component);
   }
 
-  function loadComponent(type: string): WebClientComponentType {
+  function loadComponent(type: string): IWebClientComponentType {
     return components[type];
   }
 

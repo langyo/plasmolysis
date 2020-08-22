@@ -1,16 +1,24 @@
-/// <reference path="./type.d.ts" />
+import {
+  IProjectPackage,
+  IGetContextFuncType,
+  IActionManager,
+  IStreamManager,
+  IPlatforms,
+  IActionObject,
+  IOriginalActionObject
+} from './type';
 
 import { streamRuntime } from './streamRuntime';
 import { streamGenerator } from './streamGenerator';
 
 export function streamManager(
-  projectPackage: ProjectPackage,
-  getContext: GetContextFuncType
-): StreamManager {
+  projectPackage: IProjectPackage,
+  getContext: IGetContextFuncType
+): IStreamManager {
   let streams: {
-    [platform in Platforms]: {
+    [platform in IPlatforms]: {
       [tag: string]: {
-        [actionName: string]: ActionObject[]
+        [actionName: string]: IActionObject[]
       }
     }
   } = {
@@ -22,13 +30,13 @@ export function streamManager(
   };
 
   function loadStream(
-    stream: OriginalActionObject[],
-    platform: Platforms,
+    stream: IOriginalActionObject[],
+    platform: IPlatforms,
     tag: string,
     streamName: string
   ): void {
     streams[platform][tag][streamName] = streamGenerator(
-      platform, stream, getContext('actionManager') as ActionManager
+      platform, stream, getContext('actionManager') as IActionManager
     );
   };
 
@@ -40,14 +48,14 @@ export function streamManager(
         ) {
           loadStream(
             projectPackage[platform][tag].controller[streamName],
-            platform as Platforms, tag, streamName
+            platform as IPlatforms, tag, streamName
           );
         }
       }
     }
   }
 
-  function getStreamList(platform: Platforms, tag: string): string[] {
+  function getStreamList(platform: IPlatforms, tag: string): string[] {
     if (typeof streams[platform][tag] === 'undefined') {
       throw new Error(`Unknown tag '${tag} at the platform '${platform}'.`);
     }
@@ -55,7 +63,7 @@ export function streamManager(
   }
 
   function runStream(
-    platform: Platforms,
+    platform: IPlatforms,
     tag: string,
     streamName: string,
     payload: { [key: string]: any },

@@ -1,20 +1,28 @@
-/// <reference path="./type.d.ts" />
+import {
+  IRequestForwardObjectType,
+  IWebClientComponentType,
+  IActionManager,
+  IStreamManager,
+  IModelManager,
+  ISessionManager,
+  ISessionInfo
+} from './type';
 
 declare global {
   export const __CALLBACK:
-    (ret: (sessionInfo: SessionInfo) =>
-      Promise<RequestForwardObjectType>) => void;
+    (ret: (sessionInfo: ISessionInfo) =>
+      Promise<IRequestForwardObjectType>) => void;
 };
 
 import { actionManager as actionManagerFactory } from 'nickelcat';
 
-const actionManager: ActionManager =
+const actionManager: IActionManager =
   actionManagerFactory(require('./__nickelcat_staticRequire.js'));
-const streamManager: StreamManager =
+const streamManager: IStreamManager =
   actionManager.getContextFactory('nodeServer')('streamManager');
-const modelManager: ModelManager =
+const modelManager: IModelManager =
   actionManager.getContextFactory('nodeServer')('modelManager');
-const sessionManager: SessionManager =
+const sessionManager: ISessionManager =
   actionManager.getContextFactory('nodeServer')('sessionManager');
 
 import { createElement } from 'react';
@@ -27,7 +35,7 @@ const pageList =
     .map(name => /^pages?(.+)$/.exec(name)[1]);
 
 function loadReactComponent(
-  component: WebClientComponentType,
+  component: IWebClientComponentType,
   modelType: string,
   pageState: { [key: string]: any }
 ) {
@@ -47,7 +55,7 @@ function loadReactComponent(
 
 __CALLBACK(async ({
   ip, protocol, host, path, query, cookies
-}: SessionInfo) => {
+}: ISessionInfo) => {
   try {
     if (streamManager.getStreamList('nodeServer', 'http').indexOf(path) >= 0) {
       // Custom request processor.

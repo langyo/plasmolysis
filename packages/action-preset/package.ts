@@ -1,9 +1,11 @@
-/// <reference path="../core/type.d.ts" />
+import {
+  IPackageInfo
+} from './type';
 
 import * as actions from './actions';
 import * as contexts from './contexts';
 
-export const packageInfo = <PackageInfo>{
+export const packageInfo = {
   name: 'preset',
   description: 'The core action package.',
   author: 'langyo',
@@ -11,4 +13,4 @@ export const packageInfo = <PackageInfo>{
 
   actions,
   contexts
-};
+} as IPackageInfo;

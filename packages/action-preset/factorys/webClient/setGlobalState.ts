@@ -1,4 +1,8 @@
-export interface TranslatorRetObj {
+import {
+  IOriginalActionObject
+} from '../../type';
+
+export interface ITranslatorRetObj {
   generator: (...args: any[]) => { [key: string]: any }
 };
 type GeneratorFunc = (payload: { [key: string]: any }, utils: {
@@ -6,18 +10,18 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelID: string,
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
-  getModelList: () => { [modelType: string]: Array<string> }
+  getModelList: () => { [modelType: string]: string[] }
 }) => { [key: string]: any };
 
 function setGlobalState(
   func: GeneratorFunc
-): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
 function setGlobalState(
   combinedObj: { [key: string]: any }
-): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
 function setGlobalState(
   arg0: GeneratorFunc | { [key: string]: any }
-): OriginalActionObject<TranslatorRetObj> {
+): IOriginalActionObject<ITranslatorRetObj> {
   if (typeof arg0 === 'object') {
     return {
       platform: 'webClient',

@@ -1,9 +1,14 @@
-/// <reference path="../../type.d.ts" />
+import {
+  IProjectPackage,
+  IGetContextFuncType,
+  IStateManager,
+  IRouteManager
+} from '../../type';
 
 export function routeManager(
-  projectPackage: ProjectPackage,
-  getContext: GetContextFuncType
-): RouteManager {
+  projectPackage: IProjectPackage,
+  getContext: IGetContextFuncType
+): IRouteManager {
   let title: string = '';
 
   function loadPage(pageType: string, initState: { [key: string]: any }): void {
@@ -11,7 +16,7 @@ export function routeManager(
       getModelIDList,
       createModel,
       destoryModel
-    }: StateManager = getContext('stateManager');
+    }: IStateManager = getContext('stateManager');
     if (typeof getModelIDList()['$page'] !== 'undefined') {
       destoryModel('$page');
     }
@@ -21,7 +26,7 @@ export function routeManager(
   function getPageType(): string {
     const {
       getModelIDList
-    }: StateManager = getContext('stateManager');
+    }: IStateManager = getContext('stateManager');
     if (typeof getModelIDList()['$page'] === 'undefined') {
       return '';
     }

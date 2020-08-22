@@ -1,4 +1,9 @@
-/// <reference path="../../type.d.ts" />
+import {
+  IProjectPackage,
+  IGetContextFuncType,
+  IStateManager,
+  IStreamManager
+} from '../../type';
 
 import { generate } from 'shortid';
 import { from, merge, without } from "seamless-immutable";
@@ -14,9 +19,9 @@ export interface IGlobalState {
 };
 
 export function stateManager(
-  projectPackage: ProjectPackage,
-  getContext: GetContextFuncType
-): StateManager {
+  projectPackage: IProjectPackage,
+  getContext: IGetContextFuncType
+): IStateManager {
   let globalState: Readonly<{ [key: string]: any }> = from({});
   let modelStateRoute: IModelStateRoute = from({});
   let modelIDMap: { [modelID: string]: string } = from({});
@@ -116,7 +121,7 @@ export function stateManager(
 
     modelState = merge(modelState, {
       [modelID]:
-        (getContext('streamManager') as StreamManager)
+        (getContext('streamManager') as IStreamManager)
           .runStream(
             'webClient', modelType, '$init', initState, { modelType, modelID }
           )
@@ -158,7 +163,7 @@ export function stateManager(
       throw new Error(`The model '${modelID}' doesn't exist.`);
     }
     const modelType = modelIDMap[modelID];
-    return (getContext('streamManager') as StreamManager)
+    return (getContext('streamManager') as IStreamManager)
       .runStream(
         'webClient', modelType, actionType, payload, { modelType, modelID }
       );

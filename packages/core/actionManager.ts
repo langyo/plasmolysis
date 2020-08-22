@@ -1,32 +1,41 @@
-/// <reference path="type.d.ts" />
+import {
+  IPlatforms,
+  ITranslatorFunc,
+  IExecutorFunc,
+  IProjectPackage,
+  IActionManager,
+  IStreamManager,
+  IGetContextFuncType,
+  IPackageInfo
+} from './type';
 
 import { streamManager } from './streamManager';
-import { packageInfo as actionPresetPackage } from 'nickelcat-action-preset/package';
-import { packageInfo as actionRoutesPackage } from 'nickelcat-action-routes/package';
+const { packageInfo: actionPresetPackage } = require('nickelcat-action-preset/package');
+const { packageInfo: actionRoutesPackage } = require('nickelcat-action-routes/package');
 
 type Translators = {
-  [platform in Platforms]: {
+  [platform in IPlatforms]: {
     [packageType: string]: {
-      [actionType: string]: TranslatorFunc
+      [actionType: string]: ITranslatorFunc
     }
   }
 };
 type Executors = {
-  [platform in Platforms]: {
+  [platform in IPlatforms]: {
     [packageType: string]: {
-      [actionType: string]: ExecutorFunc
+      [actionType: string]: IExecutorFunc
     }
   }
 };
 type Contexts = {
-  [platform in Platforms]: {
+  [platform in IPlatforms]: {
     [type: string]: {
       [func: string]: (...args: any[]) => any
     }
   }
 };
 
-export function actionManager(projectPackage: ProjectPackage): ActionManager {
+export function actionManager(projectPackage: IProjectPackage): IActionManager {
   let translators: Translators = {
     webClient: {},
     nodeServer: {},
@@ -48,10 +57,10 @@ export function actionManager(projectPackage: ProjectPackage): ActionManager {
     cordovaClient: {},
     flutterClient: {}
   };
-  const sharedStreamManager: StreamManager =
+  const sharedStreamManager: IStreamManager =
     streamManager(projectPackage, getContextFactory);
 
-  function getContextFactory(platform: Platforms): GetContextFuncType {
+  function getContextFactory(platform: IPlatforms): IGetContextFuncType {
     return function (type: string): any {
       if (type === 'actionManager') {
         return Object.freeze({
@@ -72,10 +81,10 @@ export function actionManager(projectPackage: ProjectPackage): ActionManager {
   }
 
   function getTranslator(
-    platform: Platforms,
+    platform: IPlatforms,
     packageName: string,
     actionName: string
-  ): TranslatorFunc {
+  ): ITranslatorFunc {
     if (
       typeof translators[platform][packageName] === 'undefined' ||
       typeof translators[platform][packageName][actionName] === "undefined"
@@ -86,10 +95,10 @@ export function actionManager(projectPackage: ProjectPackage): ActionManager {
   }
 
   function getExecutor(
-    platform: Platforms,
+    platform: IPlatforms,
     packageName: string,
     actionName: string
-  ): ExecutorFunc {
+  ): IExecutorFunc {
     if (
       typeof executors[platform][packageName] === 'undefined' ||
       typeof executors[platform][packageName][actionName] === 'undefined'
@@ -99,7 +108,7 @@ export function actionManager(projectPackage: ProjectPackage): ActionManager {
     return executors[platform][packageName][actionName];
   }
 
-  function loadPackage(packageInfo: PackageInfo): void {
+  function loadPackage(packageInfo: IPackageInfo): void {
     for (const platform of Object.keys(packageInfo.actions)) {
       for (const actionName of Object.keys(packageInfo.actions[platform])) {
         translators[platform][actionName] =
@@ -112,7 +121,7 @@ export function actionManager(projectPackage: ProjectPackage): ActionManager {
       for (const type of Object.keys(packageInfo.contexts[platform])) {
         contexts[platform][type] =
           packageInfo.contexts[platform][type](
-            projectPackage, getContextFactory(platform as Platforms)
+            projectPackage, getContextFactory(platform as IPlatforms)
           );
       }
     }

@@ -1,4 +1,7 @@
-/// <reference path="type.d.ts" />
+import {
+  IRequestForwardObjectType
+} from './type';
+
 import * as Koa from 'koa';
 
 import { build, send } from './vmLoader';
@@ -42,7 +45,7 @@ export async function serviceLoader(): Promise<(libType: string) => any> {
         switch (libType) {
           case 'koa':
             return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
-              const { status, code, type, body }: RequestForwardObjectType =
+              const { status, code, type, body }: IRequestForwardObjectType =
                 await send({
                   ip: ctx.ip,
                   path: ctx.path,

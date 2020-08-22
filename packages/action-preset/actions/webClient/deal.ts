@@ -1,11 +1,15 @@
-/// <reference path="../../type.d.ts" />
-
-import { TranslatorRetObj } from '../../factorys/webClient/deal';
+import {
+  IOriginalActionObject,
+  IGetContextFuncType,
+  IActionNormalObject,
+  IWebClientLocalContext
+} from '../../type';
+import { ITranslatorRetObj } from '../../factorys/webClient/deal';
 
 export function translator(
-  { args }: OriginalActionObject<TranslatorRetObj>,
-  getContext: GetContextFuncType
-): ActionNormalObject<TranslatorRetObj>[] {
+  { args }: IOriginalActionObject<ITranslatorRetObj>,
+  getContext: IGetContextFuncType
+): IActionNormalObject<ITranslatorRetObj>[] {
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
@@ -15,11 +19,11 @@ export function translator(
   }];
 }
 
-export function executor({ func }: TranslatorRetObj) {
+export function executor({ func }: ITranslatorRetObj) {
   return async (
     payload: { [key: string]: any },
-    getContext: GetContextFuncType,
-    localContext: WebClientLocalContext
+    getContext: IGetContextFuncType,
+    localContext: IWebClientLocalContext
   ) => {
     return await func.call(undefined, payload, getContext, localContext);
   };

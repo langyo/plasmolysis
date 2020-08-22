@@ -1,9 +1,13 @@
-/// <reference path="type.d.ts" />
+import {
+  IRequestForwardObjectType,
+  IRequestForwardFuncType,
+  ISessionInfo
+} from './type';
 
 import { Script, createContext } from 'vm';
 
 let vm = new Script('');
-let caller: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType> =
+let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
   async sessionInfo => {
     return {
       status: 'processed',
@@ -28,15 +32,15 @@ export function build(code: string, context?: { [key: string]: any }) {
   createContext({
     ...context,
     __CALLBACK:
-      (func: (sessionInfo: SessionInfo) =>
-        Promise<RequestForwardObjectType>) => {
+      (func: (sessionInfo: ISessionInfo) =>
+        Promise<IRequestForwardObjectType>) => {
         caller = func;
       }
   });
   vm.runInContext(context);
 };
 
-export const send: RequestForwardFuncType =
-  async (sessionInfo: SessionInfo) => {
+export const send: IRequestForwardFuncType =
+  async (sessionInfo: ISessionInfo) => {
     return await caller(sessionInfo);
   };

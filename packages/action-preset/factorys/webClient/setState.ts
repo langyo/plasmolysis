@@ -1,4 +1,8 @@
-export interface TranslatorRetObj {
+import {
+  IOriginalActionObject
+} from '../../type';
+
+export interface ITranslatorRetObj {
   generator: (...args: any[]) => { [key: string]: any }
 };
 type GeneratorFunc = (payload: { [key: string]: any }, utils: {
@@ -9,13 +13,15 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getModelList: () => { [modelType: string]: string[] }
 }) => { [key: string]: any };
 
-function setState(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
+function setState(
+  func: GeneratorFunc
+): IOriginalActionObject<ITranslatorRetObj>;
 function setState(
   combinedObj: { [key: string]: any }
-): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
 function setState(
   arg0: GeneratorFunc | { [key: string]: any }
-): OriginalActionObject<TranslatorRetObj> {
+): IOriginalActionObject<ITranslatorRetObj> {
   if (typeof arg0 === 'object') {
     return {
       platform: 'webClient',

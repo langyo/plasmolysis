@@ -1,11 +1,16 @@
-/// <reference path="type.d.ts" />
+import {
+  IPlatforms,
+  IOriginalActionObject,
+  IActionManager,
+  IActionObject
+} from './type';
 
 export function streamGenerator(
-  platform: Platforms,
-  stream: OriginalActionObject[],
-  actionManager: ActionManager
-): ActionObject[] {
-  let ret: ActionObject[] = [];
+  platform: IPlatforms,
+  stream: IOriginalActionObject[],
+  actionManager: IActionManager
+): IActionObject[] {
+  let ret: IActionObject[] = [];
   let isHead: boolean = true;
   for (const obj of stream) {
     if (typeof obj === 'function') {

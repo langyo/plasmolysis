@@ -1,10 +1,14 @@
-interface GeneratorRetObj {
+import {
+  IOriginalActionObject
+} from '../../type';
+
+interface IGeneratorRetObj {
   id: string,
   action: string,
   payload: { [key: string]: any }
 };
-export interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
+export interface ITranslatorRetObj {
+  generator: (...args: any[]) => IGeneratorRetObj
 };
 type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelType: string,
@@ -12,19 +16,21 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
   getModelList: () => { [modelType: string]: string[] }
-}) => GeneratorRetObj;
+}) => IGeneratorRetObj;
 
-function dispatch(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
+function dispatch(
+  func: GeneratorFunc
+): IOriginalActionObject<ITranslatorRetObj>;
 function dispatch(
   id: string,
   action: string,
   payload: { [key: string]: any }
-): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
 function dispatch(
   arg0: GeneratorFunc | string,
   arg1?: string,
   arg2?: { [key: string]: any }
-): OriginalActionObject<TranslatorRetObj> {
+): IOriginalActionObject<ITranslatorRetObj> {
   if (typeof arg0 === 'string') {
     if (typeof arg1 !== 'string') {
       throw new Error('You must provide a string as the action name.');

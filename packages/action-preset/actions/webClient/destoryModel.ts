@@ -1,11 +1,17 @@
-/// <reference path="../../type.d.ts" />
-
-import { TranslatorRetObj } from '../../factorys/webClient/destoryModel';
+import {
+  IOriginalActionObject,
+  IGetContextFuncType,
+  IActionNormalObject,
+  IWebClientLocalContext,
+  IStateManager,
+  IRouteManager
+} from '../../type';
+import { ITranslatorRetObj } from '../../factorys/webClient/destoryModel';
 
 export function translator(
-  { args }: OriginalActionObject<TranslatorRetObj>,
-  getContext: GetContextFuncType
-): ActionNormalObject<TranslatorRetObj>[] {
+  { args }: IOriginalActionObject<ITranslatorRetObj>,
+  getContext: IGetContextFuncType
+): IActionNormalObject<ITranslatorRetObj>[] {
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
@@ -15,22 +21,22 @@ export function translator(
   }];
 };
 
-export function executor({ generator }: TranslatorRetObj) {
+export function executor({ generator }: ITranslatorRetObj) {
   return async (
     payload: { [key: string]: any },
-    getContext: GetContextFuncType, {
+    getContext: IGetContextFuncType, {
       modelType,
       modelID
-    }: WebClientLocalContext) => {
+    }: IWebClientLocalContext) => {
     const {
       getState,
       getGlobalState,
       getModelList,
       destoryModel
-    }: StateManager = getContext('stateManager');
+    }: IStateManager = getContext('stateManager');
     const {
       getPageType
-    }: RouteManager = getContext('routeManager');
+    }: IRouteManager = getContext('routeManager');
     const { id } = generator(payload, {
       getState: () => getState(modelID),
       getGlobalState,

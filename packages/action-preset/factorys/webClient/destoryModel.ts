@@ -1,8 +1,12 @@
-interface GeneratorRetObj {
+import {
+  IOriginalActionObject
+} from '../../type';
+
+interface IGeneratorRetObj {
   id: string
 };
-export interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
+export interface ITranslatorRetObj {
+  generator: (...args: any[]) => IGeneratorRetObj
 };
 type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelType: string,
@@ -10,15 +14,15 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
   getModelList: () => { [modelType: string]: string[] }
-}) => GeneratorRetObj;
+}) => IGeneratorRetObj;
 
 function destoryModel(
   func: GeneratorFunc
-): OriginalActionObject<TranslatorRetObj>;
-function destoryModel(id: string): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
+function destoryModel(id: string): IOriginalActionObject<ITranslatorRetObj>;
 function destoryModel(
   arg0: GeneratorFunc | string
-): OriginalActionObject<TranslatorRetObj> {
+): IOriginalActionObject<ITranslatorRetObj> {
   if (typeof arg0 === 'string') {
     return {
       platform: 'webClient',

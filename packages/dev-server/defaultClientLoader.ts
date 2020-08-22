@@ -1,17 +1,25 @@
-/// <reference path="type.d.ts" />
+import {
+  IProjectPackage,
+  IActionManager,
+  IStreamManager,
+  IStateManager,
+  IModelManager,
+  IRouteManager,
+  IWebClientComponentType
+} from './type';
 
-import { actionManager as ActionManagerFactory } from 'nickelcat';
-const projectPackage: ProjectPackage =
+import { actionManager as actionManagerFactory } from 'nickelcat';
+const projectPackage: IProjectPackage =
   require('./__nickelcat_staticRequire.js');
-const actionManager: ActionManager =
-  ActionManagerFactory(projectPackage);
-const streamManager: StreamManager =
+const actionManager: IActionManager =
+  actionManagerFactory(projectPackage);
+const streamManager: IStreamManager =
   actionManager.getContextFactory('webClient')('streamManager');
-const stateManager: StateManager =
+const stateManager: IStateManager =
   actionManager.getContextFactory('webClient')('stateManager');
-const modelManager: ModelManager =
+const modelManager: IModelManager =
   actionManager.getContextFactory('webClient')('modelManager');
-const routeManager: RouteManager =
+const routeManager: IRouteManager =
   actionManager.getContextFactory('webClient')('routeManager');
 
 const {
@@ -29,7 +37,7 @@ import { createElement } from 'react';
 import { hydrate, render } from 'react-dom';
 
 function loadReactComponent(
-  component: WebClientComponentType,
+  component: IWebClientComponentType,
   modelType: string, modelID: string
 ) {
   const elementID = `nickelcat-model-${modelID}`;

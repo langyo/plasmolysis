@@ -1,11 +1,16 @@
-/// <reference path="../../type.d.ts" />
-
-import { TranslatorRetObj } from '../../factorys/nodeServer/wait';
+import {
+  IOriginalActionObject,
+  IGetContextFuncType,
+  IActionNormalObject,
+  IWebClientLocalContext,
+  IStateManager
+} from '../../type';
+import { ITranslatorRetObj } from '../../factorys/nodeServer/wait';
 
 export function translator(
-  { args }: OriginalActionObject<TranslatorRetObj>,
-  getContext: GetContextFuncType
-): ActionNormalObject<TranslatorRetObj>[] {
+  { args }: IOriginalActionObject<ITranslatorRetObj>,
+  getContext: IGetContextFuncType
+): IActionNormalObject<ITranslatorRetObj>[] {
   return [{
     kind: 'ActionNormalObject',
     platform: 'nodeServer',
@@ -15,18 +20,18 @@ export function translator(
   }];
 }
 
-export function executor({ generator }: TranslatorRetObj) {
+export function executor({ generator }: ITranslatorRetObj) {
   return async (
     payload: { [key: string]: any },
-    getContext: GetContextFuncType, {
+    getContext: IGetContextFuncType, {
       modelType,
       modelID
-    }: WebClientLocalContext) => {
+    }: IWebClientLocalContext) => {
     const {
       getState,
       getGlobalState,
       getModelList
-    }: StateManager = getContext('stateManager');
+    }: IStateManager = getContext('stateManager');
     const { length } = generator(payload, {
       getState: () => getState(modelID),
       getGlobalState,

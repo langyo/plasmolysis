@@ -1,12 +1,15 @@
+import {
+  IOriginalActionObject
+} from '../../type';
 import { generate } from 'shortid';
 
-interface GeneratorRetObj {
+interface IGeneratorRetObj {
   type: string,
   initState: { [key: string]: any },
   name: string
 };
-export interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
+export interface ITranslatorRetObj {
+  generator: (...args: any[]) => IGeneratorRetObj
 };
 type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelType: string,
@@ -14,21 +17,21 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
   getModelList: () => { [modelType: string]: string[] }
-}) => GeneratorRetObj;
+}) => IGeneratorRetObj;
 
 function createModel(
   func: GeneratorFunc
-): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
 function createModel(
   type: string,
   initState?: { [key: string]: any },
   name?: string
-): OriginalActionObject<TranslatorRetObj>;
+): IOriginalActionObject<ITranslatorRetObj>;
 function createModel(
   arg0: GeneratorFunc | string,
   arg1?: { [key: string]: any },
   arg2?: string
-): OriginalActionObject<TranslatorRetObj> {
+): IOriginalActionObject<ITranslatorRetObj> {
   if (typeof arg0 === 'string') {
     return {
       platform: 'webClient',

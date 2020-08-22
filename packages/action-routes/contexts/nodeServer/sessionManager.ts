@@ -1,12 +1,16 @@
-/// <reference path="../../type.d.ts" />
+import {
+  IProjectPackage,
+  IGetContextFuncType,
+  ISessionManager
+} from '../../type';
 
 import { generate } from 'shortid';
 import { from, merge } from "seamless-immutable";
 
 export function sessionManager(
-  projectPackage: ProjectPackage,
-  getContext: GetContextFuncType
-): SessionManager {
+  projectPackage: IProjectPackage,
+  getContext: IGetContextFuncType
+): ISessionManager {
   let sessionChecksum: { [id: string]: string } = {};
   let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};
   let sessionLastUpdate: { [id: string]: number } = {};

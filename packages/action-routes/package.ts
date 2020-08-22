@@ -1,11 +1,11 @@
-/// <reference path="../core/type.d.ts" />
-
-// TODO
+import {
+  IPackageInfo
+} from './type';
 import * as togglePageAction from './actions/webClient/togglePage';
 import { sessionManager } from './contexts/nodeServer/sessionManager';
 import { routeManager } from './contexts/webClient/routeManager';
 
-export const packageInfo = <PackageInfo>{
+export const packageInfo = {
   name: 'preset',
   description: 'The core action package.',
   author: 'langyo',
@@ -24,4 +24,4 @@ export const packageInfo = <PackageInfo>{
       sessionManager
     }
   }
-};
+} as IPackageInfo;

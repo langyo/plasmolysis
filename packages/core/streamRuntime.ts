@@ -1,10 +1,15 @@
-/// <reference path="type.d.ts" />
+import {
+  IPlatforms,
+  IGetContextFuncType,
+  IActionObject,
+  IActionManager
+} from './type'
 
 export function streamRuntime(
-  platform: Platforms, globalContext: GetContextFuncType
+  platform: IPlatforms, globalContext: IGetContextFuncType
 ) {
   return function createTasks(
-    tasks: ActionObject[],
+    tasks: IActionObject[],
     path: string,
     localContext: { [key: string]: any }
   ) {
@@ -18,7 +23,7 @@ export function streamRuntime(
           switch (task.kind) {
             case 'ActionNormalObject':
               payload =
-                await (globalContext('actionManager') as ActionManager)
+                await (globalContext('actionManager') as IActionManager)
                   .getExecutor(platform, task.pkg, task.type)(tasks[i])(
                     payload, globalContext, localContext
                   );

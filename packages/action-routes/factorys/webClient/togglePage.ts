@@ -1,9 +1,13 @@
-interface GeneratorRetObj {
+import {
+  IOriginalActionObject
+} from '../../type';
+
+interface IGeneratorRetObj {
   type: string,
   initState: { [key: string]: any }
 };
-export interface TranslatorRetObj {
-  generator: (...args: any[]) => GeneratorRetObj
+export interface ITranslatorRetObj {
+  generator: (...args: any[]) => IGeneratorRetObj
 };
 type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelType: string,
@@ -11,22 +15,34 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
   getModelList: () => { [modelType: string]: string[] }
-}) => GeneratorRetObj;
+}) => IGeneratorRetObj;
 
-function togglePage(func: GeneratorFunc): TranslatorRetObj;
+function togglePage(
+  func: GeneratorFunc
+): IOriginalActionObject<ITranslatorRetObj>;
 function togglePage(
   type: string,
   initState: { [key: string]: any }
-): TranslatorRetObj;
+): IOriginalActionObject<ITranslatorRetObj>;
 function togglePage(
   arg0: GeneratorFunc | string,
   arg1?: { [key: string]: any }
-): TranslatorRetObj {
+): IOriginalActionObject<ITranslatorRetObj> {
   if (typeof arg0 === 'string') {
-    return { generator: () => ({ type: arg0, initState: arg1 || {} }) };
+    return {
+      type: 'togglePage',
+      pkg: 'routes',
+      platform: 'webClient',
+      args: { generator: () => ({ type: arg0, initState: arg1 || {} }) }
+    };
   }
   else {
-    return { generator: arg0 };
+    return {
+      type: 'togglePage',
+      pkg: 'routes',
+      platform: 'webClient',
+      args: arg0 as any
+    };
   }
 };
 

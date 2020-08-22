@@ -1,10 +1,14 @@
-export interface TranslatorRetObj {
+import {
+  IOriginalActionObject
+} from '../../type';
+
+export interface ITranslatorRetObj {
   path: string,
   translator?: PayloadTranslatorFunc,
-  stream?: OriginalActionObject[],
-  options?: FetchOptions
+  stream?: IOriginalActionObject[],
+  options?: IFetchOptions
 };
-interface FetchOptions {
+interface IFetchOptions {
   method?: 'GET' | 'POST',
   headers?: HeadersInit
 };
@@ -19,25 +23,25 @@ type PayloadTranslatorFunc = (payload: { [key: string]: any }, utils: {
 
 function fetch(
   path: string,
-  stream?: OriginalActionObject[]
-): OriginalActionObject<TranslatorRetObj>
+  stream?: IOriginalActionObject[]
+): IOriginalActionObject<ITranslatorRetObj>
 function fetch(
   path: string,
   translator: PayloadTranslatorFunc,
-  options?: FetchOptions
-): OriginalActionObject<TranslatorRetObj>;
+  options?: IFetchOptions
+): IOriginalActionObject<ITranslatorRetObj>;
 function fetch(
   path: string,
   translator: PayloadTranslatorFunc,
-  stream: OriginalActionObject[],
-  options?: FetchOptions
-): OriginalActionObject<TranslatorRetObj>;
+  stream: IOriginalActionObject[],
+  options?: IFetchOptions
+): IOriginalActionObject<ITranslatorRetObj>;
 function fetch(
   path: string,
-  arg0?: PayloadTranslatorFunc | OriginalActionObject[],
-  arg1?: OriginalActionObject[] | FetchOptions,
-  arg2?: FetchOptions
-): OriginalActionObject<TranslatorRetObj> {
+  arg0?: PayloadTranslatorFunc | IOriginalActionObject[],
+  arg1?: IOriginalActionObject[] | IFetchOptions,
+  arg2?: IFetchOptions
+): IOriginalActionObject<ITranslatorRetObj> {
   if (Array.isArray(arg0)) {
     return {
       platform: 'webClient',
@@ -46,7 +50,7 @@ function fetch(
       args: {
         path,
         stream: arg0,
-        options: arg1 as FetchOptions || {}
+        options: arg1 as IFetchOptions || {}
       }
     };
   }
