@@ -7,7 +7,9 @@ export interface TranslatorRetObj {
   func: CustomFuncType
 };
 
-export default function factory(func: CustomFuncType): OriginalActionObject<TranslatorRetObj> {
+export function deal(
+  func: CustomFuncType
+): OriginalActionObject<TranslatorRetObj> {
   return {
     platform: 'webClient',
     pkg: 'preset',

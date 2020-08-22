@@ -9,24 +9,30 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelID: string,
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
-  getModelList: () => { [modelType: string]: Array<string> }
+  getModelList: () => { [modelType: string]: string[] }
 }) => GeneratorRetObj;
 
-function factory(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
-function factory(length: number): OriginalActionObject<TranslatorRetObj>;
-function factory(arg0: GeneratorFunc | number): OriginalActionObject<TranslatorRetObj> {
-  if (typeof arg0 === 'number') return {
-    platform: 'webClient',
-    pkg: 'preset',
-    type: 'wait',
-    args: { generator: () => ({ length }) }
-  };
-  else return {
-    platform: 'webClient',
-    pkg: 'preset',
-    type: 'wait',
-    args: { generator: arg0 }
-  };
+function wait(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
+function wait(length: number): OriginalActionObject<TranslatorRetObj>;
+function wait(
+  arg0: GeneratorFunc | number
+): OriginalActionObject<TranslatorRetObj> {
+  if (typeof arg0 === 'number') {
+    return {
+      platform: 'webClient',
+      pkg: 'preset',
+      type: 'wait',
+      args: { generator: () => ({ length }) }
+    };
+  }
+  else {
+    return {
+      platform: 'webClient',
+      pkg: 'preset',
+      type: 'wait',
+      args: { generator: arg0 }
+    };
+  }
 };
 
-export default factory;
+export { wait };

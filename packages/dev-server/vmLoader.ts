@@ -3,12 +3,13 @@
 import { Script, createContext } from 'vm';
 
 let vm = new Script('');
-let caller: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType> = async sessionInfo => {
-  return {
-    status: 'processed',
-    code: 500,
-    type: 'text/html',
-    body: `
+let caller: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType> =
+  async sessionInfo => {
+    return {
+      status: 'processed',
+      code: 500,
+      type: 'text/html',
+      body: `
 <html>
 <head>
     <title>RUNTIME ERROR</title>
@@ -19,20 +20,23 @@ let caller: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType> = as
   </body>
 </html>
     `
-  }
-};
+    }
+  };
 
 export function build(code: string, context?: { [key: string]: any }) {
   vm = new Script(code);
   createContext({
     ...context,
-    __callback: (func: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType>) => {
-      caller = func;
-    }
+    __CALLBACK:
+      (func: (sessionInfo: SessionInfo) =>
+        Promise<RequestForwardObjectType>) => {
+        caller = func;
+      }
   });
   vm.runInContext(context);
 };
 
-export const send: RequestForwardFuncType = async (sessionInfo: SessionInfo) => {
-  return await caller(sessionInfo);
-};
+export const send: RequestForwardFuncType =
+  async (sessionInfo: SessionInfo) => {
+    return await caller(sessionInfo);
+  };

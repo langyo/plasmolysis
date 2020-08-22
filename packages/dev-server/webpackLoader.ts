@@ -5,12 +5,15 @@ import { EventEmitter } from 'events';
 import { scan } from './projectWatcher';
 import { join } from 'path';
 
-export async function loader(webpackConfig:{ [key: string]: any }, updateListener: EventEmitter): Promise<EventEmitter> {
+export async function loader(
+  webpackConfig: { [key: string]: any },
+  updateListener: EventEmitter
+): Promise<EventEmitter> {
   const fs = await scan();
   const emitter = new EventEmitter();
 
   const compiler = webpack({
-    mode: process.env.NODE_ENV === 'development' ? 'development': 'production',
+    mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
     context: process.cwd(),
     module: {
       rules: [
@@ -50,12 +53,18 @@ export async function loader(webpackConfig:{ [key: string]: any }, updateListene
 
   function compile() {
     compiler.run((err: Error, status) => {
-      if (err) throw err;
+      if (err) {
+        throw err;
+      }
 
       if (status.hasErrors()) {
         const info = status.toJson();
-        if (status.hasErrors()) info.errors.forEach((e: string) => console.error(e));
-        if (status.hasWarnings()) info.warnings.forEach((e: string) => console.warn(e));
+        if (status.hasErrors()) {
+          info.errors.forEach((e: string) => console.error(e));
+        }
+        if (status.hasWarnings()) {
+          info.warnings.forEach((e: string) => console.warn(e));
+        }
       }
 
       emitter.emit('ready', fs.readFileSync('/output').toString());

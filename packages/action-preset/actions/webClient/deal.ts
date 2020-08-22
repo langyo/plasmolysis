@@ -5,7 +5,7 @@ import { TranslatorRetObj } from '../../factorys/webClient/deal';
 export function translator(
   { args }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
-): Array<ActionNormalObject<TranslatorRetObj>> {
+): ActionNormalObject<TranslatorRetObj>[] {
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
@@ -16,7 +16,11 @@ export function translator(
 }
 
 export function executor({ func }: TranslatorRetObj) {
-  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, localContext: WebClientLocalContext) => {
-    return await func.call(null, payload, getContext, localContext);
+  return async (
+    payload: { [key: string]: any },
+    getContext: GetContextFuncType,
+    localContext: WebClientLocalContext
+  ) => {
+    return await func.call(undefined, payload, getContext, localContext);
   };
 }

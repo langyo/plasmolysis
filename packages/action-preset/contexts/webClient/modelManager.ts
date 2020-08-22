@@ -1,9 +1,15 @@
 /// <reference path="../../type.d.ts" />
 
-export default (projectPackage: ProjectPackage, getContext: GetContextFuncType): ModelManager => {
+export function modelManager(
+  projectPackage: ProjectPackage,
+  getContext: GetContextFuncType
+): ModelManager {
   let components: { [key: string]: WebClientComponentType } = {};
 
-  function storageModel(modelType: string, component: WebClientComponentType): void {
+  function storageModel(
+    modelType: string,
+    component: WebClientComponentType
+  ): void {
     components[modelType] = component;
   };
 
@@ -15,7 +21,7 @@ export default (projectPackage: ProjectPackage, getContext: GetContextFuncType):
     return components[type];
   }
 
-  function getModelList(): Array<string> {
+  function getModelList(): string[] {
     return Object.keys(components);
   }
 

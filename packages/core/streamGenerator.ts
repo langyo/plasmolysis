@@ -1,11 +1,11 @@
 /// <reference path="type.d.ts" />
 
-export default function streamGenerator(
+export function streamGenerator(
   platform: Platforms,
-  stream: Array<OriginalActionObject>,
+  stream: OriginalActionObject[],
   actionManager: ActionManager
-): Array<ActionObject> {
-  let ret: Array<ActionObject> = [];
+): ActionObject[] {
+  let ret: ActionObject[] = [];
   let isHead: boolean = true;
   for (const obj of stream) {
     if (typeof obj === 'function') {
@@ -15,12 +15,18 @@ export default function streamGenerator(
       });
     }
     else if (typeof obj === 'string' && /ˇloop( ([1-9][0-9]*))?$/.test(obj)) {
-      if (isHead) ret.push({
-        kind: 'ActionLoopTag',
-        mode: (obj as string).length > 4 ? 'fixed' : 'unlimited',
-        wait: (obj as string).length > 4 ? +/ˇloop( ([1-9][0-9]*))?$/.exec(obj)[2] : null
-      });
-      else throw new Error('The loop tag must be declared on the head of the stream.');
+      if (isHead) {
+        ret.push({
+          kind: 'ActionLoopTag',
+          mode: (obj as string).length > 4 ? 'fixed' : 'unlimited',
+          wait: (obj as string).length > 4 ?
+            +/ˇloop( ([1-9][0-9]*))?$/.exec(obj)[2] :
+            undefined
+        });
+      }
+      else {
+        throw new Error('The loop tag must be declared on the head of the stream.');
+      }
       break;
     }
     else if (Array.isArray(obj)) {
@@ -29,7 +35,11 @@ export default function streamGenerator(
         stream: streamGenerator(platform, obj, actionManager)
       });
     }
-    else ret = ret.concat(actionManager.getTranslator(obj.platform, obj.pkg, obj.type)(obj));
+    else {
+      ret = ret.concat(
+        actionManager.getTranslator(obj.platform, obj.pkg, obj.type)(obj)
+      );
+    }
     isHead = false;
   }
   return ret;

@@ -1,25 +1,41 @@
 /// <reference path="./type.d.ts" />
 
 declare global {
-  export const __callback: (ret: (sessionInfo: SessionInfo) => Promise<RequestForwardObjectType>) => void;
+  export const __CALLBACK:
+    (ret: (sessionInfo: SessionInfo) =>
+      Promise<RequestForwardObjectType>) => void;
 };
 
 import { actionManager as actionManagerFactory } from 'nickelcat';
 
-const actionManager: ActionManager = actionManagerFactory(require('./__nickelcat_staticRequire.js'));
-const streamManager: StreamManager = actionManager.getContextFactory('nodeServer')('streamManager');
-const modelManager: ModelManager = actionManager.getContextFactory('nodeServer')('modelManager');
-const sessionManager: SessionManager = actionManager.getContextFactory('nodeServer')('sessionManager');
+const actionManager: ActionManager =
+  actionManagerFactory(require('./__nickelcat_staticRequire.js'));
+const streamManager: StreamManager =
+  actionManager.getContextFactory('nodeServer')('streamManager');
+const modelManager: ModelManager =
+  actionManager.getContextFactory('nodeServer')('modelManager');
+const sessionManager: SessionManager =
+  actionManager.getContextFactory('nodeServer')('sessionManager');
 
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 
-const pageList = modelManager.getModelList().filter(name => /^pages?.+$/.test(name)).map(name => /^pages?(.+)$/.exec(name)[1]);
+const pageList =
+  modelManager
+    .getModelList()
+    .filter(name => /^pages?.+$/.test(name))
+    .map(name => /^pages?(.+)$/.exec(name)[1]);
 
-function loadReactComponent(Component: WebClientComponentType, modelType: string, pageState: { [key: string]: any }) {
-  renderToString(createElement(Component as any, {
+function loadReactComponent(
+  component: WebClientComponentType,
+  modelType: string,
+  pageState: { [key: string]: any }
+) {
+  renderToString(createElement(component as any, {
     ...pageState,
-    ...streamManager.getStreamList('webClient', modelType).reduce((obj, key) => ({
+    ...streamManager.getStreamList(
+      'webClient', modelType
+    ).reduce((obj, key) => ({
       ...obj,
       [key]: (payload: { [key: string]: any }) => streamManager.runStream('webClient', modelType, key, payload, {
         modelType,
@@ -29,7 +45,7 @@ function loadReactComponent(Component: WebClientComponentType, modelType: string
   }));
 };
 
-__callback(async ({
+__CALLBACK(async ({
   ip, protocol, host, path, query, cookies
 }: SessionInfo) => {
   try {
@@ -39,16 +55,21 @@ __callback(async ({
         status: 'processed',
         code: 200,
         type: 'application/json',
-        body: JSON.stringify(streamManager.runStream('nodeServer', 'http', path, query, {
-          ip, protocol, host, path, query, cookies
-        }))
+        body: JSON.stringify(
+          streamManager.runStream('nodeServer', 'http', path, query, {
+            ip, protocol, host, path, query, cookies
+          })
+        )
       };
     } else if (pageList.indexOf(path.split('/')[0]) >= 0) {
       // Page routes.
       try {
         const pageName = path.split('/')[0];
-        if (typeof streamManager.getStreamList('webClient', pageName)['preload'] === 'undefined')
+        if (typeof streamManager.getStreamList(
+          'webClient', pageName
+        )['preload'] === 'undefined') {
           throw new Error(`Cannot initialize the page ${pageName}`);
+        }
         const {
           pageTitle,
           pageState,
@@ -57,7 +78,9 @@ __callback(async ({
           ip, protocol, host, path, query, cookies
         });
 
-        const pageNodeString = loadReactComponent(modelManager.loadComponent(pageName), pageName, pageState);
+        const pageNodeString = loadReactComponent(
+          modelManager.loadComponent(pageName), pageName, pageState
+        );
         const body = `
 <html>
 <head>
@@ -79,11 +102,11 @@ __callback(async ({
     </div>
   </div>
   <textarea id="nickelcat-server-side-data">${JSON.stringify({
-    pageTitle,
-    pageName,
-    pageState,
-    globalState
-  })}</textarea>
+          pageTitle,
+          pageName,
+          pageState,
+          globalState
+        })}</textarea>
   <script src="${'./spa.js'}"></script>
   </body>
 </html>`;
@@ -115,9 +138,9 @@ __callback(async ({
     } else {
       return {
         status: 'ignored',
-        code: null,
-        type: null,
-        body: null
+        code: undefined,
+        type: undefined,
+        body: undefined
       };
     }
   } catch (e) {

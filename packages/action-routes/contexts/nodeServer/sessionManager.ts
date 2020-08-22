@@ -3,7 +3,10 @@
 import { generate } from 'shortid';
 import { from, merge } from "seamless-immutable";
 
-export default (projectPackage: ProjectPackage, getContext: GetContextFuncType): SessionManager => {
+export function sessionManager(
+  projectPackage: ProjectPackage,
+  getContext: GetContextFuncType
+): SessionManager {
   let sessionChecksum: { [id: string]: string } = {};
   let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};
   let sessionLastUpdate: { [id: string]: number } = {};
@@ -21,12 +24,19 @@ export default (projectPackage: ProjectPackage, getContext: GetContextFuncType):
   }
 
   function getSessionState(id: string): Readonly<{ [key: string]: any }> {
-    if (typeof sessionState[id] === 'undefined') throw new Error(`Cannot find the session '${id}'.`);
+    if (typeof sessionState[id] === 'undefined') {
+      throw new Error(`Cannot find the session '${id}'.`);
+    }
     return sessionState[id];
   }
 
-  function setSessionState(id: string, state: Readonly<{ [key: string]: any }>): void {
-    if (typeof sessionState[id] === 'undefined') throw new Error(`Cannot find the session '${id}'.`);
+  function setSessionState(
+    id: string,
+    state: Readonly<{ [key: string]: any }>
+  ): void {
+    if (typeof sessionState[id] === 'undefined') {
+      throw new Error(`Cannot find the session '${id}'.`);
+    }
     sessionState[id] = merge(sessionState[id], state);
     sessionLastUpdate[id] = Date.now();
   }
@@ -36,14 +46,22 @@ export default (projectPackage: ProjectPackage, getContext: GetContextFuncType):
   }
 
   function getSessionAge(id: string): number {
-    if (typeof sessionLastUpdate[id] === 'undefined') throw new Error(`Cannot find the session '${id}'.`);
+    if (typeof sessionLastUpdate[id] === 'undefined') {
+      throw new Error(`Cannot find the session '${id}'.`);
+    }
     return Date.now() - sessionLastUpdate[id];
   }
 
   function leaveSession(id: string): void {
-    if (typeof sessionChecksum[id] !== 'undefined') delete sessionChecksum[id];
-    if (typeof sessionState[id] !== 'undefined') delete sessionState[id];
-    if (typeof sessionLastUpdate[id] !== 'undefined') delete sessionLastUpdate[id];
+    if (typeof sessionChecksum[id] !== 'undefined') {
+      delete sessionChecksum[id];
+    }
+    if (typeof sessionState[id] !== 'undefined') {
+      delete sessionState[id];
+    }
+    if (typeof sessionLastUpdate[id] !== 'undefined') {
+      delete sessionLastUpdate[id];
+    }
   }
 
   return Object.freeze({

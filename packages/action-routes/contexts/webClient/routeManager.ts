@@ -1,6 +1,9 @@
 /// <reference path="../../type.d.ts" />
 
-export default (projectPackage: ProjectPackage, getContext: GetContextFuncType): RouteManager => {
+export function routeManager(
+  projectPackage: ProjectPackage,
+  getContext: GetContextFuncType
+): RouteManager {
   let title: string = '';
 
   function loadPage(pageType: string, initState: { [key: string]: any }): void {
@@ -19,8 +22,12 @@ export default (projectPackage: ProjectPackage, getContext: GetContextFuncType):
     const {
       getModelIDList
     }: StateManager = getContext('stateManager');
-    if (typeof getModelIDList()['$page'] === 'undefined') return '';
-    else return getModelIDList()['$page'];
+    if (typeof getModelIDList()['$page'] === 'undefined') {
+      return '';
+    }
+    else {
+      return getModelIDList()['$page'];
+    }
   }
 
   function setPageTitle(currentTitle: string): void {

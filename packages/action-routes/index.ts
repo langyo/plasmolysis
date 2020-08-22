@@ -1,3 +1,1 @@
-import togglePage from './factorys/webClient/togglePage';
-
-export { togglePage };
+export { togglePage } from './factorys/webClient/togglePage';

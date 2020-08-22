@@ -24,7 +24,7 @@
       }
     ],
     "no-empty-interface": true,
-    "no-parameter-reassignment": true,
+    "no-parameter-reassignment": false,
     "prefer-for-of": true,
     "await-promise": true,
     "curly": true,
@@ -58,7 +58,7 @@
     ],
     "linebreak-style": [
       true,
-      "CR/LF"
+      "CRLF"
     ],
     "max-classes-per-file": [
       true,
@@ -75,12 +75,7 @@
     "no-default-export": true,
     "no-duplicate-imports": true,
     "align": [
-      true,
-      "parameters",
-      "arguments",
-      "statements",
-      "members",
-      "elements"
+      false
     ],
     "array-type": [
       true,

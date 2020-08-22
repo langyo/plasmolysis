@@ -2,10 +2,10 @@
 
 // TODO
 import * as togglePageAction from './actions/webClient/togglePage';
-import sessionManager from './contexts/nodeServer/sessionManager';
-import routeManager from './contexts/webClient/routeManager';
+import { sessionManager } from './contexts/nodeServer/sessionManager';
+import { routeManager } from './contexts/webClient/routeManager';
 
-export default <PackageInfo> {
+export const packageInfo = <PackageInfo>{
   name: 'preset',
   description: 'The core action package.',
   author: 'langyo',

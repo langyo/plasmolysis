@@ -1,4 +1,3 @@
-
 interface GeneratorRetObj {
   id: string
 };
@@ -10,24 +9,32 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelID: string,
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
-  getModelList: () => { [modelType: string]: Array<string> }
+  getModelList: () => { [modelType: string]: string[] }
 }) => GeneratorRetObj;
 
-function factory(func: GeneratorFunc): OriginalActionObject<TranslatorRetObj>;
-function factory(id: string): OriginalActionObject<TranslatorRetObj>;
-function factory(arg0: GeneratorFunc | string): OriginalActionObject<TranslatorRetObj> {
-  if (typeof arg0 === 'string') return {
-    platform: 'webClient',
-    pkg: 'preset',
-    type: 'destoryModel',
-    args: { generator: () => ({ id: arg0 }) }
-  };
-  else return {
-    platform: 'webClient',
-    pkg: 'preset',
-    type: 'destoryModel',
-    args: { generator: arg0 }
-  };
+function destoryModel(
+  func: GeneratorFunc
+): OriginalActionObject<TranslatorRetObj>;
+function destoryModel(id: string): OriginalActionObject<TranslatorRetObj>;
+function destoryModel(
+  arg0: GeneratorFunc | string
+): OriginalActionObject<TranslatorRetObj> {
+  if (typeof arg0 === 'string') {
+    return {
+      platform: 'webClient',
+      pkg: 'preset',
+      type: 'destoryModel',
+      args: { generator: () => ({ id: arg0 }) }
+    };
+  }
+  else {
+    return {
+      platform: 'webClient',
+      pkg: 'preset',
+      type: 'destoryModel',
+      args: { generator: arg0 }
+    };
+  }
 };
 
-export default factory;
+export { destoryModel };

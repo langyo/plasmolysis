@@ -8,7 +8,7 @@ import { EventEmitter } from 'events';
 
 import { resolve } from 'path';
 
-export default async function (): Promise<(libType: string) => any> {
+export async function serviceLoader(): Promise<(libType: string) => any> {
   const watcher = watch();
   let clientBundleContent: string = '';
 
@@ -30,41 +30,44 @@ export default async function (): Promise<(libType: string) => any> {
     target: 'node'
   }, watcher);
 
-  return new Promise(resolve => webpackServerSide.once('ready', async (code: string) => {
-    build(code);
-    console.log(`The service is ready.`);
-    webpackServerSide.on('change', async (code: string) => {
+  return new Promise(
+    resolve => webpackServerSide.once('ready', async (code: string) => {
       build(code);
-      console.log(`The service has been updated.`);
-    });
-    resolve((libType: string) => {
-      switch (libType) {
-        case 'koa':
-          return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
-            const { status, code, type, body }: RequestForwardObjectType = await send({
-              ip: ctx.ip,
-              path: ctx.path,
-              query: ctx.query,
-              host: ctx.host,
-              protocol: ctx.protocol,
-              cookies: {
-                get: (ctx as any).cookies.get,  // BUG - The type declaration file has not defined 'cookies'.
-                set: (ctx as any).cookies.set
-              }
-            });
+      console.log(`The service is ready.`);
+      webpackServerSide.on('change', async (code: string) => {
+        build(code);
+        console.log(`The service has been updated.`);
+      });
+      resolve((libType: string) => {
+        switch (libType) {
+          case 'koa':
+            return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
+              const { status, code, type, body }: RequestForwardObjectType =
+                await send({
+                  ip: ctx.ip,
+                  path: ctx.path,
+                  query: ctx.query,
+                  host: ctx.host,
+                  protocol: ctx.protocol,
+                  cookies: {
+                    // BUG - The type declaration file has not defined 'cookies'
+                    get: (ctx as any).cookies.get,
+                    set: (ctx as any).cookies.set
+                  }
+                });
 
-            if (status === 'processed') {
-              ctx.type = type;
-              ctx.body = body;
-              ctx.status = code;
-              await next();
-            } else {
-              await next();
-            }
-          };
-        default:
-          throw new Error(`Unsupported library type: ${libType}`);
-      }
-    });
-  }));
+              if (status === 'processed') {
+                ctx.type = type;
+                ctx.body = body;
+                ctx.status = code;
+                await next();
+              } else {
+                await next();
+              }
+            };
+          default:
+            throw new Error(`Unsupported library type: ${libType}`);
+        }
+      });
+    }));
 };

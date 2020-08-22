@@ -3,31 +3,39 @@
 import { TranslatorRetObj } from '../../factorys/webClient/fetch';
 
 export function translator(
-  { args: { path, stream, translator, options } }: OriginalActionObject<TranslatorRetObj>,
+  { args:
+    { path, stream, translator, options }
+  }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
-): Array<ActionNormalObject<TranslatorRetObj>> {
+): ActionNormalObject<TranslatorRetObj>[] {
   if (typeof stream !== 'undefined') {
     (getContext('streamManager') as StreamManager).loadStream(stream, 'nodeServer', 'http', path);
   }
-  if (typeof translator !== undefined) return [{
-    kind: 'ActionNormalObject',
-    platform: 'webClient',
-    pkg: 'preset',
-    type: 'fetch',
-    args: {
-      path,
-      translator,
-      options: options || {}
-    }
-  }];
-  else return [];
+  if (typeof translator !== undefined) {
+    return [{
+      kind: 'ActionNormalObject',
+      platform: 'webClient',
+      pkg: 'preset',
+      type: 'fetch',
+      args: {
+        path,
+        translator,
+        options: options || {}
+      }
+    }];
+  }
+  else {
+    return [];
+  }
 };
 
 export function executor({ path, translator, options }: TranslatorRetObj) {
-  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, {
-    modelType,
-    modelID
-  }: WebClientLocalContext) => {
+  return async (
+    payload: { [key: string]: any },
+    getContext: GetContextFuncType, {
+      modelType,
+      modelID
+    }: WebClientLocalContext) => {
     const {
       getState,
       getGlobalState,

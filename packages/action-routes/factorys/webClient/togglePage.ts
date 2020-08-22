@@ -10,14 +10,24 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
   modelID: string,
   getState: () => { [key: string]: any },
   getGlobalState: () => { [key: string]: any },
-  getModelList: () => { [modelType: string]: Array<string> }
+  getModelList: () => { [modelType: string]: string[] }
 }) => GeneratorRetObj;
 
-function factory(func: GeneratorFunc): TranslatorRetObj;
-function factory(type: string, initState: { [key: string]: any }): TranslatorRetObj;
-function factory(arg0: GeneratorFunc | string, arg1?: { [key: string]: any }): TranslatorRetObj {
-  if (typeof arg0 === 'string') return { generator: () => ({ type: arg0, initState: arg1 || {} }) };
-  else return { generator: arg0 };
+function togglePage(func: GeneratorFunc): TranslatorRetObj;
+function togglePage(
+  type: string,
+  initState: { [key: string]: any }
+): TranslatorRetObj;
+function togglePage(
+  arg0: GeneratorFunc | string,
+  arg1?: { [key: string]: any }
+): TranslatorRetObj {
+  if (typeof arg0 === 'string') {
+    return { generator: () => ({ type: arg0, initState: arg1 || {} }) };
+  }
+  else {
+    return { generator: arg0 };
+  }
 };
 
-export default factory;
+export { togglePage };

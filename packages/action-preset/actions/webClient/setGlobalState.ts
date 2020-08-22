@@ -5,7 +5,7 @@ import { TranslatorRetObj } from "../../factorys/webClient/setGlobalState";
 export function translator(
   { args }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
-): Array<ActionNormalObject<TranslatorRetObj>> {
+): ActionNormalObject<TranslatorRetObj>[] {
   return [{
     kind: 'ActionNormalObject',
     platform: 'webClient',
@@ -16,10 +16,12 @@ export function translator(
 };
 
 export function executor({ generator }: TranslatorRetObj) {
-  return async (payload: { [key: string]: any }, getContext: GetContextFuncType, {
-    modelType,
-    modelID
-  }: WebClientLocalContext) => {
+  return async (
+    payload: { [key: string]: any },
+    getContext: GetContextFuncType, {
+      modelType,
+      modelID
+    }: WebClientLocalContext) => {
     const {
       getState,
       getGlobalState,

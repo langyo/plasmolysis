@@ -1,7 +1,6 @@
 import { watch as watchFiles } from 'chokidar';
 import { EventEmitter } from 'events';
 
-import { existsSync, readdirSync, statSync } from 'fs';
 import { resolve, join } from 'path';
 
 import { Volume } from 'memfs';
@@ -9,35 +8,40 @@ import { Union, IUnionFs } from 'unionfs';
 import * as realFs from 'fs';
 
 export async function scan(
-  parseFilterComponents: Array<string> = ['', 'dialog.', 'dialogs.', 'page.', 'pages.', 'view.', 'views.']
+  parseFilterComponents: string[] = ['', 'dialog.', 'dialogs.', 'page.', 'pages.', 'view.', 'views.']
 ): Promise<IUnionFs> {
-  let components: Array<{
+  let components: {
     name: string,
     path: string
-  }> = [];
+  }[] = [];
   let configPath: string = '';
 
   const scanDfs = (path: string, route: string = '') => {
-    let list: Array<{
+    let list: {
       fileName: string,
       path: string,
       route: string
-    }> = [];
-    for (const fileName of readdirSync(path))
-      if (statSync(join(path, fileName)).isDirectory())
-        list = list.concat(scanDfs(join(path, fileName), `${route}${fileName}.`));
-      else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName))
+    }[] = [];
+    for (const fileName of realFs.readdirSync(path)) {
+      if (realFs.statSync(join(path, fileName)).isDirectory()) {
+        list = list.concat(
+          scanDfs(join(path, fileName), `${route}${fileName}.`)
+        );
+      }
+      else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName)) {
         list.push({
           fileName: `${route}${fileName.slice(0, fileName.lastIndexOf('.'))}`,
           path: join(path, fileName),
           route
         });
+      }
+    }
     return list;
   }
 
   if (
-    existsSync(resolve(process.cwd(), './src')) &&
-    statSync(resolve(process.cwd(), './src')).isDirectory()
+    realFs.existsSync(resolve(process.cwd(), './src')) &&
+    realFs.statSync(resolve(process.cwd(), './src')).isDirectory()
   ) {
     for (const component of scanDfs(resolve(process.cwd(), './src'))) {
       if (parseFilterComponents.indexOf(component.route) >= 0) {
@@ -51,8 +55,10 @@ export async function scan(
   }
 
   configPath =
-    existsSync(resolve(process.cwd(), './nickelcat.config.ts')) && resolve(process.cwd(), './nickelcat.config.ts') ||
-    existsSync(resolve(process.cwd(), './nickelcat.config.js')) && resolve(process.cwd(), './nickelcat.config.js');
+    realFs.existsSync(
+      resolve(process.cwd(), './nickelcat.config.ts')) && resolve(process.cwd(), './nickelcat.config.ts') ||
+    realFs.existsSync(
+      resolve(process.cwd(), './nickelcat.config.js')) && resolve(process.cwd(), './nickelcat.config.js');
 
   const virtualFiles = {
     [join(process.cwd(), './__nickelcat_staticRequire.js')]: `
@@ -66,7 +72,9 @@ module.exports = {
   const mfs = Volume.fromJSON(virtualFiles);
   const fs = new Union();
   fs.use(realFs).use(mfs as any);
-  if (typeof fs['join'] === 'undefined') fs['join'] = join;
+  if (typeof fs['join'] === 'undefined') {
+    fs['join'] = join;
+  }
 
   return fs;
 };
@@ -94,11 +102,17 @@ export function watch(): EventEmitter {
   watchFiles(process.cwd(), {
     ignored: /(node_modules)|(\.git)/
   }).on('all', async () => {
-    if (!initlaizeWaitDone) return;
+    if (!initlaizeWaitDone) {
+      return;
+    }
     await scan();
 
-    if (delayWaiting) changedDuringDelay = true;
-    else delayUpdate();
+    if (delayWaiting) {
+      changedDuringDelay = true;
+    }
+    else {
+      delayUpdate();
+    }
   });
 
   return emitter;

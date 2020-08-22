@@ -1,5 +1,5 @@
-import deal from './deal';
-import wait from './wait';
+import { deal } from './deal';
+import { wait } from './wait';
 
 export {
   deal,

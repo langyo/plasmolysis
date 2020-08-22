@@ -5,7 +5,7 @@ import { TranslatorRetObj } from '../../factorys/nodeServer/deal';
 export function translator(
   { args }: OriginalActionObject<TranslatorRetObj>,
   getContext: GetContextFuncType
-): Array<ActionNormalObject<TranslatorRetObj>> {
+): ActionNormalObject<TranslatorRetObj>[] {
   return [{
     kind: 'ActionNormalObject',
     platform: 'nodeServer',
@@ -16,7 +16,11 @@ export function translator(
 }
 
 export function executor({ func }: TranslatorRetObj) {
-  return async (payload: { [key: string]: any }, globalContext: GetContextFuncType, localContext: WebClientLocalContext) => {
-    return await func.call(null, payload, globalContext, localContext);
+  return async (
+    payload: { [key: string]: any },
+    globalContext: GetContextFuncType,
+    localContext: WebClientLocalContext
+  ) => {
+    return await func.call(undefined, payload, globalContext, localContext);
   };
 }
