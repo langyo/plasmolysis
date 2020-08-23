@@ -1,6 +1,3 @@
-/// <reference types="react" />
-/// <reference types="vue" />
-
 export {
   IPackageInfo,
   IProjectPackage,
