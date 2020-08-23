@@ -12,6 +12,7 @@ import {
 import { promisify } from 'util';
 import { resolve } from 'path';
 import { spawn } from 'child_process';
+import * as inquirer from 'inquirer';
 
 import * as ts from 'gulp-typescript';
 import * as del from 'del';
@@ -41,10 +42,10 @@ const compile = () => {
     '!./packages/**/node_modules/**/*',
     '!./packages/create-app/templates/**/*'
   ])
-    .inherit(ts({ declaration: true }));
+    .pipe(ts({ declaration: true }));
   return merge([
-    dts.inherit(dest('./dist/')),
-    js.inherit(dest('./dist/'))
+    dts.pipe(dest('./dist/')),
+    js.pipe(dest('./dist/'))
   ]);
 };
 
@@ -162,28 +163,20 @@ export const build = series(clean, compile, link);
 
 export const publish = series(
   build,
-  // TODO - Add the CLI for check the publish responsibilitiy
-  //        and publish new version.
+
+  // Remove the dependencies' symlink.
   async () => {
-    for (const pkg of (await readdir(resolve('./dist')))) {
-      if (await access(resolve(`./dist/${pkg}/package.json`))) {
-        await unlink(resolve(`./dist/${pkg}/package.json`));
-        await writeFile(
-          resolve(`./dist/${pkg}/package.json`),
-          await readFile(resolve(`./packages/${pkg}/package.json`))
-        );
-      }
-    }
     for (const pkg of (await readdir(resolve('./dist')))) {
       if (await access(resolve(`./dist/${pkg}/node_modules`))) {
         await unlink(resolve(`./dist/${pkg}/node_modules`));
       }
     }
   },
+
+  // Check and rewrite the local dependencies' version.
   async () => {
-    const { version } = JSON.parse(
-      await readFile(resolve('./lerna.json'), { encoding: 'utf8' })
-    );
+    // TODO - Read the root 'package.json' 's 'version'.
+    
     let pkgs = {};
     for (const pkg of (await readdir(resolve('./dist')))) {
       if (await access(resolve(`./dist/${pkg}/package.json`))) {
