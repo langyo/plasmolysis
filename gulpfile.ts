@@ -1,4 +1,6 @@
-import { src, dest, series, watch as watchFiles } from 'gulp';
+import {
+  src, dest, series, watch as watchFiles
+} from 'gulp';
 import {
   readdir as readdirOld,
   symlink as symlinkOld,
@@ -11,7 +13,7 @@ import {
 } from 'fs';
 import { promisify } from 'util';
 import { resolve } from 'path';
-import { spawn } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
 import * as inquirer from 'inquirer';
 
 import * as ts from 'gulp-typescript';
@@ -34,9 +36,21 @@ const rmdir = promisify(rmdirOld);
 const readFile = promisify(readFileOld);
 const writeFile = promisify(writeFileOld);
 
+function createChildProcesses(
+  app: string,
+  args: string[],
+  cwd: string[]
+): (() => ChildProcess)[] {
+  return cwd.map(cwd => () => spawn(
+    process.platform === 'win32' ? `${app}.cmd` : app, args, {
+    stdio: 'inherit', cwd
+  }
+  ))
+}
+
 export const clean = () => del('./dist/');
 
-const compile = () => {
+export const compile = () => {
   let { dts, js } = src([
     './packages/**/*.ts',
     '!./packages/**/node_modules/**/*',
@@ -49,27 +63,14 @@ const compile = () => {
   ]);
 };
 
-export const install = series(
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
-    cwd: resolve('./packages/action-preset'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
-    cwd: resolve('./packages/action-routes'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
-    cwd: resolve('./packages/core'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
-    cwd: resolve('./packages/create-app'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', [], {
-    cwd: resolve('./packages/dev-server'),
-    stdio: 'inherit'
-  })
+export const install = series.apply(undefined,
+  createChildProcesses('yarn', [], [
+    resolve('./packages/action-preset'),
+    resolve('./packages/action-routes'),
+    resolve('./packages/core'),
+    resolve('./packages/create-app'),
+    resolve('./packages/dev-server')
+  ])
 );
 
 export const link = async () => {
@@ -136,28 +137,13 @@ export const link = async () => {
   }
 };
 
-export const debugGlobalLink = series(
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
-    cwd: resolve('./packages/action-preset'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
-    cwd: resolve('./packages/action-routes'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
-    cwd: resolve('./packages/core'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
-    cwd: resolve('./packages/create-app'),
-    stdio: 'inherit'
-  }),
-  () => spawn(process.platform === 'win32' ? 'yarn.cmd' : 'yarn', ['link'], {
-    cwd: resolve('./packages/dev-server'),
-    stdio: 'inherit'
-  })
-);
+export const debugGlobalLink = series.apply(undefined, createChildProcesses('yarn', ['link'], [
+  resolve('./dist/action-preset'),
+  resolve('./dist/action-routes'),
+  resolve('./dist/core'),
+  resolve('./dist/create-app'),
+  resolve('./dist/dev-server')
+]));
 
 export const build = series(clean, compile, link);
 
@@ -175,8 +161,30 @@ export const publish = series(
 
   // Check and rewrite the local dependencies' version.
   async () => {
-    // TODO - Read the root 'package.json' 's 'version'.
-    
+    let rootPkg = JSON.parse(
+      await readFile(resolve(`./package.json`), { encoding: 'utf8' })
+    );
+    const [major, minor, patch]: [number, number, number]
+      = rootPkg.version.split('.').map((n: string) => +n);
+    const { version } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'version',
+        message: 'Choose version:',
+        choices: [
+          `${major}.${minor}.${patch + 1}`,
+          `${major}.${minor + 1}.${0}`,
+          `${major + 1}.${0}.${0}`
+        ]
+      }
+    ]);
+
+    rootPkg.version = version
+    await writeFile(
+      resolve(`./package.json`),
+      JSON.stringify(rootPkg)
+    );
+
     let pkgs = {};
     for (const pkg of (await readdir(resolve('./dist')))) {
       if (await access(resolve(`./dist/${pkg}/package.json`))) {
@@ -206,7 +214,14 @@ export const publish = series(
         JSON.stringify(pkgs[pkg])
       );
     }
-  }
+  },
+  series.apply(undefined, createChildProcesses('npm', ['publish'], [
+    resolve('./dist/action-preset'),
+    resolve('./dist/action-routes'),
+    resolve('./dist/core'),
+    resolve('./dist/create-app'),
+    resolve('./dist/dev-server')
+  ]))
 );
 
 export const watch = series(
