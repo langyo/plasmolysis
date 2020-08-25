@@ -6,7 +6,7 @@ import { generate } from 'shortid';
 interface IGeneratorRetObj {
   type: string,
   initState: { [key: string]: any },
-  name: string
+  name?: string
 };
 export interface ITranslatorRetObj {
   generator: (...args: any[]) => IGeneratorRetObj

@@ -56,18 +56,30 @@ export async function scan(
 
   configPath =
     realFs.existsSync(
-      resolve(process.cwd(), './nickelcat.config.ts')) && resolve(process.cwd(), './nickelcat.config.ts') ||
+      resolve(process.cwd(), './nickelcat.config.ts')) &&
+    resolve(process.cwd(), './nickelcat.config.ts') ||
     realFs.existsSync(
-      resolve(process.cwd(), './nickelcat.config.js')) && resolve(process.cwd(), './nickelcat.config.js');
+      resolve(process.cwd(), './nickelcat.config.js')) &&
+    resolve(process.cwd(), './nickelcat.config.js');
 
   const virtualFiles = {
-    [join(process.cwd(), './__nickelcat_staticRequire.js')]: `
+    [join(__dirname, './__nickelcat_staticRequire.js')]: `
 module.exports = {
-  components: {${components.map(component => `"${component.name}": "${component.path}"`).join(',\n')}},
-  configs: ${configPath}
+  components: {${
+      components
+        .map(component => `"${component.name}": "${component.path}"`)
+        .join(',\n')
+      }},
+  configs: "${configPath.split('\\').join('\\\\')}"
 };`,
-    [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]: `require("${join(__dirname, './defaultClientLoader.ts')}")`,
-    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]: `require("${join(__dirname, './defaultServerLoader.ts')}")`
+    [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]:
+      `require("${
+      join(__dirname, './defaultClientLoader.js').split('\\').join('\\\\')
+      }")`,
+    [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]:
+      `require("${
+      join(__dirname, './defaultServerLoader.js').split('\\').join('\\\\')
+      }")`
   };
   const mfs = Volume.fromJSON(virtualFiles);
   const fs = new Union();

@@ -27,17 +27,15 @@ let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
     }
   };
 
-export function build(code: string, context?: { [key: string]: any }) {
+export function build(code: string) {
   vm = new Script(code);
-  createContext({
-    ...context,
-    __CALLBACK:
-      (func: (sessionInfo: ISessionInfo) =>
+  vm.runInContext(createContext({
+    __CALLBACK: (
+      func: (sessionInfo: ISessionInfo) =>
         Promise<IRequestForwardObjectType>) => {
         caller = func;
       }
-  });
-  vm.runInContext(context);
+  }));
 };
 
 export const send: IRequestForwardFuncType =
