@@ -9,9 +9,10 @@ import {
 } from './type';
 
 declare global {
-  export const __CALLBACK:
-    (ret: (sessionInfo: ISessionInfo) =>
-      Promise<IRequestForwardObjectType>) => void;
+  export const __CALLBACK: (
+    ret: (sessionInfo: ISessionInfo) =>
+      Promise<IRequestForwardObjectType>
+  ) => void;
 };
 
 import { actionManager as actionManagerFactory } from 'nickelcat';

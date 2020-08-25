@@ -1,5 +1,6 @@
 import * as webpack from 'webpack';
 import * as TerserPlugin from 'terser-webpack-plugin';
+import { createConfigItem } from '@babel/core';
 
 import { EventEmitter } from 'events';
 import { scan } from './projectWatcher';
@@ -22,13 +23,34 @@ export async function loader(
           loader: 'babel-loader',
           exclude: /node_modules/,
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript']
+            presets: [
+              createConfigItem(
+                require(join(__dirname, './node_modules/@babel/preset-env'))
+              ),
+              createConfigItem(
+                require(join(__dirname, './node_modules/@babel/preset-react'))
+              ),
+              createConfigItem(
+                require(join(__dirname, './node_modules/@babel/preset-typescript'))
+              )
+            ]
           }
         }
       ]
     },
     resolve: {
-      modules: [join(process.cwd(), './node_modules'), 'node_modules']
+      modules: [
+        join(__dirname, './node_modules'),
+        join(process.cwd(), './node_modules'),
+        'node_modules'
+      ]
+    },
+    resolveLoader: {
+      modules: [
+        join(__dirname, './node_modules'),
+        join(process.cwd(), './node_modules'),
+        'node_modules'
+      ]
     },
     output: {
       filename: 'output',
@@ -49,7 +71,7 @@ export async function loader(
     ...webpackConfig
   });
   compiler.inputFileSystem = fs;
-  compiler.outputFileSystem = <any>fs;
+  compiler.outputFileSystem = fs as any;
 
   function compile() {
     compiler.run((err: Error, status) => {
