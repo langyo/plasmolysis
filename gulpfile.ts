@@ -41,11 +41,14 @@ function createChildProcesses(
   args: string[],
   cwd: string[]
 ): (() => ChildProcess)[] {
-  return cwd.map(cwd => () => spawn(
-    process.platform === 'win32' ? `${app}.cmd` : app, args, {
-    stdio: 'inherit', cwd
-  }
-  ))
+  return series.apply(
+    undefined,
+    cwd.map(cwd => () => spawn(
+      process.platform === 'win32' ? `${app}.cmd` : app, args, {
+      stdio: 'inherit', cwd
+    }
+    ))
+  );
 }
 
 export const clean = () => del('./dist/');
@@ -63,15 +66,13 @@ export const compile = () => {
   ]);
 };
 
-export const install = series.apply(undefined,
-  createChildProcesses('yarn', [], [
-    resolve('./packages/action-preset'),
-    resolve('./packages/action-routes'),
-    resolve('./packages/core'),
-    resolve('./packages/create-app'),
-    resolve('./packages/dev-server')
-  ])
-);
+export const install = createChildProcesses('yarn', [], [
+  resolve('./packages/action-preset'),
+  resolve('./packages/action-routes'),
+  resolve('./packages/core'),
+  resolve('./packages/create-app'),
+  resolve('./packages/dev-server')
+]);
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./dist')))) {
@@ -137,13 +138,13 @@ export const link = async () => {
   }
 };
 
-export const debugGlobalLink = series.apply(undefined, createChildProcesses('yarn', ['link'], [
+export const debugGlobalLink = createChildProcesses('yarn', ['link'], [
   resolve('./dist/action-preset'),
   resolve('./dist/action-routes'),
   resolve('./dist/core'),
   resolve('./dist/create-app'),
   resolve('./dist/dev-server')
-]));
+]);
 
 export const build = series(clean, compile, link);
 
@@ -215,7 +216,9 @@ export const publish = series(
       );
     }
   },
-  series.apply(undefined, createChildProcesses('npm', ['publish'], [
+
+  // Publish the packages by using NPM.
+  series(createChildProcesses('npm', ['publish'], [
     resolve('./dist/action-preset'),
     resolve('./dist/action-routes'),
     resolve('./dist/core'),
