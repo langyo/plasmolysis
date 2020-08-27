@@ -2,16 +2,13 @@ import * as webpack from 'webpack';
 import * as TerserPlugin from 'terser-webpack-plugin';
 import { createConfigItem } from '@babel/core';
 
-import { EventEmitter } from 'events';
 import { scan } from './projectWatcher';
 import { join } from 'path';
 
-export async function loader(
-  webpackConfig: { [key: string]: any },
-  updateListener: EventEmitter
-): Promise<EventEmitter> {
+export async function compile(
+  webpackConfig: { [key: string]: any }
+): Promise<() => Promise<{ code: string, sourceMap: string }>> {
   const fs = await scan();
-  const emitter = new EventEmitter();
 
   const compiler = webpack({
     mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
@@ -53,7 +50,7 @@ export async function loader(
       ]
     },
     output: {
-      filename: 'output',
+      filename: 'output.js',
       path: '/'
     },
     optimization: {
@@ -68,33 +65,38 @@ export async function loader(
         sourceMap: process.env.NODE_ENV === 'development'
       })],
     },
+    devtool: 'source-map',
     ...webpackConfig
   });
   compiler.inputFileSystem = fs;
   compiler.outputFileSystem = fs as any;
 
-  function compile() {
-    compiler.run((err: Error, status) => {
-      if (err) {
-        throw err;
-      }
-
-      if (status.hasErrors()) {
-        const info = status.toJson();
-        if (status.hasErrors()) {
-          info.errors.forEach((e: string) => console.error(e));
+  return function compile(): Promise<{ code: string, sourceMap: string }> {
+    return new Promise((resolve, reject) => {
+      compiler.run((err: Error, status) => {
+        if (err) {
+          reject(err);
         }
-        if (status.hasWarnings()) {
-          info.warnings.forEach((e: string) => console.warn(e));
-        }
-      }
 
-      emitter.emit('ready', fs.readFileSync('/output').toString());
+        else if (status.hasErrors()) {
+          const info = status.toJson();
+          let errStr = '';
+          if (status.hasErrors()) {
+            info.errors.forEach((e: string) => errStr += (e + '\n'));
+          }
+          if (status.hasWarnings()) {
+            info.warnings.forEach((e: string) => errStr += (e + '\n'));
+          }
+          reject(new Error(errStr));
+        }
+
+        else {
+          resolve({
+            code: fs.readFileSync('/output.js').toString(),
+            sourceMap: fs.readFileSync('/output.js.map').toString()
+          });
+        }
+      })
     });
   }
-  compile();
-
-  updateListener.on('update', compile);
-
-  return emitter;
 };

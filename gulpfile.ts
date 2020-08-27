@@ -59,7 +59,10 @@ export const compile = () => {
     '!./packages/**/node_modules/**/*',
     '!./packages/create-app/templates/**/*'
   ])
-    .pipe(ts({ declaration: true }));
+    .pipe(ts({
+      declaration: true,
+      sourceMap: true
+    }));
   return merge([
     dts.pipe(dest('./dist/')),
     js.pipe(dest('./dist/'))
