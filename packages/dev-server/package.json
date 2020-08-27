@@ -44,6 +44,7 @@
     "shortid": "^2.2.15",
     "terser-webpack-plugin": "^3.0.2",
     "unionfs": "^4.4.0",
+    "vm2": "^3.9.2",
     "webpack": "^4.43.0"
   }
 }

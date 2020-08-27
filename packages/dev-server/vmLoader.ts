@@ -4,11 +4,11 @@ import {
   ISessionInfo
 } from './type';
 
-import { Script, createContext } from 'vm';
+import { NodeVM } from 'vm2';
+import { join } from 'path';
 
-let vm = new Script('');
 let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
-  async sessionInfo => {
+  async () => {
     return {
       status: 'processed',
       code: 500,
@@ -27,15 +27,27 @@ let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
     }
   };
 
-export function build(code: string) {
-  vm = new Script(code);
-  vm.runInContext(createContext({
+let vm = new NodeVM({
+  console: 'inherit',
+  sandbox: {
     __CALLBACK: (
-      func: (sessionInfo: ISessionInfo) =>
-        Promise<IRequestForwardObjectType>) => {
-        caller = func;
-      }
-  }));
+      func: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType>
+    ) => {
+      caller = func;
+    }
+  },
+  require: {
+    external: true,
+    builtin: ['*'],
+    root: [
+      join(__dirname, './node_modules'),
+      join(process.cwd(), './node_modules')
+    ]
+  }
+});
+
+export function build(code: string) {
+  vm.run(code)('services');
 };
 
 export const send: IRequestForwardFuncType =

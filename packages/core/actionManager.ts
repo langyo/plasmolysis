@@ -108,9 +108,12 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
     return executors[platform][packageName][actionName];
   }
 
+  // TODO - Make the action package more pretter?
   function loadPackage(packageInfo: IPackageInfo): void {
     for (const platform of Object.keys(packageInfo.actions)) {
+      if (platform === '__esModule') { continue; }
       for (const actionName of Object.keys(packageInfo.actions[platform])) {
+        if (actionName === '__esModule') { continue; }
         translators[platform][actionName] =
           packageInfo.actions[platform][actionName].translator;
         executors[platform][actionName] =
@@ -118,7 +121,9 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
       }
     }
     for (const platform of Object.keys(packageInfo.contexts)) {
+      if (platform === '__esModule') { continue; }
       for (const type of Object.keys(packageInfo.contexts[platform])) {
+        if (type === '__esModule') { continue; }
         contexts[platform][type] =
           packageInfo.contexts[platform][type](
             projectPackage, getContextFactory(platform as IPlatforms)

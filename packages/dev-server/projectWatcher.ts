@@ -56,22 +56,33 @@ export async function scan(
 
   configPath =
     realFs.existsSync(
-      resolve(process.cwd(), './nickelcat.config.ts')) &&
-    resolve(process.cwd(), './nickelcat.config.ts') ||
+      resolve(process.cwd(), './nickelcat.config.ts')
+    ) && resolve(process.cwd(), './nickelcat.config.ts') ||
     realFs.existsSync(
-      resolve(process.cwd(), './nickelcat.config.js')) &&
-    resolve(process.cwd(), './nickelcat.config.js');
+      resolve(process.cwd(), './nickelcat.config.js')
+    ) && resolve(process.cwd(), './nickelcat.config.js');
 
   const virtualFiles = {
     [join(__dirname, './__nickelcat_staticRequire.js')]: `
-module.exports = {
-  components: {${
-      components
-        .map(component => `"${component.name}": "${component.path}"`)
-        .join(',\n')
-      }},
-  configs: "${configPath.split('\\').join('\\\\')}"
-};`,
+module.exports = ${
+      JSON.stringify({
+        webClient: {
+          ...components.reduce((obj, { name, path }) => ({
+            ...obj,
+            [name]: {
+              component: `require("${
+                path.split('\\').join('\\\\')
+              }").default`,
+              controller: `require("${
+                path.split('\\').join('\\\\')
+              }").controller`
+            }
+          }), {})
+        },
+        nodeServer: {
+          // TODO - Upgrade the structure.
+        }
+      })};`,
     [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]:
       `require("${
       join(__dirname, './defaultClientLoader.js').split('\\').join('\\\\')
