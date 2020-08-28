@@ -5,32 +5,25 @@ import {
 import * as Koa from 'koa';
 
 import { build, send } from './vmLoader';
-import { compile } from './webpackLoader';
+import { generateCompiler } from './webpackLoader';
 import { watch } from './projectWatcher';
-import { EventEmitter } from 'events';
-
-import { resolve } from 'path';
 
 export async function serviceLoader(): Promise<(libType: string) => any> {
-  const watcher = watch();
   let clientBundleContent: string = '';
 
-  const webpackClientSideFunc = await compile({
-    entry: resolve(process.cwd(), './__nickelcat_defaultClientLoader.js'),
+  const webpackClientSideFunc = await generateCompiler({
+    entry: '/__nickelcat_defaultClientLoader.js',
     target: 'web'
   });
-  const webpackServerSideFunc = await compile({
-    entry: resolve(process.cwd(), './__nickelcat_defaultServerLoader.js'),
+  const webpackServerSideFunc = await generateCompiler({
+    entry: '/__nickelcat_defaultServerLoader.js',
     target: 'node'
   });
 
-  watcher.on('update', async () => {
+  watch(async () => {
     clientBundleContent = (await webpackClientSideFunc()).code;
     build((await webpackServerSideFunc()).code);
   });
-
-  clientBundleContent = (await webpackClientSideFunc()).code;
-  build((await webpackServerSideFunc()).code);
 
   return async function (libType: string) {
     switch (libType) {
@@ -54,10 +47,8 @@ export async function serviceLoader(): Promise<(libType: string) => any> {
             ctx.type = type;
             ctx.body = body;
             ctx.status = code;
-            await next();
-          } else {
-            await next();
           }
+          await next();
         };
       default:
         throw new Error(`Unsupported library type: ${libType}`);
