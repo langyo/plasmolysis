@@ -5,6 +5,7 @@ import {
 } from './type';
 
 import { NodeVM } from 'vm2';
+
 import { join } from 'path';
 
 let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
@@ -47,7 +48,12 @@ let vm = new NodeVM({
 });
 
 export function build(code: string) {
-  vm.run(code)('services');
+  try {
+    vm.run(code)('services');
+  } catch (e) {
+    console.log('test');
+    throw e;
+  }
 };
 
 export const send: IRequestForwardFuncType =

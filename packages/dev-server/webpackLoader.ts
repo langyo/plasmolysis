@@ -4,142 +4,105 @@ import { createConfigItem } from '@babel/core';
 
 import { join } from 'path';
 
+import { Volume } from 'memfs';
+import { Union } from 'unionfs'
 import * as realFs from 'fs';
 
-async function scan(
+export async function generateCompiler(
+  webpackConfig: { [key: string]: any },
   parseFilterComponents: string[]
     = ['', 'dialog.', 'dialogs.', 'page.', 'pages.', 'view.', 'views.']
-): Promise<typeof realFs> {
-  let components: {
-    name: string,
-    path: string
-  }[] = [];
-  let configPath: string = '';
-
-  const scanDfs = (path: string, route: string = '') => {
-    let list: {
-      fileName: string,
-      path: string,
-      route: string
-    }[] = [];
-    for (const fileName of realFs.readdirSync(path)) {
-      if (realFs.statSync(join(path, fileName)).isDirectory()) {
-        list = list.concat(
-          scanDfs(join(path, fileName), `${route}${fileName}.`)
-        );
-      }
-      else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName)) {
-        list.push({
-          fileName: `${route}${fileName.slice(0, fileName.lastIndexOf('.'))}`,
-          path: join(path, fileName),
-          route
-        });
-      }
-    }
-    return list;
-  }
-
-  if (
-    realFs.existsSync(join(process.cwd(), './src')) &&
-    realFs.statSync(join(process.cwd(), './src')).isDirectory()
-  ) {
-    for (const component of scanDfs(join(process.cwd(), './src'))) {
-      if (parseFilterComponents.indexOf(component.route) >= 0) {
-        components.push({
-          name: component.fileName,
-          path: component.path.split('\\').join('\\\\')
-        });
-        break;
-      }
-    }
-  }
-
-  configPath =
-    realFs.existsSync(
-      join(process.cwd(), './nickelcat.config.ts')
-    ) && join(process.cwd(), './nickelcat.config.ts') ||
-    realFs.existsSync(
-      join(process.cwd(), './nickelcat.config.js')
-    ) && join(process.cwd(), './nickelcat.config.js');
-
-  const virtualFiles = {
-    ['/__nickelcat_staticRequire.js']: `
-module.exports = ${
-      JSON.stringify({
-        webClient: {
-          ...components.reduce((obj, { name, path }) => ({
-            ...obj,
-            [name]: {
-              component: `require("${
-                path.split('\\').join('\\\\')
-                }").default`,
-              controller: `require("${
-                path.split('\\').join('\\\\')
-                }").controller`
-            }
-          }), {})
-        },
-        nodeServer: {
-          // TODO - Upgrade the structure.
-        }
-      })};`,
-    ['/__nickelcat_defaultClientLoader.js']:
-      `require("${
-      join(__dirname, './defaultClientLoader.js').split('\\').join('\\\\')
-      }")`,
-    ['/__nickelcat_defaultServerLoader.js']:
-      `require("${
-      join(__dirname, './defaultServerLoader.js').split('\\').join('\\\\')
-      }")`
-  };
-
-  // TODO - Abandon the memory fs instead of some hooks.
-  let fs = {
-    ...realFs,
-    join,
-    read: (...args: any[]) =>
-      (console.log('read', args),
-        realFs.readFile.apply(undefined, args)),
-    readlink: (...args: any[]) =>
-      (console.log('readlink', args),
-        realFs.readFile.apply(undefined, args)),
-    readlinkSync: (...args: any[]) =>
-      (console.log('readlinkSync', args),
-        realFs.readFile.apply(undefined, args)),
-    readv: (...args: any[]) =>
-        (console.log('readv', args),
-          realFs.readFile.apply(undefined, args)),
-    readvSync: (...args: any[]) =>
-      (console.log('readvSync', args),
-        realFs.readFile.apply(undefined, args)),
-    readFile: (...args: any[]) =>
-      (console.log('readFile', args),
-        realFs.readFile.apply(undefined, args)),
-    readFileSync: (...args: any[]) =>
-      (console.log('readFileSync', args),
-        realFs.readFile.apply(undefined, args)),
-    readdir: (...args: any[]) =>
-      (console.log('readdir', args),
-        realFs.readFile.apply(undefined, args)),
-    readdirSync: (...args: any[]) =>
-      (console.log('readdirSync', args),
-        realFs.readFile.apply(undefined, args)),
-    stat: (...args: any[]) =>
-      (console.log('stat', args),
-        realFs.readFile.apply(undefined, args)),
-    statSync: (...args: any[]) =>
-      (console.log('statSync', args),
-        realFs.readFile.apply(undefined, args))
-  }
-
-  return fs as any;
-};
-
-export async function generateCompiler(
-  webpackConfig: { [key: string]: any }
 ): Promise<() => Promise<{ code: string, sourceMap: string }>> {
   return async function (): Promise<{ code: string, sourceMap: string }> {
-    const fs = await scan();
+    let components: {
+      name: string,
+      path: string
+    }[] = [];
+    let configPath: string = '';
+
+    const scanDfs = (path: string, route: string = '') => {
+      let list: {
+        fileName: string,
+        path: string,
+        route: string
+      }[] = [];
+      for (const fileName of realFs.readdirSync(path)) {
+        if (realFs.statSync(join(path, fileName)).isDirectory()) {
+          list = list.concat(
+            scanDfs(join(path, fileName), `${route}${fileName}.`)
+          );
+        }
+        else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName)) {
+          list.push({
+            fileName: `${route}${fileName.slice(0, fileName.lastIndexOf('.'))}`,
+            path: join(path, fileName),
+            route
+          });
+        }
+      }
+      return list;
+    }
+
+    if (
+      realFs.existsSync(join(process.cwd(), './src')) &&
+      realFs.statSync(join(process.cwd(), './src')).isDirectory()
+    ) {
+      for (const component of scanDfs(join(process.cwd(), './src'))) {
+        if (parseFilterComponents.indexOf(component.route) >= 0) {
+          components.push({
+            name: component.fileName,
+            path: component.path.split('\\').join('\\\\')
+          });
+          break;
+        }
+      }
+    }
+
+    configPath =
+      realFs.existsSync(
+        join(process.cwd(), './nickelcat.config.ts')
+      ) && join(process.cwd(), './nickelcat.config.ts') ||
+      realFs.existsSync(
+        join(process.cwd(), './nickelcat.config.js')
+      ) && join(process.cwd(), './nickelcat.config.js');
+
+    const virtualFiles = {
+      [join(__dirname, './__nickelcat_staticRequire.js')]: `
+  module.exports = ${
+        JSON.stringify({
+          webClient: {
+            ...components.reduce((obj, { name, path }) => ({
+              ...obj,
+              [name]: {
+                component: `require("${
+                  path.split('\\').join('\\\\')
+                  }").default`,
+                controller: `require("${
+                  path.split('\\').join('\\\\')
+                  }").controller`
+              }
+            }), {})
+          },
+          nodeServer: {
+            // TODO - Upgrade the structure.
+          }
+        })};`,
+      [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]:
+        `require("${
+        join(__dirname, './defaultClientLoader.js').split('\\').join('\\\\')
+        }")`,
+      [join(process.cwd(), './__nickelcat_defaultServerLoader.js')]:
+        `require("${
+        join(__dirname, './defaultServerLoader.js').split('\\').join('\\\\')
+        }")`
+    };
+
+    const mfs = Volume.fromJSON(virtualFiles);
+    let fs = (new Union()).use(realFs).use(mfs as any);
+    if (typeof fs['join'] === 'undefined') {
+      fs['join'] = join;
+    }
+
     const compiler = webpack({
       mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
       context: process.cwd(),
@@ -219,12 +182,15 @@ export async function generateCompiler(
         }
 
         else {
-          resolve({
-            code:
-              fs.readFileSync('/output.js', { encoding: 'utf8' }).toString(),
-            sourceMap:
-              fs.readFileSync('/output.js.map', { encoding: 'utf8' }).toString()
-          });
+          fs.readFile('/output.js', { encoding: 'utf8' },
+            (err, code) => {
+              fs.readFile('/output.js.map', { encoding: 'utf8' },
+                (err, sourceMap) => {
+                  resolve({
+                    code, sourceMap
+                  })
+                })
+            });
         }
       })
     });

@@ -8,15 +8,17 @@ import { build, send } from './vmLoader';
 import { generateCompiler } from './webpackLoader';
 import { watch } from './projectWatcher';
 
+import { join } from 'path';
+
 export async function serviceLoader(): Promise<(libType: string) => any> {
   let clientBundleContent: string = '';
 
   const webpackClientSideFunc = await generateCompiler({
-    entry: '/__nickelcat_defaultClientLoader.js',
+    entry: join(process.cwd(), './__nickelcat_defaultClientLoader.js'),
     target: 'web'
   });
   const webpackServerSideFunc = await generateCompiler({
-    entry: '/__nickelcat_defaultServerLoader.js',
+    entry: join(process.cwd(), './__nickelcat_defaultServerLoader.js'),
     target: 'node'
   });
 
