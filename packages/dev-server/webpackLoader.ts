@@ -154,7 +154,7 @@ export async function generateCompiler(
             },
           },
           extractComments: false,
-          sourceMap: process.env.NODE_ENV === 'development'
+          sourceMap: true
         })],
       },
       devtool: 'source-map',
