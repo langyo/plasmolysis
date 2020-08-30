@@ -59,7 +59,7 @@ export function build({
       const errInfo = errorParse(e);
       const consumer = await new SourceMapConsumer(JSON.parse(sourceMap));
 
-      console.error('Error:', e.message);
+      console.error('Parsed error stack info on the vm:');
       for (let errItem of errInfo) {
         const { line, column, source } = consumer.originalPositionFor({
           line: errItem.lineNumber,
@@ -67,9 +67,11 @@ export function build({
         });
 
         if (line && column && source) {
-          console.error(`  at ${source} ${line}:${column}`);
+          console.error(`    at ${source}:${line}:${column}`);
         }
       }
+      console.error();
+      throw e;
     })()
   }
 };
