@@ -24,7 +24,7 @@ export async function serviceLoader(): Promise<(libType: string) => any> {
 
   watch(async () => {
     clientBundleContent = (await webpackClientSideFunc()).code;
-    build((await webpackServerSideFunc()).code);
+    build(await webpackServerSideFunc());
   });
 
   return async function (libType: string) {
