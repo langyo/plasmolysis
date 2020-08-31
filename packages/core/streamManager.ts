@@ -57,7 +57,7 @@ export function streamManager(
 
   function getStreamList(platform: IPlatforms, tag: string): string[] {
     if (typeof streams[platform][tag] === 'undefined') {
-      throw new Error(`Unknown tag '${tag} at the platform '${platform}'.`);
+      throw new Error(`Unknown tag '${tag}' at the platform '${platform}'.`);
     }
     return Object.keys(streams[platform][tag]);
   }

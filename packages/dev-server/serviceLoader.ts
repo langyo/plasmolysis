@@ -10,7 +10,7 @@ import { watch } from './projectWatcher';
 
 import { join } from 'path';
 
-export async function serviceLoader(): Promise<(libType: string) => any> {
+export async function serviceLoader(libType: string = 'koa'): Promise<any> {
   let clientBundleContent: string = '';
 
   const webpackClientSideFunc = await generateCompiler({
@@ -27,33 +27,31 @@ export async function serviceLoader(): Promise<(libType: string) => any> {
     build(await webpackServerSideFunc());
   });
 
-  return async function (libType: string) {
-    switch (libType) {
-      case 'koa':
-        return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
-          const { status, code, type, body }: IRequestForwardObjectType =
-            await send({
-              ip: ctx.ip,
-              path: ctx.path,
-              query: ctx.query,
-              host: ctx.host,
-              protocol: ctx.protocol,
-              cookies: {
-                // BUG - The type declaration file has not defined 'cookies'
-                get: (ctx as any).cookies.get,
-                set: (ctx as any).cookies.set
-              }
-            });
+  switch (libType) {
+    case 'koa':
+      return async (ctx: Koa.BaseContext, next: () => Promise<any>) => {
+        const { status, code, type, body }: IRequestForwardObjectType =
+          await send({
+            ip: ctx.ip,
+            path: ctx.path,
+            query: ctx.query,
+            host: ctx.host,
+            protocol: ctx.protocol,
+            cookies: {
+              // BUG - The type declaration file has not defined 'cookies'
+              get: (ctx as any).cookies.get,
+              set: (ctx as any).cookies.set
+            }
+          });
 
-          if (status === 'processed') {
-            ctx.type = type;
-            ctx.body = body;
-            ctx.status = code;
-          }
-          await next();
-        };
-      default:
-        throw new Error(`Unsupported library type: ${libType}`);
-    }
-  };
+        if (status === 'processed') {
+          ctx.type = type;
+          ctx.body = body;
+          ctx.status = code;
+        }
+        await next();
+      };
+    default:
+      throw new Error(`Unsupported library type: ${libType}`);
+  }
 };

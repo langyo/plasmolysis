@@ -36,7 +36,8 @@ export function build({
   code, sourceMap
 }: { code: string, sourceMap: string }) {
   try {
-    caller = (new Script(code)).runInContext(context);
+    (new Script(code)).runInContext(context);
+    console.log('The server has been loaded.');
   } catch (e) {
     (async function () {
       const errInfo = errorParse(e);
