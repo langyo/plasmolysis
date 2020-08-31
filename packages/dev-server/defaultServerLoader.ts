@@ -39,17 +39,18 @@ function loadReactComponent(
   component: IWebClientComponentType,
   modelType: string,
   pageState: { [key: string]: any }
-) {
-  renderToString(createElement(component as any, {
+): string {
+  return renderToString(createElement(component as any, {
     ...pageState,
     ...streamManager.getStreamList(
       'webClient', modelType
     ).reduce((obj, key) => ({
       ...obj,
-      [key]: (payload: { [key: string]: any }) => streamManager.runStream('webClient', modelType, key, payload, {
-        modelType,
-        modelID: '$page'
-      })
+      [key]: (payload: { [key: string]: any }) =>
+        streamManager.runStream('webClient', modelType, key, payload, {
+          modelType,
+          modelID: '$page'
+        })
     }), {})
   }));
 };
@@ -138,7 +139,6 @@ __CALLBACK(async ({
 <body>
   <h2>Oops!</h2>
   <p>${e.message}</p>
-  <p>The most likely cause of the error is the invalid parameters passed, or the problem with the server design.</p>
   <p>The server has logged the error. We apologize for the inconvenience. :P</p>
   </body>
 </html>`
