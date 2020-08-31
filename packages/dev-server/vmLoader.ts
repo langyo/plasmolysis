@@ -4,19 +4,15 @@ import {
   ISessionInfo
 } from './type';
 
-import { NodeVM } from 'vm2';
+import { Script, createContext } from 'vm';
 import { parse as errorParse } from 'error-stack-parser';
 import { SourceMapConsumer } from 'source-map';
 
-import { join } from 'path';
-
-let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
-  async () => {
-    return {
-      status: 'processed',
-      code: 500,
-      type: 'text/html',
-      body: `
+let caller: IRequestForwardFuncType = async () => ({
+  status: 'processed',
+  code: 500,
+  type: 'text/html',
+  body: `
 <html>
 <head>
     <title>RUNTIME ERROR</title>
@@ -25,41 +21,28 @@ let caller: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType> =
   <h2>Oops!</h2>
   <p>The server isn't ready to provide services.</p>
   </body>
-</html>
-    `
-    }
-  };
+</html>`
+});
 
-let vm = new NodeVM({
-  console: 'inherit',
-  sandbox: {
-    __CALLBACK: (
-      func: (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType>
-    ) => {
-      caller = func;
-    }
-  },
-  require: {
-    external: true,
-    builtin: ['*'],
-    root: [
-      join(__dirname, './node_modules'),
-      join(process.cwd(), './node_modules')
-    ]
-  }
+const context = createContext({
+  global,
+  process,
+  require,
+  console,
+  __CALLBACK: (func: IRequestForwardFuncType) => caller = func
 });
 
 export function build({
   code, sourceMap
 }: { code: string, sourceMap: string }) {
   try {
-    vm.run(code)('services');
+    caller = (new Script(code)).runInContext(context);
   } catch (e) {
     (async function () {
       const errInfo = errorParse(e);
       const consumer = await new SourceMapConsumer(JSON.parse(sourceMap));
 
-      console.error('Parsed error stack info on the vm:');
+      console.error('Here are some error stack info before launch the server:');
       for (let errItem of errInfo) {
         const { line, column, source } = consumer.originalPositionFor({
           line: errItem.lineNumber,
@@ -70,7 +53,7 @@ export function build({
           console.error(`    at ${source}:${line}:${column}`);
         }
       }
-      console.error();
+      console.error('');
       throw e;
     })()
   }

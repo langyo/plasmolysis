@@ -130,6 +130,7 @@ export async function generateCompiler(
       },
       resolve: {
         modules: [
+          join(__dirname, './node_modules'),
           join(process.cwd(), './node_modules'),
           'node_modules'
         ]
