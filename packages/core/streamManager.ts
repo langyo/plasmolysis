@@ -54,7 +54,6 @@ export function streamManager(
       }
     }
   }
-  console.log(projectPackage.data.webClient)
 
   function getStreamList(platform: IPlatforms, tag: string): string[] {
     if (typeof streams[platform][tag] === 'undefined') {

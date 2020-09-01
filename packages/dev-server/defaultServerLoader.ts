@@ -82,7 +82,7 @@ __CALLBACK(async ({
         )
       };
     } else if (
-      path === "/" ||
+      path === '/' ||
       pageList.routes.indexOf(path) >= 0
     ) {
       // Page routes.
