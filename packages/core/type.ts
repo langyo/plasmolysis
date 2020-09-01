@@ -84,23 +84,32 @@ export type IWebClientComponentType =
   }) => string | React.Component | Vue.Component;
 
 export type IProjectPackage = {
-  // TODO - It needs some space for configs.
-  webClient?: {
-    [modelType: string]: {
-      component: IWebClientComponentType,
-      controller: {
-        $init?: (
-          payload: { [key: string]: any },
-          globalContext: IGetContextFuncType,
-          localContext: { [key: string]: any }
-        ) => { [key: string]: any },
-        [actionName: string]: { type: string, args: any }[] | any
+  data: {
+    webClient?: {
+      [modelType: string]: {
+        component: IWebClientComponentType,
+        controller: {
+          $init?: (
+            payload: { [key: string]: any },
+            globalContext: IGetContextFuncType,
+            localContext: { [key: string]: any }
+          ) => { [key: string]: any },
+          [actionName: string]: { type: string, args: any }[] | any
+        }
+      }
+    },
+    nodeServer?: {
+      [protocol: string]: {
+        [path: string]: { type: string, args: any }[]
       }
     }
   },
-  nodeServer?: {
-    [protocol: string]: {
-      [path: string]: { type: string, args: any }[]
+  config: {
+    webClient?: {
+      [key: string]: any
+    },
+    nodeServer?: {
+      [key: string]: any
     }
   }
 };

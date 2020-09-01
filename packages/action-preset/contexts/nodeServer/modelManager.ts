@@ -18,8 +18,8 @@ export function modelManager(
     components[modelType] = component;
   };
 
-  for (const modelType of Object.keys(projectPackage.webClient)) {
-    storageModel(modelType, projectPackage.webClient[modelType].component);
+  for (const modelType of Object.keys(projectPackage.data.webClient)) {
+    storageModel(modelType, projectPackage.data.webClient[modelType].component);
   }
 
   function loadComponent(type: string): IWebClientComponentType {

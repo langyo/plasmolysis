@@ -7,6 +7,7 @@ import { join } from 'path';
 import { Volume } from 'memfs';
 import { Union } from 'unionfs'
 import * as realFs from 'fs';
+import { IProjectPackage } from '../core/type';
 
 export async function generateCompiler(
   webpackConfig: { [key: string]: any },
@@ -67,21 +68,19 @@ export async function generateCompiler(
 
     const virtualFiles = {
       [join(__dirname, './__nickelcat_staticRequire.js')]: `
-  module.exports = ${
-        JSON.stringify({
-          webClient: {
-            ...components.reduce((obj, { name, path }) => ({
-              ...obj,
-              [name]: {
-                component: `require("${path}").default`,
-                controller: `require("${path}").controller`
-              }
-            }), {})
-          },
-          nodeServer: {
-            // TODO - Upgrade the structure.
-          }
-        })};`,
+module.exports = {
+  data: {
+    webClient: {${components.map(({ name, path }) => (`
+      "${name}": {
+        component: require("${path}").default,
+        controller: require("${path}").controller
+      }`)).join(',')}},
+    nodeServer: {
+      http: {}
+    }
+  },
+  config: {}
+};`,
       [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]:
         `require("${
         join(__dirname, './defaultClientLoader.js').split('\\').join('\\\\')
