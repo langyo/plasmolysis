@@ -62,6 +62,19 @@ export function streamManager(
     return Object.keys(streams[platform][tag]);
   }
 
+  function testStreamExist(
+    platform: IPlatforms, tag: string, key: string
+  ): boolean {
+    if (
+      typeof streams[platform][tag] === 'undefined' ||
+      typeof streams[platform][tag][key] === 'undefined'
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   function runStream(
     platform: IPlatforms,
     tag: string,
@@ -84,6 +97,7 @@ export function streamManager(
   return Object.freeze({
     loadStream,
     getStreamList,
+    testStreamExist,
     runStream
   });
 };
