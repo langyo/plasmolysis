@@ -53,7 +53,6 @@ export async function generateCompiler(
             name: component.fileName,
             path: component.path.split('\\').join('\\\\')
           });
-          break;
         }
       }
     }
@@ -74,12 +73,8 @@ export async function generateCompiler(
             ...components.reduce((obj, { name, path }) => ({
               ...obj,
               [name]: {
-                component: `require("${
-                  path.split('\\').join('\\\\')
-                  }").default`,
-                controller: `require("${
-                  path.split('\\').join('\\\\')
-                  }").controller`
+                component: `require("${path}").default`,
+                controller: `require("${path}").controller`
               }
             }), {})
           },
