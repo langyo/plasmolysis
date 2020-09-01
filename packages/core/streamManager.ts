@@ -40,20 +40,21 @@ export function streamManager(
     );
   };
 
-  for (const platform of Object.keys(projectPackage)) {
-    for (const tag of Object.keys(projectPackage[platform])) {
-      if (Array.isArray(projectPackage[platform][tag].controller)) {
+  for (const platform of Object.keys(projectPackage.data)) {
+    for (const tag of Object.keys(projectPackage.data[platform])) {
+      if (Array.isArray(projectPackage.data[platform][tag].controller)) {
         for (const streamName of
-          Object.keys(projectPackage[platform][tag].controller)
+          Object.keys(projectPackage.data[platform][tag].controller)
         ) {
           loadStream(
-            projectPackage[platform][tag].controller[streamName],
+            projectPackage.data[platform][tag].controller[streamName],
             platform as IPlatforms, tag, streamName
           );
         }
       }
     }
   }
+  console.log(projectPackage.data.webClient)
 
   function getStreamList(platform: IPlatforms, tag: string): string[] {
     if (typeof streams[platform][tag] === 'undefined') {
