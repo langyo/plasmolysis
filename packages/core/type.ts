@@ -131,6 +131,9 @@ export interface IStreamManager {
     streamName: string
   ) => void,
   readonly getStreamList: (platform: IPlatforms, tag: string) => string[],
+  readonly testStreamExist: (
+    platform: IPlatforms, tag: string, key: string
+  ) => boolean,
   readonly runStream: (
     platform: IPlatforms,
     tag: string,

@@ -32,8 +32,18 @@ import { renderToString } from 'react-dom/server';
 const pageList =
   modelManager
     .getModelList()
-    .filter(name => /^pages?.+$/.test(name))
-    .map(name => /^pages?(.+)$/.exec(name)[1]);
+    .filter(name => /^pages?\..+$/.test(name))
+    .map(name => ({
+      component: name,
+      route: `/${/^pages?\.(.+)$/.exec(name)[1].replace('.', '/')}`
+    }))
+    .reduce(({ components, routes }, { component, route }) => ({
+      components: [...components, component],
+      routes: [...routes, route]
+    }), {
+      components: [],
+      routes: []
+    });
 
 function loadReactComponent(
   component: IWebClientComponentType,
@@ -59,7 +69,7 @@ __CALLBACK(async ({
   ip, protocol, host, path, query, cookies
 }: ISessionInfo) => {
   try {
-    if (streamManager.getStreamList('nodeServer', 'http').indexOf(path) >= 0) {
+    if (streamManager.testStreamExist('nodeServer', 'http', path)) {
       // Custom request processor.
       return {
         status: 'processed',
@@ -71,10 +81,13 @@ __CALLBACK(async ({
           })
         )
       };
-    } else if (pageList.indexOf(path.split('/')[0]) >= 0) {
+    } else if (
+      path === "/" ||
+      pageList.routes.indexOf(path) >= 0
+    ) {
       // Page routes.
       try {
-        const pageName = path.split('/')[0];
+        const pageName = pageList.components[pageList.routes.indexOf(path)];
         if (typeof streamManager.getStreamList(
           'webClient', pageName
         )['preload'] === 'undefined') {
