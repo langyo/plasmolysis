@@ -1,5 +1,3 @@
-/// <reference path="./type.d.ts" />
-
 export {
   IProjectPackage,
   IActionManager,
@@ -18,31 +16,6 @@ export {
 export {
   ISessionManager
 } from '../action-routes/type';
-
-// declare module 'nickelcat' {
-//   export const actionManager: (
-//     projectPackage: IProjectPackage
-//   ) => IActionManager;
-//   export const streamManager: (
-//     projectPackage: IProjectPackage,
-//     getContext: IGetContextFuncType
-//   ) => IStreamManager;
-//   export const streamGenerator: (
-//     platform: IPlatforms,
-//     stream: IOriginalActionObject[],
-//     actionManager: IActionManager
-//   ) => IActionObject[];
-//   export const streamRuntime: (
-//     platform: IPlatforms,
-//     globalContext: IGetContextFuncType
-//   ) => (
-//       tasks: IActionObject[],
-//       path: string,
-//       localContext: { [key: string]: any }
-//     ) => (
-//         payload: { [key: string]: any }
-//       ) => Promise<{ [key: string]: any }>;
-// }
 
 export interface ISessionInfo {
   ip: string,
