@@ -17,7 +17,7 @@ declare global {
 
 const { actionManager: actionManagerFactory } = require('nickelcat');
 const actionManager: IActionManager =
-  actionManagerFactory(require('./__nickelcat_staticRequire.js'));
+  actionManagerFactory(require('./__nickelcat_staticRequire.js'), 'nodeServer');
 const streamManager: IStreamManager =
   actionManager.getContextFactory('nodeServer')('streamManager');
 const modelManager: IModelManager =
@@ -53,10 +53,10 @@ function loadReactComponent(
     ...pageState,
     ...streamManager.getStreamList(
       'webClient', modelType
-    ).reduce((obj, key) => ({
+    ).reduce((obj, actionType) => ({
       ...obj,
-      [key]: (payload: { [key: string]: any }) =>
-        streamManager.runStream('webClient', modelType, key, payload, {
+      [actionType]: (payload: { [key: string]: any }) =>
+        streamManager.runStream('webClient', modelType, actionType, payload, {
           modelType,
           modelID: '$page'
         })

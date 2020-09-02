@@ -9,10 +9,8 @@ import {
 } from './type';
 
 const { actionManager: actionManagerFactory } = require('nickelcat');
-const projectPackage: IProjectPackage =
-  require('./__nickelcat_staticRequire.js');
 const actionManager: IActionManager =
-  actionManagerFactory(projectPackage);
+  actionManagerFactory(require('./__nickelcat_staticRequire.js'), 'webClient');
 const streamManager: IStreamManager =
   actionManager.getContextFactory('webClient')('streamManager');
 const stateManager: IStateManager =

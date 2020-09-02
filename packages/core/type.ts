@@ -94,6 +94,11 @@ export type IProjectPackage = {
             globalContext: IGetContextFuncType,
             localContext: { [key: string]: any }
           ) => { [key: string]: any },
+          preload?: (
+            payload: { [key: string]: any },
+            globalContext: IGetContextFuncType,
+            localContext: { [key: string]: any }
+          ) => { [key: string]: any },
           [actionName: string]: { type: string, args: any }[] | any
         }
       }
@@ -144,7 +149,7 @@ export interface IStreamManager {
   readonly loadPackage: (projectPackage: IProjectPackage) => void,
   readonly getStreamList: (platform: IPlatforms, tag: string) => string[],
   readonly hasStream: (
-    platform: IPlatforms, tag: string, key: string
+    platform: IPlatforms, tag: string, streamName: string
   ) => boolean,
   readonly runStream: (
     platform: IPlatforms,

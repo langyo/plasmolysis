@@ -43,14 +43,34 @@ export function streamManager(
   function loadPackage(projectPackage: IProjectPackage): void {
     for (const platform of Object.keys(projectPackage.data)) {
       for (const tag of Object.keys(projectPackage.data[platform])) {
-        if (Array.isArray(projectPackage.data[platform][tag].controller)) {
+        if (typeof projectPackage.data[platform][tag].controller === 'object') {
           for (const streamName of
             Object.keys(projectPackage.data[platform][tag].controller)
           ) {
-            loadStream(
-              projectPackage.data[platform][tag].controller[streamName],
-              platform as IPlatforms, tag, streamName
-            );
+            if (platform === 'webClient' && streamName === 'init') {
+              loadStream([{
+                platform: 'webClient',
+                pkg: 'preset',
+                type: 'deal',
+                args: {
+                  func: projectPackage.data[platform][tag].controller.init
+                }
+              }], 'webClient', tag, 'init');
+            } else if (platform === 'webClient' && streamName === 'preload') {
+              loadStream([{
+                platform: 'nodeServer',
+                pkg: 'preset',
+                type: 'deal',
+                args: {
+                  func: projectPackage.data[platform][tag].controller.preload
+                }
+              }], 'nodeServer', tag, 'preload');
+            } else {
+              loadStream(
+                projectPackage.data[platform][tag].controller[streamName],
+                platform as IPlatforms, tag, streamName
+              );
+            }
           }
         }
       }
@@ -67,11 +87,11 @@ export function streamManager(
   }
 
   function hasStream(
-    platform: IPlatforms, tag: string, key: string
+    platform: IPlatforms, tag: string, streamName: string
   ): boolean {
     if (
       typeof streams[platform][tag] === 'undefined' ||
-      typeof streams[platform][tag][key] === 'undefined'
+      typeof streams[platform][tag][streamName] === 'undefined'
     ) {
       return false;
     } else {
@@ -86,8 +106,13 @@ export function streamManager(
     payload: { [key: string]: any },
     localContext: { [key: string]: any }
   ): { [key: string]: any } {
-    if (typeof streams[platform][streamName] === 'undefined') {
-      throw new Error(`Unknown stream '${streamName}' at the platform '${platform}'.`);
+    if (
+      typeof streams[platform][tag] === 'undefined' ||
+      typeof streams[platform][tag][streamName] === 'undefined'
+    ) {
+      throw new Error(
+        `Unknown stream '${streamName}' from '${tag}' at the platform '${platform}'.`
+      );
     }
     return streamRuntime(platform, getContext)(
       streams[platform][tag][streamName],

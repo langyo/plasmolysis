@@ -44,7 +44,9 @@ type IConfigs = {
   }
 };
 
-export function actionManager(projectPackage: IProjectPackage): IActionManager {
+export function actionManager(
+  projectPackage: IProjectPackage, platform: IPlatforms
+): IActionManager {
   let translators: ITranslators = {
     webClient: {},
     nodeServer: {},
@@ -74,7 +76,7 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
     flutterClient: {}
   };
   const sharedStreamManager: IStreamManager =
-    streamManager(projectPackage, getContextFactory);
+    streamManager(projectPackage, getContextFactory(platform));
 
   function getContextFactory(platform: IPlatforms): IGetContextFuncType {
     return function (type: string): any {
