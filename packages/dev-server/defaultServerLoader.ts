@@ -90,18 +90,19 @@ __CALLBACK(async ({
         const pageName = path === '/' ?
           actionManager.getConfig('webClient').rootPageRelay :
           pageList.components[pageList.routes.indexOf(path)];
-        if (typeof streamManager.getStreamList(
-          'webClient', pageName
-        )['preload'] === 'undefined') {
-          throw new Error(`Cannot initialize the page ${pageName}`);
-        }
+
         const {
           pageTitle,
           pageState,
           globalState
-        } = streamManager.runStream('webClient', pageName, '$preload', {}, {
-          ip, protocol, host, path, query, cookies
-        });
+        } = streamManager.hasStream('webClient', pageName, 'preload') ?
+            streamManager.runStream('webClient', pageName, 'preload', {}, {
+              ip, protocol, host, path, query, cookies
+            }) : {
+              pageTitle: actionManager.getConfig('webClient').defaultPageTitle,
+              pageState: {},
+              globalState: {}
+            };
 
         const pageNodeString = loadReactComponent(
           modelManager.loadComponent(pageName), pageName, pageState

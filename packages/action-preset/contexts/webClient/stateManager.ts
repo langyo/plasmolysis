@@ -123,7 +123,7 @@ export function stateManager(
       [modelID]:
         (getContext('streamManager') as IStreamManager)
           .runStream(
-            'webClient', modelType, '$init', initState, { modelType, modelID }
+            'webClient', modelType, 'init', initState, { modelType, modelID }
           )
     });
     modelStateRoute = merge(

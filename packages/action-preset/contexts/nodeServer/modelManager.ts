@@ -18,9 +18,15 @@ export function modelManager(
     components[modelType] = component;
   };
 
-  for (const modelType of Object.keys(projectPackage.data.webClient)) {
-    storageModel(modelType, projectPackage.data.webClient[modelType].component);
+  function loadPackage(projectPackage: IProjectPackage): void {
+    for (const modelType of Object.keys(projectPackage.data.webClient)) {
+      storageModel(
+        modelType, projectPackage.data.webClient[modelType].component
+      );
+    }
   }
+
+  loadPackage(projectPackage);
 
   function loadComponent(type: string): IWebClientComponentType {
     return components[type];
@@ -32,6 +38,7 @@ export function modelManager(
 
   return Object.freeze({
     storageModel,
+    loadPackage,
     loadComponent,
     getModelList
   });

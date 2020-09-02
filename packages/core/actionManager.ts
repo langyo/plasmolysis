@@ -141,6 +141,14 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
         ...projectPackage.config[platform]
       };
     }
+
+    for (const platform of Object.keys(contexts)) {
+      for (const tag of Object.keys(contexts[platform])) {
+        if (typeof contexts[platform][tag].loadPackage === 'function') {
+          contexts[platform][tag].loadPackage(projectPackage);
+        }
+      }
+    }
   }
 
   loadPackage(projectPackage);

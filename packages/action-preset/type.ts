@@ -12,6 +12,7 @@ export {
 } from '../action-routes/type';
 
 import {
+  IProjectPackage,
   IWebClientComponentType
 } from '../core/type';
 
@@ -54,6 +55,7 @@ export interface IModelManager {
     modelType: string,
     component: IWebClientComponentType
   ) => void,
+  readonly loadPackage: (projectPackage: IProjectPackage) => void,
   readonly loadComponent: (type: string) => IWebClientComponentType,
   readonly getModelList: () => string[]
 }

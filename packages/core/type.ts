@@ -89,7 +89,7 @@ export type IProjectPackage = {
       [modelType: string]: {
         component: IWebClientComponentType,
         controller: {
-          $init?: (
+          init?: (
             payload: { [key: string]: any },
             globalContext: IGetContextFuncType,
             localContext: { [key: string]: any }
