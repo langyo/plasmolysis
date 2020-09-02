@@ -7,7 +7,6 @@ import { join } from 'path';
 import { Volume } from 'memfs';
 import { Union } from 'unionfs'
 import * as realFs from 'fs';
-import { IProjectPackage } from '../core/type';
 
 export async function generateCompiler(
   webpackConfig: { [key: string]: any },
@@ -19,7 +18,6 @@ export async function generateCompiler(
       name: string,
       path: string
     }[] = [];
-    let configPath: string = '';
 
     const scanDfs = (path: string, route: string = '') => {
       let list: {
@@ -58,13 +56,19 @@ export async function generateCompiler(
       }
     }
 
-    configPath =
+    const configRequireSentence: string =
       realFs.existsSync(
         join(process.cwd(), './nickelcat.config.ts')
-      ) && join(process.cwd(), './nickelcat.config.ts') ||
+      ) && `require("${
+      join(process.cwd(), './nickelcat.config.ts')
+        .split('\\').join('\\\\')
+      }")` ||
       realFs.existsSync(
         join(process.cwd(), './nickelcat.config.js')
-      ) && join(process.cwd(), './nickelcat.config.js');
+      ) && `require("${
+      join(process.cwd(), './nickelcat.config.js')
+        .split('\\').join('\\\\')
+      }")` || '{}';
 
     const virtualFiles = {
       [join(__dirname, './__nickelcat_staticRequire.js')]: `
@@ -79,7 +83,7 @@ module.exports = {
       http: {}
     }
   },
-  config: {}
+  config: ${configRequireSentence}
 };`,
       [join(process.cwd(), './__nickelcat_defaultClientLoader.js')]:
         `require("${

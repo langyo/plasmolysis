@@ -87,7 +87,9 @@ __CALLBACK(async ({
     ) {
       // Page routes.
       try {
-        const pageName = pageList.components[pageList.routes.indexOf(path)];
+        const pageName = path === '/' ?
+          actionManager.getConfig('webClient').rootPageRelay :
+          pageList.components[pageList.routes.indexOf(path)];
         if (typeof streamManager.getStreamList(
           'webClient', pageName
         )['preload'] === 'undefined') {

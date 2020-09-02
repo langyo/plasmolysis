@@ -143,6 +143,8 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
     }
   }
 
+  loadPackage(projectPackage);
+
   // TODO - Make the action package more pretter?
   function loadActionPackage(packageInfo: IPackageInfo): void {
     for (const platform of Object.keys(packageInfo.actions)) {
