@@ -129,7 +129,9 @@ export interface IActionManager {
     packageName: string,
     actionName: string
   ) => IExecutorFunc,
-  readonly loadPackage: (packageInfo: IPackageInfo) => void
+  readonly getConfig: (platform: IPlatforms) => { [key: string]: any },
+  readonly loadPackage: (projectPackage: IProjectPackage) => void,
+  readonly loadActionPackage: (packageInfo: IPackageInfo) => void
 }
 
 export interface IStreamManager {
@@ -139,8 +141,9 @@ export interface IStreamManager {
     tag: string,
     streamName: string
   ) => void,
+  readonly loadPackage: (projectPackage: IProjectPackage) => void,
   readonly getStreamList: (platform: IPlatforms, tag: string) => string[],
-  readonly testStreamExist: (
+  readonly hasStream: (
     platform: IPlatforms, tag: string, key: string
   ) => boolean,
   readonly runStream: (

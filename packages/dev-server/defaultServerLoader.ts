@@ -69,7 +69,7 @@ __CALLBACK(async ({
   ip, protocol, host, path, query, cookies
 }: ISessionInfo) => {
   try {
-    if (streamManager.testStreamExist('nodeServer', 'http', path)) {
+    if (streamManager.hasStream('nodeServer', 'http', path)) {
       // Custom request processor.
       return {
         status: 'processed',

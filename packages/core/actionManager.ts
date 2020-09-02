@@ -10,47 +10,63 @@ import {
 } from './type';
 
 import { streamManager } from './streamManager';
-const { packageInfo: actionPresetPackage } = require('nickelcat-action-preset/package');
-const { packageInfo: actionRoutesPackage } = require('nickelcat-action-routes/package');
+const {
+  packageInfo: actionPresetPackage
+} = require('nickelcat-action-preset/package');
+const {
+  packageInfo: actionRoutesPackage
+} = require('nickelcat-action-routes/package');
 
-type Translators = {
+type ITranslators = {
   [platform in IPlatforms]: {
     [packageType: string]: {
       [actionType: string]: ITranslatorFunc
     }
   }
 };
-type Executors = {
+type IExecutors = {
   [platform in IPlatforms]: {
     [packageType: string]: {
       [actionType: string]: IExecutorFunc
     }
   }
 };
-type Contexts = {
+type IContexts = {
   [platform in IPlatforms]: {
     [type: string]: {
       [func: string]: (...args: any[]) => any
     }
   }
 };
+type IConfigs = {
+  [platform in IPlatforms]: {
+    [tag: string]: any
+  }
+};
 
 export function actionManager(projectPackage: IProjectPackage): IActionManager {
-  let translators: Translators = {
+  let translators: ITranslators = {
     webClient: {},
     nodeServer: {},
     electronClient: {},
     cordovaClient: {},
     flutterClient: {}
   };
-  let executors: Executors = {
+  let executors: IExecutors = {
     webClient: {},
     nodeServer: {},
     electronClient: {},
     cordovaClient: {},
     flutterClient: {}
   };
-  let contexts: Contexts = {
+  let contexts: IContexts = {
+    webClient: {},
+    nodeServer: {},
+    electronClient: {},
+    cordovaClient: {},
+    flutterClient: {}
+  };
+  let configs: IConfigs = {
     webClient: {},
     nodeServer: {},
     electronClient: {},
@@ -64,11 +80,12 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
     return function (type: string): any {
       if (type === 'actionManager') {
         return Object.freeze({
-          getContext: getContextFactory,
+          getContextFactory,
           getExecutor,
           getTranslator,
-          loadPackage
-        });
+          loadPackage,
+          loadActionPackage
+        } as IActionManager);
       }
       if (type === 'streamManager') {
         return sharedStreamManager;
@@ -89,7 +106,9 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
       typeof translators[platform][packageName] === 'undefined' ||
       typeof translators[platform][packageName][actionName] === "undefined"
     ) {
-      throw new Error(`Unknown translator '${actionName}' in the package '${packageName}'.`);
+      throw new Error(
+        `Unknown translator '${actionName}' in the package '${packageName}'.`
+      );
     }
     return translators[platform][packageName][actionName];
   }
@@ -103,13 +122,29 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
       typeof executors[platform][packageName] === 'undefined' ||
       typeof executors[platform][packageName][actionName] === 'undefined'
     ) {
-      throw new Error(`Unknown executor '${actionName}' in the package '${packageName}'.`);
+      throw new Error(
+        `Unknown executor '${actionName}' in the package '${packageName}'.`
+      );
     }
     return executors[platform][packageName][actionName];
   }
 
+  function getConfig(platform: IPlatforms): { [key: string]: any } {
+    return { ...configs[platform] };
+  }
+
+  function loadPackage(projectPackage: IProjectPackage): void {
+    sharedStreamManager.loadPackage(projectPackage);
+    for (const platform of Object.keys(projectPackage.config)) {
+      configs[platform] = {
+        ...configs[platform],
+        ...projectPackage.config[platform]
+      };
+    }
+  }
+
   // TODO - Make the action package more pretter?
-  function loadPackage(packageInfo: IPackageInfo): void {
+  function loadActionPackage(packageInfo: IPackageInfo): void {
     for (const platform of Object.keys(packageInfo.actions)) {
       if (platform === '__esModule') { continue; }
       for (const actionName of Object.keys(packageInfo.actions[platform])) {
@@ -133,13 +168,15 @@ export function actionManager(projectPackage: IProjectPackage): IActionManager {
   }
 
   // Initialize the preset package.
-  loadPackage(actionPresetPackage);
-  loadPackage(actionRoutesPackage);
+  loadActionPackage(actionPresetPackage);
+  loadActionPackage(actionRoutesPackage);
 
   return Object.freeze({
     getContextFactory,
     getExecutor,
     getTranslator,
-    loadPackage
+    getConfig,
+    loadPackage,
+    loadActionPackage
   });
 }

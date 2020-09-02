@@ -40,20 +40,24 @@ export function streamManager(
     );
   };
 
-  for (const platform of Object.keys(projectPackage.data)) {
-    for (const tag of Object.keys(projectPackage.data[platform])) {
-      if (Array.isArray(projectPackage.data[platform][tag].controller)) {
-        for (const streamName of
-          Object.keys(projectPackage.data[platform][tag].controller)
-        ) {
-          loadStream(
-            projectPackage.data[platform][tag].controller[streamName],
-            platform as IPlatforms, tag, streamName
-          );
+  function loadPackage(projectPackage: IProjectPackage): void {
+    for (const platform of Object.keys(projectPackage.data)) {
+      for (const tag of Object.keys(projectPackage.data[platform])) {
+        if (Array.isArray(projectPackage.data[platform][tag].controller)) {
+          for (const streamName of
+            Object.keys(projectPackage.data[platform][tag].controller)
+          ) {
+            loadStream(
+              projectPackage.data[platform][tag].controller[streamName],
+              platform as IPlatforms, tag, streamName
+            );
+          }
         }
       }
     }
   }
+
+  loadPackage(projectPackage);
 
   function getStreamList(platform: IPlatforms, tag: string): string[] {
     if (typeof streams[platform][tag] === 'undefined') {
@@ -62,7 +66,7 @@ export function streamManager(
     return Object.keys(streams[platform][tag]);
   }
 
-  function testStreamExist(
+  function hasStream(
     platform: IPlatforms, tag: string, key: string
   ): boolean {
     if (
@@ -96,8 +100,9 @@ export function streamManager(
 
   return Object.freeze({
     loadStream,
+    loadPackage,
     getStreamList,
-    testStreamExist,
+    hasStream,
     runStream
   });
 };
