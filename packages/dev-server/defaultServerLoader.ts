@@ -15,8 +15,7 @@ declare global {
   ) => void;
 };
 
-import { actionManager as actionManagerFactory } from 'nickelcat';
-
+const { actionManager: actionManagerFactory } = require('nickelcat');
 const actionManager: IActionManager =
   actionManagerFactory(require('./__nickelcat_staticRequire.js'));
 const streamManager: IStreamManager =

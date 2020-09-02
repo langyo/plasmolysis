@@ -8,7 +8,7 @@ import {
   IWebClientComponentType
 } from './type';
 
-import { actionManager as actionManagerFactory } from 'nickelcat';
+const { actionManager: actionManagerFactory } = require('nickelcat');
 const projectPackage: IProjectPackage =
   require('./__nickelcat_staticRequire.js');
 const actionManager: IActionManager =
