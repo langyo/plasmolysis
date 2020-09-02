@@ -46,8 +46,7 @@ function createChildProcesses(
     cwd.map(cwd => () => spawn(
       process.platform === 'win32' ? `${app}.cmd` : app, args, {
       stdio: 'inherit', cwd
-    }
-    ))
+    }))
   );
 }
 
@@ -217,8 +216,22 @@ export const publish = series(
         resolve(`./dist/${pkg}/package.json`),
         JSON.stringify(pkgs[pkg])
       );
+
+      // Create a version tag.
+      return spawn(
+        process.platform === 'win32' ? `git.cmd` : 'git',
+        ['tag', '-a', `v${major}.${minor}.${patch}`, '-m', `v${major}.${minor}.${patch}`],
+        { stdio: 'inherit', cwd: process.cwd() }
+      );
     }
   },
+
+  // Push all the tags to the remote.
+  () => spawn(
+    process.platform === 'win32' ? `git.cmd` : 'git',
+    ['push', '--tags'],
+    { stdio: 'inherit', cwd: process.cwd() }
+  ),
 
   // Publish the packages by using NPM.
   series(createChildProcesses('npm', ['publish'], [
