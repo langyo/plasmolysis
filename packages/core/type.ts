@@ -84,7 +84,7 @@ export type IWebClientComponentType =
   }) => string | React.Component | Vue.Component;
 
 export type IProjectPackage = {
-  data: {
+  data?: {
     webClient?: {
       [modelType: string]: {
         component: IWebClientComponentType,
@@ -109,11 +109,8 @@ export type IProjectPackage = {
       }
     }
   },
-  config: {
-    webClient?: {
-      [key: string]: any
-    },
-    nodeServer?: {
+  config?: {
+    [key in IPlatforms]?: {
       [key: string]: any
     }
   }

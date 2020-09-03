@@ -76,6 +76,42 @@ export function actionManager(
     cordovaClient: {},
     flutterClient: {}
   };
+
+  // TODO - Make the action package more pretter?
+  function loadActionPackage(packageInfo: IPackageInfo): void {
+    for (const platform of Object.keys(packageInfo.actions)) {
+      if (platform === '__esModule') { continue; }
+      for (const actionName of Object.keys(packageInfo.actions[platform])) {
+        if (actionName === '__esModule') { continue; }
+        if (typeof translators[platform][packageInfo.name] === 'undefined') {
+          translators[platform][packageInfo.name] = {};
+        }
+        if (typeof executors[platform][packageInfo.name] === 'undefined') {
+          executors[platform][packageInfo.name] = {};
+        }
+
+        translators[platform][packageInfo.name][actionName] =
+          packageInfo.actions[platform][actionName].translator;
+        executors[platform][packageInfo.name][actionName] =
+          packageInfo.actions[platform][actionName].executor;
+      }
+    }
+    for (const platform of Object.keys(packageInfo.contexts)) {
+      if (platform === '__esModule') { continue; }
+      for (const type of Object.keys(packageInfo.contexts[platform])) {
+        if (type === '__esModule') { continue; }
+        contexts[platform][type] =
+          packageInfo.contexts[platform][type](
+            projectPackage, getContext
+          );
+      }
+    }
+  }
+
+  // Initialize the preset package.
+  loadActionPackage(actionPresetPackage);
+  loadActionPackage(actionRoutesPackage);
+
   const sharedStreamManager: IStreamManager =
     streamManager(projectPackage, getContext);
 
@@ -153,34 +189,6 @@ export function actionManager(
       }
     }
   }
-
-  // TODO - Make the action package more pretter?
-  function loadActionPackage(packageInfo: IPackageInfo): void {
-    for (const platform of Object.keys(packageInfo.actions)) {
-      if (platform === '__esModule') { continue; }
-      for (const actionName of Object.keys(packageInfo.actions[platform])) {
-        if (actionName === '__esModule') { continue; }
-        translators[platform][actionName] =
-          packageInfo.actions[platform][actionName].translator;
-        executors[platform][actionName] =
-          packageInfo.actions[platform][actionName].executor;
-      }
-    }
-    for (const platform of Object.keys(packageInfo.contexts)) {
-      if (platform === '__esModule') { continue; }
-      for (const type of Object.keys(packageInfo.contexts[platform])) {
-        if (type === '__esModule') { continue; }
-        contexts[platform][type] =
-          packageInfo.contexts[platform][type](
-            projectPackage, getContext(platform as IPlatforms)
-          );
-      }
-    }
-  }
-
-  // Initialize the preset package.
-  loadActionPackage(actionPresetPackage);
-  loadActionPackage(actionRoutesPackage);
 
   loadPackage(projectPackage);
 

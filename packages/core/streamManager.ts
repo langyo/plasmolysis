@@ -35,42 +35,44 @@ export function streamManager(
     tag: string,
     streamName: string
   ): void {
+    console.log(stream, platform, tag, streamName)
     streams[platform][tag][streamName] = streamGenerator(
       platform, stream, getContext('actionManager') as IActionManager
     );
   };
 
   function loadPackage(projectPackage: IProjectPackage): void {
-    for (const platform of Object.keys(projectPackage.data)) {
-      for (const tag of Object.keys(projectPackage.data[platform])) {
-        if (typeof projectPackage.data[platform][tag].controller === 'object') {
-          for (const streamName of
-            Object.keys(projectPackage.data[platform][tag].controller)
-          ) {
-            if (platform === 'webClient' && streamName === 'init') {
-              loadStream([{
-                platform: 'webClient',
-                pkg: 'preset',
-                type: 'deal',
-                args: {
-                  func: projectPackage.data[platform][tag].controller.init
-                }
-              }], 'webClient', tag, 'init');
-            } else if (platform === 'webClient' && streamName === 'preload') {
-              loadStream([{
-                platform: 'nodeServer',
-                pkg: 'preset',
-                type: 'deal',
-                args: {
-                  func: projectPackage.data[platform][tag].controller.preload
-                }
-              }], 'nodeServer', tag, 'preload');
-            } else {
-              loadStream(
-                projectPackage.data[platform][tag].controller[streamName],
-                platform as IPlatforms, tag, streamName
-              );
-            }
+    if (
+      typeof projectPackage.data !== 'undefined' &&
+      typeof projectPackage.data.webClient !== 'undefined'
+    ) {
+      for (const tag of Object.keys(projectPackage.data.webClient)) {
+        for (const streamName of
+          Object.keys(projectPackage.data.webClient[tag].controller)
+        ) {
+          if (streamName === 'init') {
+            loadStream([{
+              platform: 'webClient',
+              pkg: 'preset',
+              type: 'deal',
+              args: {
+                func: projectPackage.data.webClient[tag].controller.init
+              }
+            }], 'webClient', tag, 'init');
+          } else if (streamName === 'preload') {
+            loadStream([{
+              platform: 'nodeServer',
+              pkg: 'preset',
+              type: 'deal',
+              args: {
+                func: projectPackage.data.webClient[tag].controller.preload
+              }
+            }], 'nodeServer', tag, 'preload');
+          } else {
+            loadStream(
+              projectPackage.data.webClient[tag].controller[streamName],
+              'webClient', tag, streamName
+            );
           }
         }
       }
