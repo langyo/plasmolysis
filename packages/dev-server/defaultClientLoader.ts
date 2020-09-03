@@ -12,13 +12,13 @@ const { actionManager: actionManagerFactory } = require('nickelcat');
 const actionManager: IActionManager =
   actionManagerFactory(require('./__nickelcat_staticRequire.js'), 'webClient');
 const streamManager: IStreamManager =
-  actionManager.getContextFactory('webClient')('streamManager');
+  actionManager.getContext('streamManager');
 const stateManager: IStateManager =
-  actionManager.getContextFactory('webClient')('stateManager');
+  actionManager.getContext('stateManager');
 const modelManager: IModelManager =
-  actionManager.getContextFactory('webClient')('modelManager');
+  actionManager.getContext('modelManager');
 const routeManager: IRouteManager =
-  actionManager.getContextFactory('webClient')('routeManager');
+  actionManager.getContext('routeManager');
 
 const {
   pageTitle,

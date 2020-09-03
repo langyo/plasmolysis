@@ -19,11 +19,11 @@ const { actionManager: actionManagerFactory } = require('nickelcat');
 const actionManager: IActionManager =
   actionManagerFactory(require('./__nickelcat_staticRequire.js'), 'nodeServer');
 const streamManager: IStreamManager =
-  actionManager.getContextFactory('nodeServer')('streamManager');
+  actionManager.getContext('streamManager');
 const modelManager: IModelManager =
-  actionManager.getContextFactory('nodeServer')('modelManager');
+  actionManager.getContext('modelManager');
 const sessionManager: ISessionManager =
-  actionManager.getContextFactory('nodeServer')('sessionManager');
+  actionManager.getContext('sessionManager');
 
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';

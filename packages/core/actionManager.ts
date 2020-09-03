@@ -45,7 +45,8 @@ type IConfigs = {
 };
 
 export function actionManager(
-  projectPackage: IProjectPackage, platform: IPlatforms
+  projectPackage: IProjectPackage,
+  platform: IPlatforms
 ): IActionManager {
   let translators: ITranslators = {
     webClient: {},
@@ -76,27 +77,27 @@ export function actionManager(
     flutterClient: {}
   };
   const sharedStreamManager: IStreamManager =
-    streamManager(projectPackage, getContextFactory(platform));
+    streamManager(projectPackage, getContext);
 
-  function getContextFactory(platform: IPlatforms): IGetContextFuncType {
-    return function (type: string): any {
-      if (type === 'actionManager') {
-        return Object.freeze({
-          getContextFactory,
-          getExecutor,
-          getTranslator,
-          loadPackage,
-          loadActionPackage
-        } as IActionManager);
-      }
-      if (type === 'streamManager') {
-        return sharedStreamManager;
-      }
-      if (typeof contexts[platform][type] === 'undefined') {
-        throw new Error(`Unknown context '${type}' at the platform '${platform}'`);
-      }
-      return contexts[platform][type];
-    };
+  function getContext(type: string): any {
+    if (type === 'actionManager') {
+      return Object.freeze({
+        getContext,
+        getExecutor,
+        getTranslator,
+        loadPackage,
+        loadActionPackage
+      } as IActionManager);
+    }
+    if (type === 'streamManager') {
+      return sharedStreamManager;
+    }
+    if (typeof contexts[platform][type] === 'undefined') {
+      throw new Error(
+        `Unknown context '${type}' at the platform '${platform}'`
+      );
+    }
+    return contexts[platform][type];
   }
 
   function getTranslator(
@@ -153,8 +154,6 @@ export function actionManager(
     }
   }
 
-  loadPackage(projectPackage);
-
   // TODO - Make the action package more pretter?
   function loadActionPackage(packageInfo: IPackageInfo): void {
     for (const platform of Object.keys(packageInfo.actions)) {
@@ -173,7 +172,7 @@ export function actionManager(
         if (type === '__esModule') { continue; }
         contexts[platform][type] =
           packageInfo.contexts[platform][type](
-            projectPackage, getContextFactory(platform as IPlatforms)
+            projectPackage, getContext(platform as IPlatforms)
           );
       }
     }
@@ -183,8 +182,10 @@ export function actionManager(
   loadActionPackage(actionPresetPackage);
   loadActionPackage(actionRoutesPackage);
 
+  loadPackage(projectPackage);
+
   return Object.freeze({
-    getContextFactory,
+    getContext,
     getExecutor,
     getTranslator,
     getConfig,

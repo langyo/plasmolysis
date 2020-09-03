@@ -123,7 +123,7 @@ export type IGetContextFuncType =
   (type: 'actionManager' | 'streamManager' | string) => any;
 
 export interface IActionManager {
-  readonly getContextFactory: (platform: IPlatforms) => IGetContextFuncType,
+  readonly getContext: IGetContextFuncType,
   readonly getTranslator: (
     platform: IPlatforms,
     packageName: string,
