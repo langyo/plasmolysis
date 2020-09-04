@@ -219,7 +219,7 @@ export const publish = series(
 
       // Create a version tag.
       return spawn(
-        process.platform === 'win32' ? `git.cmd` : 'git',
+        'git',
         ['tag', '-a', `v${major}.${minor}.${patch}`, '-m', `v${major}.${minor}.${patch}`],
         { stdio: 'inherit', cwd: process.cwd() }
       );
