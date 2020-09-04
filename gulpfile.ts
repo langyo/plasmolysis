@@ -228,7 +228,7 @@ export const publish = series(
 
   // Push all the tags to the remote.
   () => spawn(
-    process.platform === 'win32' ? `git.cmd` : 'git',
+    'git',
     ['push', '--tags'],
     { stdio: 'inherit', cwd: process.cwd() }
   ),
