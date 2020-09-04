@@ -220,7 +220,7 @@ export const publish = series(
       // Create a version tag.
       return spawn(
         'git',
-        ['tag', '-a', `v${major}.${minor}.${patch}`, '-m', `v${major}.${minor}.${patch}`],
+        ['tag', '-a', `v${version}`, '-m', `v${version}`],
         { stdio: 'inherit', cwd: process.cwd() }
       );
     }
