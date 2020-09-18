@@ -5,15 +5,6 @@ export type IPlatforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordov
 
 export interface IPackageInfo {
   name: string,
-  description?: string,
-  author?: string,
-  repository?: string,
-
-  actions?: {
-    [platform in IPlatforms]?: {
-      [actionName: string]: IActionInfo
-    }
-  }
 
   contexts?: {
     [platform in IPlatforms]?: {

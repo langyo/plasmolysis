@@ -1,1 +1,27 @@
-{"name":"nickelcat-action-preset","description":"The core library for evaluating the action stream.","version":"0.4.1","scripts":{"test":"jest --watch"},"repository":{"type":"git","url":"git+https://github.com/langyo/nickelcat.git"},"keywords":[],"author":"langyo","license":"Apache-2.0","bugs":{"url":"https://github.com/langyo/nickelcat/issues"},"homepage":"https://github.com/langyo/nickelcat#readme","dependencies":{"@types/react":"^16.9.43","nickelcat":"^0.4.1","seamless-immutable":"^7.1.4","shortid":"^2.2.15","vue":"^2.6.11"}}
+{
+  "name": "nickelcat-action-preset",
+  "description": "The core library for evaluating the action stream.",
+  "version": "0.4.1",
+  "scripts": {
+    "test": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langyo/nickelcat.git"
+  },
+  "keywords": [],
+  "author": "langyo",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/langyo/nickelcat/issues"
+  },
+  "homepage": "https://github.com/langyo/nickelcat#readme",
+  "dependencies": {
+    "@types/react": "^16.9.43",
+    "axios": "^0.20.0",
+    "nickelcat": "^0.4.1",
+    "seamless-immutable": "^7.1.4",
+    "shortid": "^2.2.15",
+    "vue": "^2.6.11"
+  }
+}

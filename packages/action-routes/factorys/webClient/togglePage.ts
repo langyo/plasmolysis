@@ -9,7 +9,11 @@ interface IGeneratorRetObj {
 export interface ITranslatorRetObj {
   generator: (...args: any[]) => IGeneratorRetObj
 };
-type GeneratorFunc = (payload: { [key: string]: any }, utils: {
+type (payload: { [key: string]: any }, utils: IGetters) => {
+    type: string,
+    initState: { [key: string]: any },
+    name?: string
+  } = (payload: { [key: string]: any }, utils: {
   modelType: string,
   modelID: string,
   getState: () => { [key: string]: any },
@@ -18,16 +22,24 @@ type GeneratorFunc = (payload: { [key: string]: any }, utils: {
 }) => IGeneratorRetObj;
 
 function togglePage(
-  func: GeneratorFunc
-): IOriginalActionObject<ITranslatorRetObj>;
+  func: (payload: { [key: string]: any }, utils: IGetters) => {
+    type: string,
+    initState: { [key: string]: any },
+    name?: string
+  }
+): IActionEntity;
 function togglePage(
   type: string,
   initState: { [key: string]: any }
-): IOriginalActionObject<ITranslatorRetObj>;
+): IActionEntity;
 function togglePage(
-  arg0: GeneratorFunc | string,
+  arg0: (payload: { [key: string]: any }, utils: IGetters) => {
+    type: string,
+    initState: { [key: string]: any },
+    name?: string
+  } | string,
   arg1?: { [key: string]: any }
-): IOriginalActionObject<ITranslatorRetObj> {
+): IActionEntity {
   if (typeof arg0 === 'string') {
     return {
       type: 'togglePage',
