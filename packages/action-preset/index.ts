@@ -10,7 +10,7 @@ import { IRouteManager } from '../action-routes/type';
 
 import { generate } from 'shortid';
 
-interface IStateManager {
+export interface IStateManager {
   readonly setState: (
     modelID: string,
     combineState: { [key: string]: any }
@@ -39,7 +39,7 @@ interface IStateManager {
   readonly removeListener: (id: string) => void
 }
 
-interface IModelManager {
+export interface IModelManager {
   readonly storageModel: (
     modelType: string,
     component: IWebClientComponentType
@@ -49,7 +49,7 @@ interface IModelManager {
   readonly getModelList: () => string[]
 }
 
-interface IGetters {
+export interface IGetters {
   modelType: string,
   modelID: string,
   getState: () => { [key: string]: any },
@@ -58,7 +58,7 @@ interface IGetters {
   getModelList: () => { [modelType: string]: string[] }
 };
 
-type IActionEntity = (
+export type IActionEntity = (
   platform: IPlatforms,
   publicContexts: {
     actionManager: IActionManager,
