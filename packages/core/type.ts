@@ -9,63 +9,11 @@ export interface IPackageInfo {
   contexts?: {
     [platform in IPlatforms]?: {
       [key: string]: (
-        projectPackage: IProjectPackage, getContext: IGetContextFuncType
+        projectPackage: IProjectPackage,
+        contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
       ) => any
     }
   }
-}
-
-export type ITranslatorFunc = (...args: any[]) => IActionObject[];
-export type IExecutorFunc = (obj: { [key: string]: any }) => (
-  payload: { [key: string]: any },
-  globalContext: { [key: string]: any },
-  localContext: { [key: string]: any }
-) => Promise<{ [key: string]: any }>;
-
-export type IActionInfo = {
-  translator: ITranslatorFunc,
-  executor: IExecutorFunc
-}
-
-export type IOriginalActionObject<T = any> = {
-  platform: IPlatforms,
-  pkg: string,
-  type: string,
-  args: T
-  catch?: IOriginalActionObject[]
-};
-
-export type IActionObject =
-  IActionNormalObject | IActionJudgeObject |
-  IActionSubStream | IActionLoopTag
-
-export interface IActionNormalObject<T extends { [key: string]: any } = {}> {
-  kind: 'ActionNormalObject',
-  pkg: string,
-  type: string,
-  platform?: IPlatforms,
-  args: T,
-  catch?: IActionObject[]
-}
-
-export interface IActionJudgeObject {
-  kind: 'ActionJudgeObject',
-  cond: (
-    payload: { [key: string]: any },
-    globalContext: { [key: string]: any },
-    localContext: { [key: string]: any }
-  ) => boolean
-}
-
-export interface IActionSubStream {
-  kind: 'ActionSubStream',
-  stream: IActionObject[]
-}
-
-export interface IActionLoopTag {
-  kind: 'ActionLoopTag',
-  mode: 'fixed' | 'unlimited',
-  wait?: number
 }
 
 export type IWebClientComponentType =
@@ -82,12 +30,12 @@ export type IProjectPackage = {
         controller: {
           init?: (
             payload: { [key: string]: any },
-            globalContext: IGetContextFuncType,
+            globalContext: Readonly<{ [key: string]: (...args: any[]) => any }>,
             localContext: { [key: string]: any }
           ) => { [key: string]: any },
           preload?: (
             payload: { [key: string]: any },
-            globalContext: IGetContextFuncType,
+            globalContext: Readonly<{ [key: string]: (...args: any[]) => any }>,
             localContext: { [key: string]: any }
           ) => { [key: string]: any },
           [actionName: string]: { type: string, args: any }[] | any
@@ -107,39 +55,43 @@ export type IProjectPackage = {
   }
 };
 
-export type IGetContextFuncType =
-  (type: 'actionManager' | 'streamManager' | string) => any;
+export type IRuntime = (
+  platform: IPlatforms,
+  publicContexts: {
+    contextManager: IContextManager,
+    runtimeManager: IRuntimeManager
+  }
+) => (
+    payload: { [key: string]: any },
+    contexts: Readonly<{
+      [key: string]: { [func: string]: (...args: any[]) => any }
+    }>,
+    variants: Readonly<{ [key: string]: any }>
+  ) => { [key: string]: any };
 
-export interface IActionManager {
-  readonly getContext: IGetContextFuncType,
-  readonly getTranslator: (
-    platform: IPlatforms,
-    packageName: string,
-    actionName: string
-  ) => ITranslatorFunc,
-  readonly getExecutor: (
-    platform: IPlatforms,
-    packageName: string,
-    actionName: string
-  ) => IExecutorFunc,
-  readonly getConfig: (platform: IPlatforms) => { [key: string]: any },
-  readonly loadPackage: (projectPackage: IProjectPackage) => void,
+export interface IContextManager {
+  readonly getContexts: () => Readonly<{
+    [key: string]: {
+      [func: string]: (...args: any[]) => any
+    }
+  }>,
+  readonly loadProjectPackage: (projectPackage: IProjectPackage) => void,
   readonly loadActionPackage: (packageInfo: IPackageInfo) => void
 }
 
-export interface IStreamManager {
-  readonly loadStream: (
-    stream: IOriginalActionObject[],
+export interface IRuntimeManager {
+  readonly loadRuntime: (
+    runtime: IRuntime,
     platform: IPlatforms,
     tag: string,
-    streamName: string
+    name: string
   ) => void,
   readonly loadPackage: (projectPackage: IProjectPackage) => void,
-  readonly getStreamList: (platform: IPlatforms, tag: string) => string[],
-  readonly hasStream: (
+  readonly getRuntimeList: (platform: IPlatforms, tag: string) => string[],
+  readonly hasRuntime: (
     platform: IPlatforms, tag: string, streamName: string
   ) => boolean,
-  readonly runStream: (
+  readonly runRuntime: (
     platform: IPlatforms,
     tag: string,
     streamName: string,

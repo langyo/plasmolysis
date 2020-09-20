@@ -2,7 +2,7 @@ import {
   IPlatforms
 } from '../core/type';
 import {
-  IActionEntity,
+  IRuntime,
   IGetters
 } from '../action-preset';
 
@@ -11,18 +11,18 @@ export function togglePage(
     type: string,
     initState: { [key: string]: any }
   }
-): IActionEntity;
+): IRuntime;
 export function togglePage(
   type: string,
   initState: { [key: string]: any }
-): IActionEntity;
+): IRuntime;
 export function togglePage(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     type: string,
     initState: { [key: string]: any }
   }) | string,
   arg1?: { [key: string]: any }
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'string' ? () => ({
     type: arg0,
     initState: arg1

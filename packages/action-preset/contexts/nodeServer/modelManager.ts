@@ -1,13 +1,12 @@
 import {
   IProjectPackage,
-  IGetContextFuncType,
   IModelManager,
   IWebClientComponentType
-} from '../../type';
+} from '../../index';
 
 export function modelManager(
   projectPackage: IProjectPackage,
-  getContext: IGetContextFuncType
+  contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
 ): IModelManager {
   let components: { [key: string]: IWebClientComponentType } = {};
 

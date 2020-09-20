@@ -1,7 +1,7 @@
 export {
   IPackageInfo,
   IProjectPackage,
-  IGetContextFuncType,
+  Readonly<{ [key: string]: (...args: any[]) => any }>,
   IActionNormalObject,
   IOriginalActionObject
 } from '../core/type';

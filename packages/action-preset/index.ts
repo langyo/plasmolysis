@@ -2,11 +2,8 @@ import {
   IPlatforms,
   IProjectPackage,
   IWebClientComponentType,
-  IOriginalActionObject,
-  IStreamManager,
-  IActionManager
+  IRuntime
 } from '../core/type';
-import { IRouteManager } from '../action-routes/type';
 
 import { generate } from 'shortid';
 
@@ -58,37 +55,18 @@ export interface IGetters {
   getModelList: () => { [modelType: string]: string[] }
 };
 
-export type IActionEntity = (
-  platform: IPlatforms,
-  publicContexts: {
-    actionManager: IActionManager,
-    streamManager: IStreamManager
-  }
-) => (
-    payload: { [key: string]: any },
-    contexts: {
-      modelManager: IModelManager,
-      stateManager: IStateManager,
-      routeManager: IRouteManager,
-      [context: string]: any
-    },
-    localStorage: { [key: string]: any }
-  ) => Promise<{
-    [key: string]: any
-  }>;
-
 export function createModel(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
     type: string,
     initState: { [key: string]: any },
     name?: string
   }
-): IActionEntity;
+): IRuntime;
 export function createModel(
   type: string,
   initState?: { [key: string]: any },
   name?: string
-): IActionEntity;
+): IRuntime;
 export function createModel(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     type: string,
@@ -97,7 +75,7 @@ export function createModel(
   }) | string,
   arg1?: { [key: string]: any },
   arg2?: string
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'string' ? () => ({
     type: arg0,
     initState: arg1 || {},
@@ -136,13 +114,13 @@ export function destoryModel(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
     id: string
   }
-): IActionEntity;
-export function destoryModel(id: string): IActionEntity;
+): IRuntime;
+export function destoryModel(id: string): IRuntime;
 export function destoryModel(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     id: string
   }) | string
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'string' ? () => ({ id: arg0 }) : arg0;
   return (platform: IPlatforms) => platform === 'webClient' ? async (
     payload, {
@@ -178,12 +156,12 @@ export function dispatch(
     action: string,
     payload: { [key: string]: any }
   }
-): IActionEntity;
+): IRuntime;
 export function dispatch(
   id: string,
   action: string,
   payload: { [key: string]: any }
-): IActionEntity;
+): IRuntime;
 export function dispatch(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     id: string,
@@ -192,7 +170,7 @@ export function dispatch(
   }) | string,
   arg1?: string,
   arg2?: { [key: string]: any }
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'string' ? () => ({
     id: arg0, action: arg1, payload: arg2
   }) : arg0;
@@ -226,33 +204,40 @@ export function dispatch(
 import axios from 'axios';
 export function fetch(
   path: string,
-  stream?: IOriginalActionObject[]
-): IActionEntity
+  runtime?: IRuntime
+): IRuntime
 export function fetch(
   path: string,
   translator: ((payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   })
-): IActionEntity;
+): IRuntime;
 export function fetch(
   path: string,
   translator: ((payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   }),
-  stream: IOriginalActionObject[]
-): IActionEntity;
+  runtime: IRuntime
+): IRuntime;
 export function fetch(
   path: string,
   arg0?: ((payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
-  }) | IOriginalActionObject[],
-  arg1?: IOriginalActionObject[]
-): IActionEntity {
-  const { stream, translator } = Array.isArray(arg0) ? {
-    translator: (n: any) => n, stream: arg0
-  } : { translator: arg0, stream: arg1 };
+  }) | IRuntime,
+  arg1?: IRuntime
+): IRuntime {
+  const { runtime, translator } = Array.isArray(arg0) ? {
+    translator: (n: any) => n, runtime: arg0 as IRuntime
+  } : {
+      translator: arg0 as (
+        payload: { [key: string]: any }, utils: IGetters
+      ) => {
+        [key: string]: any
+      },
+      runtime: arg1
+    };
 
-  return (platform, { streamManager: { loadStream } }) => {
+  return (platform, { runtimeManager: { loadRuntime } }) => {
     switch (platform) {
       case 'webClient':
         return async (
@@ -279,8 +264,8 @@ export function fetch(
           return JSON.parse(await axios.post(path, body));
         };
       case 'nodeServer':
-        if (typeof stream !== 'undefined') {
-          loadStream(stream, 'nodeServer', 'http', path);
+        if (typeof runtime !== 'undefined') {
+          loadRuntime(runtime, 'nodeServer', 'http', path);
         }
         return undefined;
       default:
@@ -293,15 +278,15 @@ export function setGlobalState(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   }
-): IActionEntity;
+): IRuntime;
 export function setGlobalState(
   combinedObj: { [key: string]: any }
-): IActionEntity;
+): IRuntime;
 export function setGlobalState(
   arg0: (payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   } | { [key: string]: any }
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'string' ? () => arg0 : arg0;
   return (platform: IPlatforms) => platform === 'webClient' ? async (
     payload: { [key: string]: any }, {
@@ -334,15 +319,15 @@ export function setState(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   }
-): IActionEntity;
+): IRuntime;
 export function setState(
   combinedObj: { [key: string]: any }
-): IActionEntity;
+): IRuntime;
 export function setState(
   arg0: (payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   } | { [key: string]: any }
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'string' ? () => arg0 : arg0;
   return (platform: IPlatforms) => platform === 'webClient' ? async (
     payload: { [key: string]: any }, {
@@ -373,11 +358,11 @@ export function setState(
 
 export function wait(
   func: (payload: { [key: string]: any }, utils: IGetters) => number
-): IActionEntity;
-export function wait(length: number): IActionEntity;
+): IRuntime;
+export function wait(length: number): IRuntime;
 export function wait(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => number) | number
-): IActionEntity {
+): IRuntime {
   const generator = typeof arg0 === 'number' ? () => arg0 : arg0;
   return (platform: IPlatforms) => platform === 'webClient' ? async (
     payload: { [key: string]: any }, {

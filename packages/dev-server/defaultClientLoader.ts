@@ -1,24 +1,24 @@
 import {
   IProjectPackage,
-  IActionManager,
-  IStreamManager,
+  IContextManager,
+  IRuntimeManager,
   IStateManager,
   IModelManager,
   IRouteManager,
   IWebClientComponentType
 } from './type';
 
-const { actionManager: actionManagerFactory } = require('nickelcat');
-const actionManager: IActionManager =
-  actionManagerFactory(require('./__nickelcat_staticRequire.js'), 'webClient');
-const streamManager: IStreamManager =
-  actionManager.getContext('streamManager');
+const { contextManager: contextManagerFactory } = require('nickelcat');
+const contextManager: IContextManager =
+  contextManagerFactory(require('./__nickelcat_staticRequire.js'), 'webClient');
+const runtimeManager: IRuntimeManager =
+  contextManager.contexts('runtimeManager');
 const stateManager: IStateManager =
-  actionManager.getContext('stateManager');
+  contextManager.contexts('stateManager');
 const modelManager: IModelManager =
-  actionManager.getContext('modelManager');
+  contextManager.contexts('modelManager');
 const routeManager: IRouteManager =
-  actionManager.getContext('routeManager');
+  contextManager.contexts('routeManager');
 
 const {
   pageTitle,
@@ -42,11 +42,11 @@ function loadReactComponent(
   hydrate(createElement(component as any, {
     ...stateManager.getState(modelID),
     ...stateManager.getGlobalState(),
-    ...streamManager.getStreamList(
+    ...runtimeManager.getRuntimeList(
       'webClient', modelType
     ).reduce((obj, key) => ({
       ...obj,
-      [key]: (payload: { [key: string]: any }) => streamManager.runStream('webClient', modelType, key, payload, {
+      [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('webClient', modelType, key, payload, {
         modelType,
         modelID
       })
@@ -56,11 +56,11 @@ function loadReactComponent(
     render(createElement(component as any, {
       ...stateManager.getState(modelID),
       ...stateManager.getGlobalState(),
-      ...streamManager.getStreamList(
+      ...runtimeManager.getRuntimeList(
         'webClient', modelType
       ).reduce((obj, key) => ({
         ...obj,
-        [key]: (payload: { [key: string]: any }) => streamManager.runStream('webClient', modelType, key, payload, {
+        [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('webClient', modelType, key, payload, {
           modelType,
           modelID
         })

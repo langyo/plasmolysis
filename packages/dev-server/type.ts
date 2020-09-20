@@ -1,19 +1,16 @@
 export {
   IProjectPackage,
-  IActionManager,
+  IContextManager,
   IPlatforms,
-  IGetContextFuncType,
   IWebClientComponentType,
-  IActionObject,
-  IOriginalActionObject,
-  IStreamManager
+  IRuntimeManager
 } from '../core/type';
 export {
   IStateManager,
-  IModelManager,
-  IRouteManager
-} from '../action-preset/type';
+  IModelManager
+} from '../action-preset';
 export {
+  IRouteManager,
   ISessionManager
 } from '../action-routes/type';
 

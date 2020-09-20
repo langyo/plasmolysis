@@ -1,8 +1,8 @@
 import {
   IProjectPackage,
-  IGetContextFuncType,
+  Readonly<{ [key: string]: (...args: any[]) => any }>,
   IStateManager,
-  IStreamManager
+  IRuntimeManager
 } from '../../type';
 
 import { generate } from 'shortid';
@@ -20,7 +20,7 @@ export interface IGlobalState {
 
 export function stateManager(
   projectPackage: IProjectPackage,
-  getContext: IGetContextFuncType
+  contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
 ): IStateManager {
   let globalState: Readonly<{ [key: string]: any }> = from({});
   let modelStateRoute: IModelStateRoute = from({});
@@ -121,8 +121,8 @@ export function stateManager(
 
     modelState = merge(modelState, {
       [modelID]:
-        (getContext('streamManager') as IStreamManager)
-          .runStream(
+        (contexts('runtimeManager') as IRuntimeManager)
+          .runRuntime(
             'webClient', modelType, 'init', initState, { modelType, modelID }
           )
     });
@@ -163,8 +163,8 @@ export function stateManager(
       throw new Error(`The model '${modelID}' doesn't exist.`);
     }
     const modelType = modelIDMap[modelID];
-    return (getContext('streamManager') as IStreamManager)
-      .runStream(
+    return (contexts('runtimeManager') as IRuntimeManager)
+      .runRuntime(
         'webClient', modelType, actionType, payload, { modelType, modelID }
       );
   }

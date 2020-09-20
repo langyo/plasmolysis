@@ -1,8 +1,8 @@
 import {
   IRequestForwardObjectType,
   IWebClientComponentType,
-  IActionManager,
-  IStreamManager,
+  IContextManager,
+  IRuntimeManager,
   IModelManager,
   ISessionManager,
   ISessionInfo
@@ -15,15 +15,15 @@ declare global {
   ) => void;
 };
 
-const { actionManager: actionManagerFactory } = require('nickelcat');
-const actionManager: IActionManager =
-  actionManagerFactory(require('./__nickelcat_staticRequire.js'), 'nodeServer');
-const streamManager: IStreamManager =
-  actionManager.getContext('streamManager');
+const { contextManager: contextManagerFactory } = require('nickelcat');
+const contextManager: IContextManager =
+  contextManagerFactory(require('./__nickelcat_staticRequire.js'), 'nodeServer');
+const runtimeManager: IRuntimeManager =
+  contextManager.contexts('runtimeManager');
 const modelManager: IModelManager =
-  actionManager.getContext('modelManager');
+  contextManager.contexts('modelManager');
 const sessionManager: ISessionManager =
-  actionManager.getContext('sessionManager');
+  contextManager.contexts('sessionManager');
 
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
@@ -51,12 +51,12 @@ function loadReactComponent(
 ): string {
   return renderToString(createElement(component as any, {
     ...pageState,
-    ...streamManager.getStreamList(
+    ...runtimeManager.getRuntimeList(
       'webClient', modelType
     ).reduce((obj, actionType) => ({
       ...obj,
       [actionType]: (payload: { [key: string]: any }) =>
-        streamManager.runStream('webClient', modelType, actionType, payload, {
+        runtimeManager.runRuntime('webClient', modelType, actionType, payload, {
           modelType,
           modelID: '$page'
         })
@@ -68,14 +68,14 @@ __CALLBACK(async ({
   ip, protocol, host, path, query, cookies
 }: ISessionInfo) => {
   try {
-    if (streamManager.hasStream('nodeServer', 'http', path)) {
+    if (runtimeManager.hasRuntime('nodeServer', 'http', path)) {
       // Custom request processor.
       return {
         status: 'processed',
         code: 200,
         type: 'application/json',
         body: JSON.stringify(
-          streamManager.runStream('nodeServer', 'http', path, query, {
+          runtimeManager.runRuntime('nodeServer', 'http', path, query, {
             ip, protocol, host, path, query, cookies
           })
         )
@@ -87,18 +87,18 @@ __CALLBACK(async ({
       // Page routes.
       try {
         const pageName = path === '/' ?
-          actionManager.getConfig('webClient').rootPageRelay :
+          contextManager.getConfig('webClient').rootPageRelay :
           pageList.components[pageList.routes.indexOf(path)];
 
         const {
           pageTitle,
           pageState,
           globalState
-        } = streamManager.hasStream('webClient', pageName, 'preload') ?
-            streamManager.runStream('webClient', pageName, 'preload', {}, {
+        } = runtimeManager.hasRuntime('webClient', pageName, 'preload') ?
+            runtimeManager.runRuntime('webClient', pageName, 'preload', {}, {
               ip, protocol, host, path, query, cookies
             }) : {
-              pageTitle: actionManager.getConfig('webClient').defaultPageTitle,
+              pageTitle: contextManager.getConfig('webClient').defaultPageTitle,
               pageState: {},
               globalState: {}
             };

@@ -1,6 +1,6 @@
 import {
   IProjectPackage,
-  IGetContextFuncType,
+  Readonly<{ [key: string]: (...args: any[]) => any }>,
   ISessionManager
 } from '../../type';
 
@@ -9,7 +9,7 @@ import { from, merge } from "seamless-immutable";
 
 export function sessionManager(
   projectPackage: IProjectPackage,
-  getContext: IGetContextFuncType
+  contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
 ): ISessionManager {
   let sessionChecksum: { [id: string]: string } = {};
   let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};

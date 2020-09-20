@@ -1,13 +1,13 @@
 import {
   IProjectPackage,
-  IGetContextFuncType,
+  Readonly<{ [key: string]: (...args: any[]) => any }>,
   IStateManager,
   IRouteManager
 } from '../../type';
 
 export function routeManager(
   projectPackage: IProjectPackage,
-  getContext: IGetContextFuncType
+  contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
 ): IRouteManager {
   let title: string = '';
 
@@ -16,7 +16,7 @@ export function routeManager(
       getModelIDList,
       createModel,
       destoryModel
-    }: IStateManager = getContext('stateManager');
+    }: IStateManager = contexts('stateManager');
     if (typeof getModelIDList()['$page'] !== 'undefined') {
       destoryModel('$page');
     }
@@ -26,7 +26,7 @@ export function routeManager(
   function getPageType(): string {
     const {
       getModelIDList
-    }: IStateManager = getContext('stateManager');
+    }: IStateManager = contexts('stateManager');
     if (typeof getModelIDList()['$page'] === 'undefined') {
       return '';
     }
