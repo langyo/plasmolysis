@@ -1,10 +1,52 @@
 import {
+  IModelManager,
   IStateManager
-} from '../../index';
+} from './index';
 import {
+  IPlatforms,
   IProjectPackage,
+  IWebClientComponentType,
   IRuntimeManager
-} from '../../../core/type';
+} from '../core/type';
+
+function modelManager(
+  projectPackage: IProjectPackage,
+  contexts: Readonly<{ [key: string]: any }>
+): IModelManager {
+  let components: { [key: string]: IWebClientComponentType } = {};
+
+  function storageModel(
+    modelType: string,
+    component: IWebClientComponentType
+  ): void {
+    components[modelType] = component;
+  };
+
+  function loadPackage(projectPackage: IProjectPackage): void {
+    for (const modelType of Object.keys(projectPackage.data.webClient)) {
+      storageModel(
+        modelType, projectPackage.data.webClient[modelType].component
+      );
+    }
+  }
+
+  loadPackage(projectPackage);
+
+  function loadComponent(type: string): IWebClientComponentType {
+    return components[type];
+  }
+
+  function getModelList(): string[] {
+    return Object.keys(components);
+  }
+
+  return Object.freeze({
+    storageModel,
+    loadPackage,
+    loadComponent,
+    getModelList
+  });
+};
 
 import { generate } from 'shortid';
 import { from, merge, without } from "seamless-immutable";
@@ -19,7 +61,7 @@ export interface IGlobalState {
   [key: string]: unknown
 };
 
-export function stateManager(
+function stateManager(
   projectPackage: IProjectPackage,
   contexts: Readonly<{ [key: string]: any }>
 ): IStateManager {
@@ -170,7 +212,7 @@ export function stateManager(
       );
   }
 
-  const stateManager = Object.freeze({
+  return Object.freeze({
     getState,
     setState,
     getGlobalState,
@@ -184,6 +226,12 @@ export function stateManager(
     appendListener,
     removeListener
   });
-
-  return stateManager;
 };
+
+export function getContexts(platform: IPlatforms): { [key: string]: any } {
+  switch (platform) {
+    case 'webClient': return { modelManager, stateManager };
+    case 'nodeServer': return { modelManager };
+    default: return {};
+  }
+}

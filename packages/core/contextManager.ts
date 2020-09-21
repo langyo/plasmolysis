@@ -9,10 +9,10 @@ import {
 import { runtimeManager as runtimeManagerFactory } from './runtimeManager';
 const {
   packageInfo: actionPresetPackage
-} = require('nickelcat-action-preset/package');
+} = require('nickelcat-action-preset/context').getContexts;
 const {
   packageInfo: actionRoutesPackage
-} = require('nickelcat-action-routes/package');
+} = require('nickelcat-action-routes/context').getContexts;
 
 export function contextManager(
   projectPackage: IProjectPackage,
@@ -30,14 +30,12 @@ export function contextManager(
       loadActionPackage
     }), platform);
 
-  function loadActionPackage(packageInfo: IPackageInfo): void {
-    if (typeof packageInfo.contexts[platform] !== 'undefined') {
-      for (const type of Object.keys(packageInfo.contexts[platform])) {
-        getContexts[type] =
-          packageInfo.contexts[platform][type](
-            projectPackage, getContexts()
-          );
-      }
+  function loadActionPackage(
+    getter: (platform: IPlatforms) => { [key: string]: any }
+  ): void {
+    contexts = {
+      ...contexts,
+      ...getter(platform)
     }
   }
 
