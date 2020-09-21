@@ -1,6 +1,6 @@
 import {
   IPackageInfo
-} from '../core/type';
+} from '../core';
 
 import * as contexts from './contexts';
 

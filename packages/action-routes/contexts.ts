@@ -8,7 +8,7 @@ import {
 import {
   IProjectPackage,
   IPlatforms
-} from '../core/type';
+} from '../core';
 
 import { generate } from 'shortid';
 import { from, merge } from "seamless-immutable";

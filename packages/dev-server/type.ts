@@ -4,7 +4,7 @@ export {
   IPlatforms,
   IWebClientComponentType,
   IRuntimeManager
-} from '../core/type';
+} from '../core';
 export {
   IStateManager,
   IModelManager

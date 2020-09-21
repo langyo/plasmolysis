@@ -3,7 +3,7 @@ import {
 } from '../../index';
 import {
   IProjectPackage
-} from '../../../core/type';
+} from '../../../core';
 
 import { generate } from 'shortid';
 import { from, merge } from "seamless-immutable";

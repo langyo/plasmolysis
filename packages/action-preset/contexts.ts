@@ -7,7 +7,7 @@ import {
   IProjectPackage,
   IWebClientComponentType,
   IRuntimeManager
-} from '../core/type';
+} from '../core';
 
 function modelManager(
   projectPackage: IProjectPackage,

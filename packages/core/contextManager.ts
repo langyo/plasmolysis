@@ -2,9 +2,8 @@ import {
   IPlatforms,
   IProjectPackage,
   IContextManager,
-  IRuntimeManager,
-  IPackageInfo
-} from './type';
+  IRuntimeManager
+} from './index';
 
 import { runtimeManager as runtimeManagerFactory } from './runtimeManager';
 const {

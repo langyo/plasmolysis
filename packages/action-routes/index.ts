@@ -1,7 +1,7 @@
 import {
   IPlatforms,
   IRuntime
-} from '../core/type';
+} from '../core';
 import {
   IGetters
 } from '../action-preset';

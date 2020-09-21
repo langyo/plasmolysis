@@ -3,7 +3,7 @@ import {
   IProjectPackage,
   IWebClientComponentType,
   IRuntime
-} from '../core/type';
+} from '../core';
 
 import { generate } from 'shortid';
 

@@ -6,7 +6,7 @@ import {
 } from '../../../action-preset';
 import {
   IProjectPackage
-} from '../../../core/type';
+} from '../../../core';
 
 export function routeManager(
   projectPackage: IProjectPackage,

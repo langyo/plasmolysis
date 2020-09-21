@@ -4,7 +4,7 @@ import {
   IRuntimeManager,
   IContextManager,
   IPlatforms,
-} from './type';
+} from './index';
 
 export function runtimeManager(
   projectPackage: IProjectPackage,
