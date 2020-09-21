@@ -1,9 +1,10 @@
 import {
+  IStateManager
+} from '../../index';
+import {
   IProjectPackage,
-  Readonly<{ [key: string]: (...args: any[]) => any }>,
-  IStateManager,
   IRuntimeManager
-} from '../../type';
+} from '../../../core/type';
 
 import { generate } from 'shortid';
 import { from, merge, without } from "seamless-immutable";
@@ -20,7 +21,7 @@ export interface IGlobalState {
 
 export function stateManager(
   projectPackage: IProjectPackage,
-  contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
+  contexts: Readonly<{ [key: string]: any }>
 ): IStateManager {
   let globalState: Readonly<{ [key: string]: any }> = from({});
   let modelStateRoute: IModelStateRoute = from({});
@@ -121,7 +122,7 @@ export function stateManager(
 
     modelState = merge(modelState, {
       [modelID]:
-        (contexts('runtimeManager') as IRuntimeManager)
+        (contexts.runtimeManager as IRuntimeManager)
           .runRuntime(
             'webClient', modelType, 'init', initState, { modelType, modelID }
           )
@@ -163,7 +164,7 @@ export function stateManager(
       throw new Error(`The model '${modelID}' doesn't exist.`);
     }
     const modelType = modelIDMap[modelID];
-    return (contexts('runtimeManager') as IRuntimeManager)
+    return (contexts.runtimeManager as IRuntimeManager)
       .runRuntime(
         'webClient', modelType, actionType, payload, { modelType, modelID }
       );

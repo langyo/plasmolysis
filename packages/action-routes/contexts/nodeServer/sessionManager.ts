@@ -1,8 +1,9 @@
 import {
-  IProjectPackage,
-  Readonly<{ [key: string]: (...args: any[]) => any }>,
   ISessionManager
-} from '../../type';
+} from '../../index';
+import {
+  IProjectPackage
+} from '../../../core/type';
 
 import { generate } from 'shortid';
 import { from, merge } from "seamless-immutable";

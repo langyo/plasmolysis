@@ -1,13 +1,14 @@
 import {
+  IModelManager
+} from '../../index';
+import {
   IProjectPackage,
-  Readonly<{ [key: string]: (...args: any[]) => any }>,
-  IModelManager,
   IWebClientComponentType
-} from '../../type';
+} from '../../../core/type';
 
 export function modelManager(
   projectPackage: IProjectPackage,
-  contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
+  contexts: Readonly<{ [key: string]: any }>
 ): IModelManager {
   let components: { [key: string]: IWebClientComponentType } = {};
 
