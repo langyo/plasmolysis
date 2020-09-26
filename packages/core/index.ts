@@ -67,7 +67,7 @@ export type IRuntime = (
       [key: string]: { [func: string]: (...args: any[]) => any }
     }>,
     variants: Readonly<{ [key: string]: any }>
-  ) => { [key: string]: any };
+  ) => Promise<{ [key: string]: any }>;
 
 export interface IContextManager {
   readonly getContexts: () => Readonly<{
@@ -102,3 +102,7 @@ export interface IRuntimeManager {
 
 export { contextManager } from './contextManager';
 export { runtimeManager } from './runtimeManager';
+
+export { series } from './series';
+export { parallel } from './parallel';
+export { martix } from './martix';
