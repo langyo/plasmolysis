@@ -75,6 +75,8 @@ export interface IContextManager {
       [func: string]: (...args: any[]) => any
     }
   }>,
+  readonly getConfig: (context: string) => Readonly<{ [key: string]: any }>,
+  readonly setConfig: (context: string, value: { [key: string]: any }) => void,
   readonly loadProjectPackage: (projectPackage: IProjectPackage) => void,
   readonly loadActionPackage: (packageInfo: IPackageInfo) => void
 }

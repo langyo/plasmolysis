@@ -6,7 +6,7 @@ import {
   IModelManager,
   ISessionManager,
   ISessionInfo
-} from './type';
+} from './index';
 
 declare global {
   export const __CALLBACK: (
@@ -17,13 +17,18 @@ declare global {
 
 const { contextManager: contextManagerFactory } = require('nickelcat');
 const contextManager: IContextManager =
-  contextManagerFactory(require('./__nickelcat_staticRequire.js'), 'nodeServer');
-const runtimeManager: IRuntimeManager =
-  contextManager.contexts('runtimeManager');
-const modelManager: IModelManager =
-  contextManager.contexts('modelManager');
-const sessionManager: ISessionManager =
-  contextManager.contexts('sessionManager');
+  contextManagerFactory(
+    require('./__nickelcat_staticRequire.js'), 'nodeServer'
+  );
+const {
+  runtimeManager,
+  modelManager,
+  sessionManager
+}: {
+  runtimeManager: IRuntimeManager,
+  modelManager: IModelManager,
+  sessionManager: ISessionManager
+} = contextManager.getContexts() as any;
 
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';

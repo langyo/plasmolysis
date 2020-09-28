@@ -6,19 +6,24 @@ import {
   IModelManager,
   IRouteManager,
   IWebClientComponentType
-} from './type';
+} from './index';
 
 const { contextManager: contextManagerFactory } = require('nickelcat');
 const contextManager: IContextManager =
-  contextManagerFactory(require('./__nickelcat_staticRequire.js'), 'webClient');
-const runtimeManager: IRuntimeManager =
-  contextManager.contexts('runtimeManager');
-const stateManager: IStateManager =
-  contextManager.contexts('stateManager');
-const modelManager: IModelManager =
-  contextManager.contexts('modelManager');
-const routeManager: IRouteManager =
-  contextManager.contexts('routeManager');
+  contextManagerFactory(
+    require('./__nickelcat_staticRequire.js'), 'webClient'
+  );
+const {
+  runtimeManager,
+  stateManager,
+  modelManager,
+  routeManager
+}: {
+  runtimeManager: IRuntimeManager,
+  stateManager: IStateManager,
+  modelManager: IModelManager,
+  routeManager: IRouteManager
+} = contextManager.getContexts() as any;
 
 const {
   pageTitle,

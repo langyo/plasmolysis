@@ -1,8 +1,7 @@
 import {
-  IRequestForwardObjectType,
   IRequestForwardFuncType,
   ISessionInfo
-} from './type';
+} from './index';
 
 import { Script, createContext } from 'vm';
 import { parse as errorParse } from 'error-stack-parser';

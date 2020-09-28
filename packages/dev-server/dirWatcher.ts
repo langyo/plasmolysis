@@ -1,6 +1,6 @@
 import { watch as watchFiles } from 'chokidar';
 
-export async function watch(callback: () => Promise<void>): Promise<void> {
+export async function dirWatcher(callback: () => Promise<void>): Promise<void> {
   let changedDuringDelay: boolean = false;
   let delayWaiting: boolean = false;
 

@@ -25,6 +25,8 @@ export function contextManager(
   const runtimeManager: IRuntimeManager =
     runtimeManagerFactory(projectPackage, Object.freeze({
       getContexts,
+      getConfig,
+      setConfig,
       loadProjectPackage,
       loadActionPackage
     }), platform);
@@ -80,10 +82,31 @@ export function contextManager(
     }
   }
 
+  function getConfig(context: string): Readonly<{ [key: string]: any }> {
+    if (typeof configs[context] === 'undefined') {
+      return Object.freeze({});
+    } else {
+      return Object.freeze(configs[context]);
+    }
+  }
+
+  function setConfig(context: string, value: { [key: string]: any }): void {
+    if (typeof configs[context] === 'undefined') {
+      configs[context] = value;
+    } else {
+      configs[context] = {
+        ...configs[context],
+        ...value
+      };
+    }
+  }
+
   loadProjectPackage(projectPackage);
 
   return Object.freeze({
     getContexts,
+    getConfig,
+    setConfig,
     loadProjectPackage,
     loadActionPackage
   });
