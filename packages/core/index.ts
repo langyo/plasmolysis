@@ -102,9 +102,9 @@ export interface IRuntimeManager {
   ) => { [key: string]: any }
 }
 
-export { contextManager } from './contextManager';
-export { runtimeManager } from './runtimeManager';
+export { contextManager } from './src/contextManager';
+export { runtimeManager } from './src/runtimeManager';
 
-export { series } from './series';
-export { parallel } from './parallel';
-export { martix } from './martix';
+export { series } from './lib/series';
+export { parallel } from './lib/parallel';
+export { martix } from './lib/martix';

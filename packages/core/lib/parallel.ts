@@ -1,6 +1,6 @@
 import {
   IRuntime
-} from './index';
+} from '../index';
 
 export function parallel(...tasks: IRuntime[]);
 export function parallel(map: { [key: string]: IRuntime }, key: string);

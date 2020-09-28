@@ -4,7 +4,7 @@ import {
   IRuntimeManager,
   IContextManager,
   IPlatforms,
-} from './index';
+} from '../index';
 
 export function runtimeManager(
   projectPackage: IProjectPackage,
@@ -51,9 +51,9 @@ export function runtimeManager(
         ) {
           // The extra compare and rewrite should be exported as the interfaces.
           if (streamName === 'init') {
-            loadRuntime(() => () => ({}), tag, 'init');
+            loadRuntime(() => async () => ({}), tag, 'init');
           } else if (streamName === 'preload') {
-            loadRuntime(() => () => ({}), tag, 'preload');
+            loadRuntime(() => async () => ({}), tag, 'preload');
           } else {
             loadRuntime(
               projectPackage.data.webClient[tag].controller[streamName],

@@ -3,7 +3,7 @@ import {
   IProjectPackage,
   IContextManager,
   IRuntimeManager
-} from './index';
+} from '../index';
 
 import { runtimeManager as runtimeManagerFactory } from './runtimeManager';
 const {

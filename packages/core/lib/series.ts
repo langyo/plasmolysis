@@ -1,6 +1,6 @@
 import {
   IRuntime
-} from './index';
+} from '../index';
 
 export function series(...tasks: IRuntime[]): IRuntime {
   return (platform, publicContexts) => async (

@@ -1,7 +1,7 @@
 import {
   IRuntime,
   IPlatforms
-} from './index';
+} from '../index';
 
 export function martix(
   map: (platform: IPlatforms) => (
