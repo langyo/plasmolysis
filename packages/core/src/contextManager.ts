@@ -2,10 +2,11 @@ import {
   IPlatforms,
   IProjectPackage,
   IContextManager,
-  IRuntimeManager
+  IRuntimeManager, IGlueManager
 } from '../index';
 
-import { runtimeManagerFactory as runtimeManagerFactory } from './runtimeManager';
+import { runtimeManagerFactory } from './runtimeManager';
+import { glueManagerFactory } from './guleManager';
 const {
   packageInfo: actionPresetPackage
 } = require('nickelcat-action-preset/context').getContexts;
@@ -22,14 +23,19 @@ export function contextManagerFactory(
   } = {};
   let configs: { [key: string]: any } = {};
 
+  const contextManagerObj = Object.freeze({
+    getContexts,
+    getConfig,
+    setConfig,
+    loadProjectPackage,
+    loadActionPackage
+  });
+  const glueManager: IGlueManager =
+    glueManagerFactory(projectPackage, contextManagerObj, platform);
   const runtimeManager: IRuntimeManager =
-    runtimeManagerFactory(projectPackage, Object.freeze({
-      getContexts,
-      getConfig,
-      setConfig,
-      loadProjectPackage,
-      loadActionPackage
-    }), platform);
+    runtimeManagerFactory(
+      projectPackage, contextManagerObj, glueManager, platform
+    );
 
   function loadActionPackage(
     getter: (platform: IPlatforms) => { [key: string]: any }

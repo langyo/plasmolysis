@@ -59,7 +59,8 @@ export type IRuntime = (
   platform: IPlatforms,
   publicContexts: {
     contextManager: IContextManager,
-    runtimeManager: IRuntimeManager
+    runtimeManager: IRuntimeManager,
+    glueManager: IGlueManager
   }
 ) => (
     payload: { [key: string]: any },
@@ -82,24 +83,16 @@ export interface IContextManager {
 }
 
 export interface IRuntimeManager {
-  readonly loadRuntime: (
-    runtime: IRuntime,
-    platform: IPlatforms,
-    tag: string,
-    name: string
-  ) => void,
+  readonly loadRuntime: (runtime: IRuntime, tag: string, name: string) => void,
   readonly loadPackage: (projectPackage: IProjectPackage) => void,
-  readonly getRuntimeList: (platform: IPlatforms, tag: string) => string[],
-  readonly hasRuntime: (
-    platform: IPlatforms, tag: string, streamName: string
-  ) => boolean,
+  readonly getRuntimeList: (tag: string) => string[],
+  readonly hasRuntime: (tag: string, streamName: string) => boolean,
   readonly runRuntime: (
-    platform: IPlatforms,
     tag: string,
     streamName: string,
     payload: { [key: string]: any },
     localContext: { [key: string]: any }
-  ) => { [key: string]: any }
+  ) => Promise<{ [key: string]: any }>
 }
 
 export interface IGlueManager {

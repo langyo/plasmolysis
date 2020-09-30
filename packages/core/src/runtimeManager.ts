@@ -3,12 +3,14 @@ import {
   IRuntime,
   IRuntimeManager,
   IContextManager,
+  IGlueManager,
   IPlatforms,
 } from '../index';
 
 export function runtimeManagerFactory(
   projectPackage: IProjectPackage,
   contextManager: IContextManager,
+  glueManager: IGlueManager,
   platform: IPlatforms
 ): IRuntimeManager {
   let runtimes: {
@@ -19,7 +21,7 @@ export function runtimeManagerFactory(
           [key: string]: { [func: string]: (...args: any[]) => any }
         }>,
         variants: Readonly<{ [key: string]: any }>
-      ) => { [key: string]: any }
+      ) => Promise<{ [key: string]: any }>
     }
   } = {};
 
@@ -30,6 +32,7 @@ export function runtimeManagerFactory(
   ): void {
     runtimes[tag][name] = runtime(platform, Object.freeze({
       contextManager,
+      glueManager,
       runtimeManager: Object.freeze({
         loadRuntime,
         loadPackage,
@@ -67,19 +70,19 @@ export function runtimeManagerFactory(
 
   loadPackage(projectPackage);
 
-  function getRuntimeList(platform: IPlatforms, tag: string): string[] {
-    if (typeof runtimes[platform][tag] === 'undefined') {
+  function getRuntimeList(tag: string): string[] {
+    if (typeof runtimes[tag] === 'undefined') {
       throw new Error(`Unknown tag '${tag}' at the platform '${platform}'.`);
     }
-    return Object.keys(runtimes[platform][tag]);
+    return Object.keys(runtimes[tag]);
   }
 
   function hasRuntime(
-    platform: IPlatforms, tag: string, streamName: string
+    tag: string, streamName: string
   ): boolean {
     if (
-      typeof runtimes[platform][tag] === 'undefined' ||
-      typeof runtimes[platform][tag][streamName] === 'undefined'
+      typeof runtimes[tag] === 'undefined' ||
+      typeof runtimes[tag][streamName] === 'undefined'
     ) {
       return false;
     } else {
@@ -87,22 +90,21 @@ export function runtimeManagerFactory(
     }
   }
 
-  function runRuntime(
-    platform: IPlatforms,
+  async function runRuntime(
     tag: string,
     name: string,
     payload: { [key: string]: any },
     variants: { [key: string]: any }
-  ): { [key: string]: any } {
+  ): Promise<{ [key: string]: any }> {
     if (
-      typeof runtimes[platform][tag] === 'undefined' ||
-      typeof runtimes[platform][tag][name] === 'undefined'
+      typeof runtimes[tag] === 'undefined' ||
+      typeof runtimes[tag][name] === 'undefined'
     ) {
       throw new Error(
         `Unknown stream '${name}' from '${tag}' at the platform '${platform}'.`
       );
     }
-    return runtimes[tag][name](
+    return await runtimes[tag][name](
       payload, contextManager.getContexts(), variants
     );
   };
