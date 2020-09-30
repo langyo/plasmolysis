@@ -51,7 +51,7 @@ export function togglePage(
     type: arg0,
     initState: arg1
   }) : arg0;
-  return (platform: IPlatforms) => platform === 'webClient' ? async (
+  return (platform: IPlatforms) => platform === 'js.browser' ? async (
     payload: { [key: string]: any }, {
       stateManager: {
         getState,

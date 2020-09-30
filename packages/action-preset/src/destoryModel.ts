@@ -16,7 +16,7 @@ export function destoryModel(
   }) | string
 ): IRuntime {
   const generator = typeof arg0 === 'string' ? () => ({ id: arg0 }) : arg0;
-  return (platform: IPlatforms) => platform === 'webClient' ? async (
+  return (platform: IPlatforms) => platform === 'js.browser' ? async (
     payload, {
       stateManager: {
         getState,

@@ -166,7 +166,7 @@ function stateManager(
       [modelID]:
         (contexts.runtimeManager as IRuntimeManager)
           .runRuntime(
-            'webClient', modelType, 'init', initState, { modelType, modelID }
+            'js.browser', modelType, 'init', initState, { modelType, modelID }
           )
     });
     modelStateRoute = merge(
@@ -208,7 +208,7 @@ function stateManager(
     const modelType = modelIDMap[modelID];
     return (contexts.runtimeManager as IRuntimeManager)
       .runRuntime(
-        'webClient', modelType, actionType, payload, { modelType, modelID }
+        'js.browser', modelType, actionType, payload, { modelType, modelID }
       );
   }
 
@@ -230,8 +230,8 @@ function stateManager(
 
 export function getContexts(platform: IPlatforms): { [key: string]: any } {
   switch (platform) {
-    case 'webClient': return { modelManager, stateManager };
-    case 'nodeServer': return { modelManager };
+    case 'js.browser': return { modelManager, stateManager };
+    case 'js.node': return { modelManager };
     default: return {};
   }
 }

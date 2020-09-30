@@ -18,7 +18,7 @@ declare global {
 const { contextManagerFactory } = require('nickelcat');
 const contextManager: IContextManager =
   contextManagerFactory(
-    require('./__nickelcat_staticRequire.js'), 'nodeServer'
+    require('./__nickelcat_staticRequire.js'), 'js.node'
   );
 const {
   runtimeManager,
@@ -57,11 +57,11 @@ function loadReactComponent(
   return renderToString(createElement(component as any, {
     ...pageState,
     ...runtimeManager.getRuntimeList(
-      'webClient', modelType
+      'js.browser', modelType
     ).reduce((obj, actionType) => ({
       ...obj,
       [actionType]: (payload: { [key: string]: any }) =>
-        runtimeManager.runRuntime('webClient', modelType, actionType, payload, {
+        runtimeManager.runRuntime('js.browser', modelType, actionType, payload, {
           modelType,
           modelID: '$page'
         })
@@ -73,14 +73,14 @@ __CALLBACK(async ({
   ip, protocol, host, path, query, cookies
 }: ISessionInfo) => {
   try {
-    if (runtimeManager.hasRuntime('nodeServer', 'http', path)) {
+    if (runtimeManager.hasRuntime('js.node', 'http', path)) {
       // Custom request processor.
       return {
         status: 'processed',
         code: 200,
         type: 'application/json',
         body: JSON.stringify(
-          runtimeManager.runRuntime('nodeServer', 'http', path, query, {
+          runtimeManager.runRuntime('js.node', 'http', path, query, {
             ip, protocol, host, path, query, cookies
           })
         )
@@ -92,18 +92,18 @@ __CALLBACK(async ({
       // Page routes.
       try {
         const pageName = path === '/' ?
-          contextManager.getConfig('webClient').rootPageRelay :
+          contextManager.getConfig('js.browser').rootPageRelay :
           pageList.components[pageList.routes.indexOf(path)];
 
         const {
           pageTitle,
           pageState,
           globalState
-        } = runtimeManager.hasRuntime('webClient', pageName, 'preload') ?
-            runtimeManager.runRuntime('webClient', pageName, 'preload', {}, {
+        } = runtimeManager.hasRuntime('js.browser', pageName, 'preload') ?
+            runtimeManager.runRuntime('js.browser', pageName, 'preload', {}, {
               ip, protocol, host, path, query, cookies
             }) : {
-              pageTitle: contextManager.getConfig('webClient').defaultPageTitle,
+              pageTitle: contextManager.getConfig('js.browser').defaultPageTitle,
               pageState: {},
               globalState: {}
             };

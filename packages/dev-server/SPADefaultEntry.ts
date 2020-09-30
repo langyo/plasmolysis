@@ -10,7 +10,7 @@ import {
 const { contextManagerFactory } = require('nickelcat');
 const contextManager: IContextManager =
   contextManagerFactory(
-    require('./__nickelcat_staticRequire.js'), 'webClient'
+    require('./__nickelcat_staticRequire.js'), 'js.browser'
   );
 const {
   runtimeManager,
@@ -47,10 +47,10 @@ function loadReactComponent(
     ...stateManager.getState(modelID),
     ...stateManager.getGlobalState(),
     ...runtimeManager.getRuntimeList(
-      'webClient', modelType
+      'js.browser', modelType
     ).reduce((obj, key) => ({
       ...obj,
-      [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('webClient', modelType, key, payload, {
+      [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('js.browser', modelType, key, payload, {
         modelType,
         modelID
       })
@@ -61,10 +61,10 @@ function loadReactComponent(
       ...stateManager.getState(modelID),
       ...stateManager.getGlobalState(),
       ...runtimeManager.getRuntimeList(
-        'webClient', modelType
+        'js.browser', modelType
       ).reduce((obj, key) => ({
         ...obj,
-        [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('webClient', modelType, key, payload, {
+        [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('js.browser', modelType, key, payload, {
           modelType,
           modelID
         })

@@ -32,7 +32,7 @@ export function createModel(
     name: arg2 || generate()
   }) : arg0;
 
-  return (platform: IPlatforms) => platform === 'webClient' ? async (
+  return (platform: IPlatforms) => platform === 'js.browser' ? async (
     payload, {
       stateManager: {
         getState,

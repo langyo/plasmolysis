@@ -1,7 +1,8 @@
 /// <reference types="react" />
 /// <reference types="vue" />
 
-export type IPlatforms = 'webClient' | 'nodeServer' | 'electronClient' | 'cordovaClient' | 'flutterClient'
+export type IPlatforms =
+  'js.browser' | 'js.node' | 'js.electron' | 'js.cordova' | 'js.flutter';
 
 export interface IPackageInfo {
   name: string,

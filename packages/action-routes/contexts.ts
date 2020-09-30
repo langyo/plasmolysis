@@ -134,8 +134,8 @@ function routeManager(
 
 export function getContexts(platform: IPlatforms): { [key: string]: any } {
   switch (platform) {
-    case 'webClient': return { routeManager };
-    case 'nodeServer': return { sessionManager };
+    case 'js.browser': return { routeManager };
+    case 'js.node': return { sessionManager };
     default: return {};
   }
 }

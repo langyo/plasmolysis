@@ -18,7 +18,7 @@ export function setGlobalState(
   } | { [key: string]: any }
 ): IRuntime {
   const generator = typeof arg0 === 'string' ? () => arg0 : arg0;
-  return (platform: IPlatforms) => platform === 'webClient' ? async (
+  return (platform: IPlatforms) => platform === 'js.browser' ? async (
     payload: { [key: string]: any }, {
       stateManager: {
         getState,
