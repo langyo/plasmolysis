@@ -102,9 +102,29 @@ export interface IRuntimeManager {
   ) => { [key: string]: any }
 }
 
-export { contextManager } from './src/contextManager';
-export { runtimeManager } from './src/runtimeManager';
+export interface IGlueManager {
+  readonly getProtocol: (platform: IPlatforms) =>
+    (obj: { [key: string]: any }) => Promise<{ [key: string]: any }>,
+  readonly setProtocol: (
+    platform: IPlatforms,
+    func: (obj: { [key: string]: any }) => Promise<{ [key: string]: any }>
+  ) => void,
+  readonly linkTo: (
+    platform: IPlatforms,
+    obj: { [key: string]: any }
+  ) => Promise<{ [key: string]: any }>
+}
+
+export { contextManagerFactory } from './src/contextManager';
+export { runtimeManagerFactory } from './src/runtimeManager';
+export { glueManagerFactory } from './src/guleManager';
 
 export { series } from './lib/series';
 export { parallel } from './lib/parallel';
 export { martix } from './lib/martix';
+export { sideonly } from './lib/sideonly';
+export { test } from './lib/test';
+export { loop } from './lib/loop';
+export { wait } from './lib/wait';
+export { dispatch } from './lib/dispatch';
+export { link } from './lib/link';

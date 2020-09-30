@@ -1,5 +1,4 @@
 import {
-  IProjectPackage,
   IContextManager,
   IRuntimeManager,
   IStateManager,
@@ -8,7 +7,7 @@ import {
   IWebClientComponentType
 } from './index';
 
-const { contextManager: contextManagerFactory } = require('nickelcat');
+const { contextManagerFactory } = require('nickelcat');
 const contextManager: IContextManager =
   contextManagerFactory(
     require('./__nickelcat_staticRequire.js'), 'webClient'

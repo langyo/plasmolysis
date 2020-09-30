@@ -6,7 +6,7 @@ import {
   IPlatforms,
 } from '../index';
 
-export function runtimeManager(
+export function runtimeManagerFactory(
   projectPackage: IProjectPackage,
   contextManager: IContextManager,
   platform: IPlatforms

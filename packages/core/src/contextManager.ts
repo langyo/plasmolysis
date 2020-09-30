@@ -5,7 +5,7 @@ import {
   IRuntimeManager
 } from '../index';
 
-import { runtimeManager as runtimeManagerFactory } from './runtimeManager';
+import { runtimeManagerFactory as runtimeManagerFactory } from './runtimeManager';
 const {
   packageInfo: actionPresetPackage
 } = require('nickelcat-action-preset/context').getContexts;
@@ -13,7 +13,7 @@ const {
   packageInfo: actionRoutesPackage
 } = require('nickelcat-action-routes/context').getContexts;
 
-export function contextManager(
+export function contextManagerFactory(
   projectPackage: IProjectPackage,
   platform: IPlatforms
 ): IContextManager {
