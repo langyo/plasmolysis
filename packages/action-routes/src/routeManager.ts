@@ -1,12 +1,12 @@
 import {
   IRouteManager
-} from '../../index';
+} from './index';
 import {
   IStateManager
-} from '../../../action-preset';
+} from '../../action-preset/src';
 import {
   IProjectPackage
-} from '../../../core';
+} from '../../core';
 
 export function routeManager(
   projectPackage: IProjectPackage,
