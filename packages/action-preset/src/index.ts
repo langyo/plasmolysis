@@ -3,7 +3,7 @@ import {
   IProjectPackage,
   IWebClientComponentType,
   IRuntime
-} from '../core';
+} from '../../core';
 export {
   IPlatforms,
   IProjectPackage,
@@ -59,7 +59,7 @@ export interface IGetters {
   getModelList: () => { [modelType: string]: string[] }
 };
 
-export { createModel } from './src/createModel';
-export { destoryModel } from './src/destoryModel';
-export { setGlobalState } from './src/setGlobalState';
-export { setState } from './src/setState';
+export { createModel } from './lib/createModel';
+export { destoryModel } from './lib/destoryModel';
+export { setGlobalState } from './lib/setGlobalState';
+export { setState } from './lib/setState';

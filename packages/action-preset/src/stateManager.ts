@@ -1,59 +1,10 @@
 import {
-  IModelManager,
   IStateManager
 } from './index';
 import {
-  IPlatforms,
   IProjectPackage,
-  IWebClientComponentType,
   IRuntimeManager
-} from '../core';
-
-function modelManager(
-  projectPackage: IProjectPackage,
-  contexts: Readonly<{ [key: string]: any }>
-): IModelManager {
-  let components: { [key: string]: IWebClientComponentType } = {};
-
-  function storageModel(
-    modelType: string,
-    component: IWebClientComponentType
-  ): void {
-    components[modelType] = component;
-  };
-
-  function loadPackage(projectPackage: IProjectPackage): void {
-    for (const modelType of Object.keys(projectPackage.data.webClient)) {
-      storageModel(
-        modelType, projectPackage.data.webClient[modelType].component
-      );
-    }
-  }
-
-  loadPackage(projectPackage);
-
-  function loadComponent(type: string): IWebClientComponentType {
-    return components[type];
-  }
-
-  function getModelList(): string[] {
-    return Object.keys(components);
-  }
-
-  return Object.freeze({
-    storageModel,
-    loadPackage,
-    loadComponent,
-    getModelList
-  });
-};
-
-import { generate } from 'shortid';
-import { from, merge, without } from "seamless-immutable";
-
-interface IModelStateRoute {
-  [modelType: string]: string[]
-};
+} from '../../core';
 
 export interface IGlobalState {
   $pageType?: string,
@@ -61,7 +12,14 @@ export interface IGlobalState {
   [key: string]: unknown
 };
 
-function stateManager(
+interface IModelStateRoute {
+  [modelType: string]: string[]
+};
+
+import { generate } from 'shortid';
+import { from, merge, without } from "seamless-immutable";
+
+export function stateManager(
   projectPackage: IProjectPackage,
   contexts: Readonly<{ [key: string]: any }>
 ): IStateManager {
@@ -166,7 +124,7 @@ function stateManager(
       [modelID]:
         (contexts.runtimeManager as IRuntimeManager)
           .runRuntime(
-            'js.browser', modelType, 'init', initState, { modelType, modelID }
+            modelType, 'init', initState, { modelType, modelID }
           )
     });
     modelStateRoute = merge(
@@ -208,7 +166,7 @@ function stateManager(
     const modelType = modelIDMap[modelID];
     return (contexts.runtimeManager as IRuntimeManager)
       .runRuntime(
-        'js.browser', modelType, actionType, payload, { modelType, modelID }
+        modelType, actionType, payload, { modelType, modelID }
       );
   }
 
@@ -227,11 +185,3 @@ function stateManager(
     removeListener
   });
 };
-
-export function getContexts(platform: IPlatforms): { [key: string]: any } {
-  switch (platform) {
-    case 'js.browser': return { modelManager, stateManager };
-    case 'js.node': return { modelManager };
-    default: return {};
-  }
-}

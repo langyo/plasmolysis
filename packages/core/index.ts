@@ -4,18 +4,12 @@
 export type IPlatforms =
   'js.browser' | 'js.node' | 'js.electron' | 'js.cordova' | 'js.flutter';
 
-export interface IPackageInfo {
-  name: string,
-
-  contexts?: {
-    [platform in IPlatforms]?: {
-      [key: string]: (
-        projectPackage: IProjectPackage,
-        contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
-      ) => any
-    }
-  }
-}
+export type IPackageGetContextFunc = (platform: IPlatforms) => {
+  [key: string]: (
+    projectPackage: IProjectPackage,
+    contexts: Readonly<{ [key: string]: (...args: any[]) => any }>
+  ) => any
+};
 
 export type IWebClientComponentType =
   (props: {
@@ -80,7 +74,7 @@ export interface IContextManager {
   readonly getConfig: (context: string) => Readonly<{ [key: string]: any }>,
   readonly setConfig: (context: string, value: { [key: string]: any }) => void,
   readonly loadProjectPackage: (projectPackage: IProjectPackage) => void,
-  readonly loadActionPackage: (packageInfo: IPackageInfo) => void
+  readonly loadActionPackage: (packageInfo: IPackageGetContextFunc) => void
 }
 
 export interface IRuntimeManager {
