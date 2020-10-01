@@ -54,17 +54,16 @@ export const clean = () => del('./dist/');
 
 export const compile = () => {
   let { dts, js } = src([
-    './packages/**/*.ts',
-    '!./packages/**/node_modules/**/*',
-    '!./packages/create-app/templates/**/*'
+    './packages/*/src/**/*.ts',
+    '!./packages/**/node_modules/**/*'
   ])
     .pipe(ts({
       declaration: true,
       sourceMap: true
     }));
   return merge([
-    dts.pipe(dest('./dist/')),
-    js.pipe(dest('./dist/'))
+    dts.pipe(dest('./packages/*/dist')),
+    js.pipe(dest('./packages/*/dist'))
   ]);
 };
 
@@ -78,74 +77,24 @@ export const install = createChildProcesses('yarn', [], [
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./dist')))) {
-    if (await access(resolve(`./packages/${pkg}/package.json`))) {
-      if (await access(resolve(`./dist/${pkg}/package.json`))) {
-        await unlink(`./dist/${pkg}/package.json`);
+    if (await access(resolve(`./packages/${pkg}/src/package.json`))) {
+      if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
+        await unlink(`./packages/${pkg}/dist/package.json`);
       }
       await symlink(
-        resolve(`./packages/${pkg}/package.json`),
-        resolve(`./dist/${pkg}/package.json`)
-      );
-    }
-  }
-
-  for (const pkg of (await readdir(resolve('./dist')))) {
-    if (await access(resolve(`./packages/${pkg}/node_modules`))) {
-      if (await access(resolve(`./dist/${pkg}/node_modules`))) {
-        await unlink(`./dist/${pkg}/node_modules`);
-      }
-      await symlink(
-        resolve(`./packages/${pkg}/node_modules`),
-        resolve(`./dist/${pkg}/node_modules`),
-        'dir'
-      );
-    }
-  }
-
-  for (const pkg of (await readdir(resolve('./packages')))) {
-    const pkgInfo = JSON.parse(
-      await readFile(resolve(`./packages/${pkg}/package.json`), { encoding: 'utf8' })
-    );
-    const deps = pkgInfo.dependencies ?
-      Object.keys(pkgInfo.dependencies).reduce((list, str) => {
-        if (str === 'nickelcat') {
-          return [...list, { insideName: 'core', name: 'nickelcat' }];
-        }
-        if (/^nickelcat/.test(str)) {
-          return [...list, { insideName: str.substr(10), name: str }];
-        }
-        return list;
-      }, []) : [];
-    for (const { insideName, name } of deps) {
-      if (await access(resolve(`./packages/${pkg}/node_modules/${name}`))) {
-        if (
-          (await stat(resolve(`./packages/${pkg}/node_modules/${name}`)))
-            .isDirectory()
-        ) {
-          await rmdir(
-            resolve(`./packages/${pkg}/node_modules/${name}`),
-            { recursive: true }
-          );
-        }
-        else {
-          await unlink(`./packages/${pkg}/node_modules/${name}`);
-        }
-      }
-      await symlink(
-        resolve(`./dist/${insideName}/`),
-        resolve(`./packages/${pkg}/node_modules/${name}`),
-        'dir'
+        resolve(`./packages/${pkg}/src/package.json`),
+        resolve(`./packages/${pkg}/dist/package.json`)
       );
     }
   }
 };
 
 export const debugGlobalLink = createChildProcesses('yarn', ['link'], [
-  resolve('./dist/action-preset'),
-  resolve('./dist/action-routes'),
-  resolve('./dist/core'),
-  resolve('./dist/create-app'),
-  resolve('./dist/dev-server')
+  resolve('./packages/action-preset/dist'),
+  resolve('./packages/action-routes/dist'),
+  resolve('./packages/core/dist'),
+  resolve('./packages/create-app/dist'),
+  resolve('./packages/dev-server/dist')
 ]);
 
 export const build = series(clean, compile, link);
@@ -153,22 +102,12 @@ export const build = series(clean, compile, link);
 export const publish = series(
   build,
 
-  // Remove the dependencies' symlink.
-  async () => {
-    for (const pkg of (await readdir(resolve('./dist')))) {
-      if (await access(resolve(`./dist/${pkg}/node_modules`))) {
-        await unlink(resolve(`./dist/${pkg}/node_modules`));
-      }
-    }
-  },
-
   // Check and rewrite the local dependencies' version.
   async () => {
-    let rootPkg = JSON.parse(
-      await readFile(resolve(`./package.json`), { encoding: 'utf8' })
-    );
     const [major, minor, patch]: [number, number, number]
-      = rootPkg.version.split('.').map((n: string) => +n);
+      = JSON.parse(
+        await readFile(resolve(`./package.json`), { encoding: 'utf8' })
+      ).version.split('.').map((n: string) => +n);
     const { version } = await inquirer.prompt([
       {
         type: 'list',
@@ -182,48 +121,39 @@ export const publish = series(
       }
     ]);
 
-    rootPkg.version = version
     await writeFile(
       resolve(`./package.json`),
-      JSON.stringify(rootPkg)
+      (await readFile(
+        resolve(`./package.json`), { encoding: 'utf8' }
+      )).replace(/"version" *: *".+?"/, `"version": "${version}"`)
     );
 
     let pkgs = {};
-    for (const pkg of (await readdir(resolve('./dist')))) {
-      if (await access(resolve(`./dist/${pkg}/package.json`))) {
-        pkgs[pkg] = JSON.parse(
-          await readFile(resolve(`./dist/${pkg}/package.json`), { encoding: 'utf8' })
-        );
+    for (const pkg of (await readdir(resolve('./packages')))) {
+      if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
+        const { name } = JSON.parse(
+          await readFile(
+            resolve(`./packages/${pkg}/dist/package.json`), { encoding: 'utf8' }
+          ));
+        pkgs[pkg] = name;
       }
     }
     for (const pkg of Object.keys(pkgs)) {
-      pkgs[pkg].version = version;
-      for (const ownPkg of Object.keys(pkgs)) {
-        if (
-          pkgs[pkg].dependencies &&
-          pkgs[pkg].dependencies[pkgs[ownPkg].name]
-        ) {
-          pkgs[pkg].dependencies[pkgs[ownPkg].name] = `^${version}`;
-        }
-        if (
-          pkgs[pkg].devDependencies &&
-          pkgs[pkg].devDependencies[pkgs[ownPkg].name]
-        ) {
-          pkgs[pkg].devDependencies[pkgs[ownPkg].name] = `^${version}`;
-        }
+      let text = await readFile(
+        resolve(`./packages/${pkg}/dist/package.json`), { encoding: 'utf8' }
+      );
+      text.replace(/"version" *: *".+?"/, `"version": "${version}"`);
+      for (const depName of Object.keys(pkgs)) {
+        const dep = pkgs[depName];
+        text.replace(RegExp(`"${dep}" *: *".+?"`), `"${dep}": "${version}"`);
       }
-      await writeFile(
-        resolve(`./dist/${pkg}/package.json`),
-        JSON.stringify(pkgs[pkg])
-      );
-
-      // Create a version tag.
-      return spawn(
-        'git',
-        ['tag', '-a', `v${version}`, '-m', `v${version}`],
-        { stdio: 'inherit', cwd: process.cwd() }
-      );
     }
+    // Create a version tag.
+    return spawn(
+      'git',
+      ['tag', '-a', `v${version}`, '-m', `v${version}`],
+      { stdio: 'inherit', cwd: process.cwd() }
+    );
   },
 
   // Push all the tags to the remote.
@@ -235,18 +165,18 @@ export const publish = series(
 
   // Publish the packages by using NPM.
   series(createChildProcesses('npm', ['publish'], [
-    resolve('./dist/action-preset'),
-    resolve('./dist/action-routes'),
-    resolve('./dist/core'),
-    resolve('./dist/create-app'),
-    resolve('./dist/dev-server')
+    resolve('./packages/action-preset/dist'),
+    resolve('./packages/action-routes/dist'),
+    resolve('./packages/core/dist'),
+    resolve('./packages/create-app/dist'),
+    resolve('./packages/dev-server/dist')
   ]))
 );
 
 export const watch = series(
   build,
   () => watchFiles(
-    ['./**/*', '!./**/node_modules/**/*', '!./dist/**/*'],
+    ['./**/*', '!./**/node_modules/**/*', '!./packages/*/dist/**/*'],
     compile
   )
 );
