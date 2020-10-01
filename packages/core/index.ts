@@ -97,14 +97,18 @@ export interface IRuntimeManager {
 }
 
 export interface IGlueManager {
-  readonly getProtocol: (platform: IPlatforms) =>
-    (obj: { [key: string]: any }) => Promise<{ [key: string]: any }>,
+  readonly getProtocol: (platform: IPlatforms) => (
+    path: string, obj: { [key: string]: any }
+  ) => Promise<{ [key: string]: any }>,
   readonly setProtocol: (
     platform: IPlatforms,
-    func: (obj: { [key: string]: any }) => Promise<{ [key: string]: any }>
+    func: (
+      path: string, obj: { [key: string]: any }
+    ) => Promise<{ [key: string]: any }>
   ) => void,
   readonly linkTo: (
     platform: IPlatforms,
+    path: string,
     obj: { [key: string]: any }
   ) => Promise<{ [key: string]: any }>
 }

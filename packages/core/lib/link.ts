@@ -1,8 +1,6 @@
 import {
-  IPlatforms,
   IRuntime
 } from '../index';
-import axios from 'axios';
 
 export function link(path: string, task: IRuntime);
 // TODO - Support the other languages' link bridge.
@@ -17,10 +15,13 @@ export function link(
       runtimeManager.loadRuntime(task, 'http', path);
       return undefined;
     }
-    return async (
-      payload, contexts, variants
-    ) => {
-      return await axios.post(`/${path}`, payload);
-    };
+    if (platform === 'js.browser') {
+      return async (
+        payload, contexts, variants
+      ) => {
+        return await glueManager.linkTo('js.node', path, payload);
+      };
+    }
+    return undefined;
   };
 }
