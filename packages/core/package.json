@@ -19,6 +19,7 @@
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "dependencies": {
     "@types/react": "^16.9.46",
+    "axios": "^0.20.0",
     "chalk": "^4.0.0",
     "shortid": "^2.2.15",
     "vue": "^2.6.11"
