@@ -107,9 +107,9 @@ export interface IGlueManager {
   ) => Promise<{ [key: string]: any }>
 }
 
-export { contextManagerFactory } from './src/contextManager';
-export { runtimeManagerFactory } from './src/runtimeManager';
-export { glueManagerFactory } from './src/guleManager';
+export { contextManagerFactory } from './contextManager';
+export { runtimeManagerFactory } from './runtimeManager';
+export { glueManagerFactory } from './guleManager';
 
 export { series } from './lib/series';
 export { parallel } from './lib/parallel';

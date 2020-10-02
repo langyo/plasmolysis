@@ -50,7 +50,13 @@ function createChildProcesses(
   );
 }
 
-export const clean = () => del('./dist/');
+export const clean = series(
+  () => del('./packages/action-preset/dist'),
+  () => del('./packages/action-routes/dist'),
+  () => del('./packages/core/dist'),
+  () => del('./packages/create-app/dist'),
+  () => del('./packages/dev-server/dist'),
+);
 
 export const compile = () => {
   let { dts, js } = src([
@@ -148,6 +154,10 @@ export const publish = series(
         text.replace(RegExp(`"${dep}" *: *".+?"`), `"${dep}": "${version}"`);
       }
     }
+
+    // TODO - When compile the release version, we have to create 'package.json'
+    // for release version in the 'dist' folder.
+
     // Create a version tag.
     return spawn(
       'git',
