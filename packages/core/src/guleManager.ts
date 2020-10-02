@@ -1,10 +1,9 @@
 import {
   IProjectPackage,
-  IRuntime,
   IGlueManager,
   IContextManager,
   IPlatforms,
-} from '../index';
+} from './index';
 import axios from 'axios';
 
 export function glueManagerFactory(

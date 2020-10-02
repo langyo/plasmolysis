@@ -3,7 +3,7 @@ import {
   IProjectPackage,
   IContextManager,
   IRuntimeManager, IGlueManager
-} from '../index';
+} from './index';
 
 import { runtimeManagerFactory } from './runtimeManager';
 import { glueManagerFactory } from './guleManager';

@@ -46,14 +46,13 @@ function loadReactComponent(
   hydrate(createElement(component as any, {
     ...stateManager.getState(modelID),
     ...stateManager.getGlobalState(),
-    ...runtimeManager.getRuntimeList(
-      'js.browser', modelType
-    ).reduce((obj, key) => ({
+    ...runtimeManager.getRuntimeList(modelType).reduce((obj, key) => ({
       ...obj,
-      [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('js.browser', modelType, key, payload, {
-        modelType,
-        modelID
-      })
+      [key]: (payload: { [key: string]: any }) =>
+        runtimeManager.runRuntime(modelType, key, payload, {
+          modelType,
+          modelID
+        })
     }), {})
   }), document.getElementById(elementID));
   stateManager.appendListener(() => {
@@ -61,13 +60,14 @@ function loadReactComponent(
       ...stateManager.getState(modelID),
       ...stateManager.getGlobalState(),
       ...runtimeManager.getRuntimeList(
-        'js.browser', modelType
+        modelType
       ).reduce((obj, key) => ({
         ...obj,
-        [key]: (payload: { [key: string]: any }) => runtimeManager.runRuntime('js.browser', modelType, key, payload, {
-          modelType,
-          modelID
-        })
+        [key]: (payload: { [key: string]: any }) =>
+          runtimeManager.runRuntime(modelType, key, payload, {
+            modelType,
+            modelID
+          })
       }), {})
     }), document.getElementById(elementID));
   }, modelID);

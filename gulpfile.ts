@@ -82,13 +82,13 @@ export const install = createChildProcesses('yarn', [], [
 ]);
 
 export const link = async () => {
-  for (const pkg of (await readdir(resolve('./dist')))) {
-    if (await access(resolve(`./packages/${pkg}/src/package.json`))) {
+  for (const pkg of (await readdir(resolve('./packages')))) {
+    if (await access(resolve(`./packages/${pkg}/package.json`))) {
       if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
         await unlink(`./packages/${pkg}/dist/package.json`);
       }
       await symlink(
-        resolve(`./packages/${pkg}/src/package.json`),
+        resolve(`./packages/${pkg}/package.json`),
         resolve(`./packages/${pkg}/dist/package.json`)
       );
     }

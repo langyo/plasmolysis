@@ -5,7 +5,7 @@ import {
   IContextManager,
   IGlueManager,
   IPlatforms,
-} from '../index';
+} from './index';
 
 export function runtimeManagerFactory(
   projectPackage: IProjectPackage,

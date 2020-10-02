@@ -4,15 +4,15 @@ export {
   IPlatforms,
   IWebClientComponentType,
   IRuntimeManager
-} from '../core';
+} from '../../core';
 export {
   IStateManager,
   IModelManager
-} from '../action-preset';
+} from '../../action-preset';
 export {
   IRouteManager,
   ISessionManager
-} from '../action-routes';
+} from '../../action-routes';
 
 export interface ISessionInfo {
   ip: string,

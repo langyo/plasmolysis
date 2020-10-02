@@ -57,11 +57,11 @@ function loadReactComponent(
   return renderToString(createElement(component as any, {
     ...pageState,
     ...runtimeManager.getRuntimeList(
-      'js.browser', modelType
+      modelType
     ).reduce((obj, actionType) => ({
       ...obj,
       [actionType]: (payload: { [key: string]: any }) =>
-        runtimeManager.runRuntime('js.browser', modelType, actionType, payload, {
+        runtimeManager.runRuntime(modelType, actionType, payload, {
           modelType,
           modelID: '$page'
         })
@@ -73,14 +73,14 @@ __CALLBACK(async ({
   ip, protocol, host, path, query, cookies
 }: ISessionInfo) => {
   try {
-    if (runtimeManager.hasRuntime('js.node', 'http', path)) {
+    if (runtimeManager.hasRuntime('http', path)) {
       // Custom request processor.
       return {
         status: 'processed',
         code: 200,
         type: 'application/json',
         body: JSON.stringify(
-          runtimeManager.runRuntime('js.node', 'http', path, query, {
+          runtimeManager.runRuntime('http', path, query, {
             ip, protocol, host, path, query, cookies
           })
         )
@@ -99,11 +99,12 @@ __CALLBACK(async ({
           pageTitle,
           pageState,
           globalState
-        } = runtimeManager.hasRuntime('js.browser', pageName, 'preload') ?
-            runtimeManager.runRuntime('js.browser', pageName, 'preload', {}, {
+        } = runtimeManager.hasRuntime(pageName, 'preload') ?
+            await runtimeManager.runRuntime(pageName, 'preload', {}, {
               ip, protocol, host, path, query, cookies
             }) : {
-              pageTitle: contextManager.getConfig('js.browser').defaultPageTitle,
+              pageTitle:
+                contextManager.getConfig('routeManager').defaultPageTitle,
               pageState: {},
               globalState: {}
             };
