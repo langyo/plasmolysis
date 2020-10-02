@@ -73,13 +73,20 @@ export const compile = () => {
   ]);
 };
 
-export const install = createChildProcesses('yarn', [], [
-  resolve('./packages/action-preset'),
-  resolve('./packages/action-routes'),
-  resolve('./packages/core'),
-  resolve('./packages/create-app'),
-  resolve('./packages/dev-server')
-]);
+export const install = process.env.CI ?
+  createChildProcesses('npm', ['install'], [
+    resolve('./packages/action-preset'),
+    resolve('./packages/action-routes'),
+    resolve('./packages/core'),
+    resolve('./packages/create-app'),
+    resolve('./packages/dev-server')
+  ]) : createChildProcesses('yarn', [], [
+    resolve('./packages/action-preset'),
+    resolve('./packages/action-routes'),
+    resolve('./packages/core'),
+    resolve('./packages/create-app'),
+    resolve('./packages/dev-server')
+  ]);
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./packages')))) {
