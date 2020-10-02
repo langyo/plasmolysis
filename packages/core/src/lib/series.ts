@@ -7,9 +7,11 @@ export function series(...tasks: IRuntime[]): IRuntime {
     payload, contexts, variants
   ) => {
     for (const task of tasks) {
-      payload = await task(
-        platform, publicContexts
-      )(payload, contexts, variants);
+      if (typeof task !== 'undefined') {
+        payload = await task(
+          platform, publicContexts
+        )(payload, contexts, variants);
+      }
     }
     return payload;
   };

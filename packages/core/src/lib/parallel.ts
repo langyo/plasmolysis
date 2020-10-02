@@ -27,13 +27,15 @@ export function parallel(
         platform, publicContexts
       )(payload, contexts, variants), 0);
       for (const task of tasks) {
-        setTimeout(() => task(
-          platform, publicContexts
-        )(payload, contexts, variants), 0);
+        if (typeof task !== 'undefined') {
+          setTimeout(() => task(
+            platform, publicContexts
+          )(payload, contexts, variants), 0);
+        }
       }
-      return await arg0(
+      return typeof arg0 !== 'undefined' ? await arg0(
         platform, publicContexts
-      )(payload, contexts, variants);
+      )(payload, contexts, variants) : payload;
     }
   };
 }
