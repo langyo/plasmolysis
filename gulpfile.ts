@@ -2,16 +2,13 @@ import {
   src, dest, series, watch as watchFiles
 } from 'gulp';
 import {
-  readdir as readdirOld,
-  symlink as symlinkOld,
-  access as accessOld,
-  stat as statOld,
-  unlink as unlinkOld,
-  rmdir as rmdirOld,
-  readFile as readFileOld,
-  writeFile as writeFileOld
-} from 'fs';
-import { promisify } from 'util';
+  readdir,
+  symlink,
+  access,
+  unlink,
+  readFile,
+  writeFile
+} from 'promisely-fs';
 import { resolve } from 'path';
 import { spawn, ChildProcess } from 'child_process';
 import * as inquirer from 'inquirer';
@@ -19,22 +16,6 @@ import * as inquirer from 'inquirer';
 import * as ts from 'gulp-typescript';
 import * as del from 'del';
 import * as merge from 'merge2';
-
-const readdir = promisify(readdirOld);
-const symlink = promisify(symlinkOld);
-const access = async path => {
-  try {
-    await promisify(accessOld)(path);
-    return true;
-  } catch (e) {
-    return false;
-  }
-};
-const stat = promisify(statOld);
-const unlink = promisify(unlinkOld);
-const rmdir = promisify(rmdirOld);
-const readFile = promisify(readFileOld);
-const writeFile = promisify(writeFileOld);
 
 function createChildProcesses(
   app: string,
