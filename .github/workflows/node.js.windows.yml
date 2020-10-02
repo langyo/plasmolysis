@@ -1,11 +1,11 @@
-name: Node.js CI
+name: Node.js CI for Windows NT
 
 on: [push]
 
 jobs:
   build:
 
-    runs-on: [windows-latest, ubuntu-latest, macos-latest]
+    runs-on: windows-latest
 
     strategy:
       matrix:
