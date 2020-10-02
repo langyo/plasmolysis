@@ -112,7 +112,7 @@ export const publish = series(
   async () => {
     const [major, minor, patch]: [number, number, number]
       = JSON.parse(
-        await readFile(resolve(`./package.json`), { encoding: 'utf8' })
+        await readFile(resolve(`./package.json`), 'utf8')
       ).version.split('.').map((n: string) => +n);
     const { version } = await inquirer.prompt([
       {
@@ -130,33 +130,33 @@ export const publish = series(
     await writeFile(
       resolve(`./package.json`),
       (await readFile(
-        resolve(`./package.json`), { encoding: 'utf8' }
+        resolve(`./package.json`), 'utf8'
       )).replace(/"version" *: *".+?"/, `"version": "${version}"`)
     );
 
-    let pkgs = {};
     for (const pkg of (await readdir(resolve('./packages')))) {
-      if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
-        const { name } = JSON.parse(
-          await readFile(
-            resolve(`./packages/${pkg}/dist/package.json`), { encoding: 'utf8' }
-          ));
-        pkgs[pkg] = name;
+      if (await access(resolve(`./packages/${pkg}/package.json`))) {
+        let text = await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8');
+        const oldVer = JSON.parse(text).version;
+        text.replace(RegExp(`"version" *: *"${oldVer}"`), `"version": "${version}"`);
+        for (const depName of (await readdir(resolve('./packages')))) {
+          if (await access(resolve(`./packages/${depName}/package.json`))) {
+            const dep = JSON.parse(await readFile(
+              resolve(`./packages/${depName}/dist/package.json`), 'utf8'
+            )).name;
+            text.replace(
+              RegExp(`"${dep}" *: *".+?"`),
+              `"${dep}": "${version}"`
+            );
+          }
+        }
+        // Write to the source file first.
+        await writeFile(resolve(`./packages/${pkg}/package.json`), text);
+        // Rewrite the main tag.
+        text.replace(RegExp(`"main" *: *".+?" *,`), '');
+        await writeFile(resolve(`./packages/${pkg}/dist/package.json`), text);
       }
     }
-    for (const pkg of Object.keys(pkgs)) {
-      let text = await readFile(
-        resolve(`./packages/${pkg}/dist/package.json`), { encoding: 'utf8' }
-      );
-      text.replace(/"version" *: *".+?"/, `"version": "${version}"`);
-      for (const depName of Object.keys(pkgs)) {
-        const dep = pkgs[depName];
-        text.replace(RegExp(`"${dep}" *: *".+?"`), `"${dep}": "${version}"`);
-      }
-    }
-
-    // TODO - When compile the release version, we have to create 'package.json'
-    // for release version in the 'dist' folder.
 
     // Create a version tag.
     return spawn(
