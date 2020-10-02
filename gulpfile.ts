@@ -39,7 +39,7 @@ export const clean = series(
   () => del('./packages/dev-server/dist'),
 );
 
-export const compile = () => {
+export const compile = async () => {
   let { dts, js } = src([
     './packages/*/src/**/*.ts',
     '!./packages/**/node_modules/**/*'
@@ -75,10 +75,12 @@ export const link = async () => {
       if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
         await unlink(`./packages/${pkg}/dist/package.json`);
       }
-      await symlink(
-        resolve(`./packages/${pkg}/package.json`),
-        resolve(`./packages/${pkg}/dist/package.json`)
-      );
+      if (await access(resolve(`./packages/${pkg}/dist`))) {
+        await symlink(
+          resolve(`./packages/${pkg}/package.json`),
+          resolve(`./packages/${pkg}/dist/package.json`)
+        );
+      }
     }
   }
 };
