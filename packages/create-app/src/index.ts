@@ -1,10 +1,10 @@
 import * as inquirer from 'inquirer';
 import * as chalk from 'chalk';
 
-console.log(`${chalk.bold('Nickelcat App Creator')} 0.2.0`);
+console.log(`${chalk.bold('Nickelcat App Creator')} 0.4.0`);
 
 (async () => {
-  // TODO Support the native builder, such as electron app or cordova app.
+  // TODO - Support the native builder, such as electron app or cordova app.
   let config = await inquirer.prompt([
     {
       type: 'list',

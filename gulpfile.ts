@@ -10,7 +10,7 @@ import {
   writeFile
 } from 'promisely-fs';
 import { resolve } from 'path';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn } from 'child_process';
 import * as inquirer from 'inquirer';
 
 import * as ts from 'gulp-typescript';
