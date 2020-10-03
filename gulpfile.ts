@@ -17,57 +17,44 @@ import * as ts from 'gulp-typescript';
 import * as del from 'del';
 import * as merge from 'merge2';
 
-function createChildProcesses(
-  app: string,
-  args: string[],
-  cwd: string[]
-): (() => ChildProcess)[] {
-  return series.apply(
-    undefined,
-    cwd.map(cwd => () => spawn(
-      process.platform === 'win32' ? `${app}.cmd` : app, args, {
-      stdio: 'inherit', cwd
-    }))
-  );
-}
+const packageNames = [
+  'action-preset',
+  'action-routes',
+  'core',
+  'create-app',
+  'dev-server'
+];
 
-export const clean = series(
-  () => del('./packages/action-preset/dist'),
-  () => del('./packages/action-routes/dist'),
-  () => del('./packages/core/dist'),
-  () => del('./packages/create-app/dist'),
-  () => del('./packages/dev-server/dist'),
+export const clean = series.apply(undefined, packageNames.map(
+  name => () => del(`./packages/${name}/dist`))
 );
 
-export const compile = async () => {
-  let { dts, js } = src([
-    './packages/*/src/**/*.ts',
-    '!./packages/**/node_modules/**/*'
-  ])
-    .pipe(ts({
-      declaration: true,
-      sourceMap: true
-    }));
-  return merge([
-    dts.pipe(dest('./packages/*/dist')),
-    js.pipe(dest('./packages/*/dist'))
-  ]);
-};
+export const compile = series.apply(undefined,
+  packageNames.map(name => () => {
+    let { dts, js } = src([
+      `./packages/${name}/src/**/*.ts`,
+      '!./packages/**/node_modules/**/*'
+    ])
+      .pipe(ts({
+        declaration: true,
+        sourceMap: true
+      }));
+    return merge([
+      dts.pipe(dest(`./packages/${name}/dist`)),
+      js.pipe(dest(`./packages/${name}/dist`))
+    ]);
+  }))
 
 export const install = process.env.CI ?
-  createChildProcesses('npm', ['install'], [
-    resolve('./packages/action-preset'),
-    resolve('./packages/action-routes'),
-    resolve('./packages/core'),
-    resolve('./packages/create-app'),
-    resolve('./packages/dev-server')
-  ]) : createChildProcesses('yarn', [], [
-    resolve('./packages/action-preset'),
-    resolve('./packages/action-routes'),
-    resolve('./packages/core'),
-    resolve('./packages/create-app'),
-    resolve('./packages/dev-server')
-  ]);
+  series.apply(undefined, packageNames.map(name => () => spawn(
+    process.platform === 'win32' ? `npm.cmd` : 'npm', ['install'], {
+    stdio: 'inherit',
+    cwd: resolve(`./packages/${name}`)
+  }))) : series.apply(undefined, packageNames.map(name => () => spawn(
+    process.platform === 'win32' ? `yarn.cmd` : 'yarn', [], {
+    stdio: 'inherit',
+    cwd: resolve(`./packages/${name}`)
+  })));
 
 export const link = async () => {
   for (const pkg of (await readdir(resolve('./packages')))) {
@@ -85,13 +72,12 @@ export const link = async () => {
   }
 };
 
-export const debugGlobalLink = createChildProcesses('yarn', ['link'], [
-  resolve('./packages/action-preset/dist'),
-  resolve('./packages/action-routes/dist'),
-  resolve('./packages/core/dist'),
-  resolve('./packages/create-app/dist'),
-  resolve('./packages/dev-server/dist')
-]);
+export const debugGlobalLink = series.apply(undefined,
+  packageNames.map(name => () => spawn(
+    process.platform === 'win32' ? `yarn.cmd` : 'yarn', ['link'], {
+    stdio: 'inherit',
+    cwd: resolve(`./packages/${name}/dist`)
+  })));
 
 export const build = series(clean, compile, link);
 
@@ -164,13 +150,11 @@ export const publish = series(
   ),
 
   // Publish the packages by using NPM.
-  series(createChildProcesses('npm', ['publish'], [
-    resolve('./packages/action-preset/dist'),
-    resolve('./packages/action-routes/dist'),
-    resolve('./packages/core/dist'),
-    resolve('./packages/create-app/dist'),
-    resolve('./packages/dev-server/dist')
-  ]))
+  series.apply(undefined, packageNames.map(name => () => spawn(
+    process.platform === 'win32' ? `npm.cmd` : 'npm', ['publish'], {
+    stdio: 'inherit',
+    cwd: resolve(`./packages/${name}`)
+  })))
 );
 
 export const watch = series(
