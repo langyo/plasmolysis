@@ -1,5 +1,5 @@
 import {
-  src, dest, series, watch as watchFiles
+  src, dest, series, watch as watchFiles, parallel
 } from 'gulp';
 import {
   readdir,
@@ -43,7 +43,7 @@ export const compile = series.apply(undefined,
       dts.pipe(dest(`./packages/${name}/dist`)),
       js.pipe(dest(`./packages/${name}/dist`))
     ]);
-  }))
+  }));
 
 export const install = process.env.CI ?
   series.apply(undefined, packageNames.map(name => () => spawn(
@@ -159,8 +159,22 @@ export const publish = series(
 
 export const watch = series(
   build,
-  () => watchFiles(
-    ['./**/*', '!./**/node_modules/**/*', '!./packages/*/dist/**/*'],
-    compile
-  )
-);
+  parallel.apply(undefined,
+    packageNames.map(name => () => watchFiles([
+      `./packages/${name}/**/*`,
+      `!./packages/${name}/dist/**/*`,
+      `!./packages/${name}/node_modules/**/*`
+    ], () => {
+      let { dts, js } = src([
+        `./packages/${name}/src/**/*.ts`,
+        '!./packages/**/node_modules/**/*'
+      ])
+        .pipe(ts({
+          declaration: true,
+          sourceMap: true
+        }));
+      return merge([
+        dts.pipe(dest(`./packages/${name}/dist`)),
+        js.pipe(dest(`./packages/${name}/dist`))
+      ]);
+    }))));
