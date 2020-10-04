@@ -82,7 +82,7 @@ export const debugGlobalLink = series.apply(undefined,
 export const build = series(clean, compile, link);
 
 export const publish = series(
-  build,
+  clean, compile,
 
   // Check and rewrite the local dependencies' version.
   async () => {
@@ -118,7 +118,7 @@ export const publish = series(
         for (const depName of (await readdir(resolve('./packages')))) {
           if (await access(resolve(`./packages/${depName}/package.json`))) {
             const dep = JSON.parse(await readFile(
-              resolve(`./packages/${depName}/dist/package.json`), 'utf8'
+              resolve(`./packages/${depName}/package.json`), 'utf8'
             )).name;
             text.replace(
               RegExp(`"${dep}" *: *".+?"`),
