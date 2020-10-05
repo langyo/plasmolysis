@@ -70,6 +70,20 @@ export const link = async () => {
       }
     }
   }
+  for (const pkg of (await readdir(resolve('./packages')))) {
+    if (await access(resolve(`./packages/${pkg}/node_modules`))) {
+      if (await access(resolve(`./packages/${pkg}/dist/node_modules`))) {
+        await unlink(`./packages/${pkg}/dist/node_modules`);
+      }
+      if (await access(resolve(`./packages/${pkg}/dist`))) {
+        await symlink(
+          resolve(`./packages/${pkg}/node_modules`),
+          resolve(`./packages/${pkg}/dist/node_modules`),
+          'dir'
+        );
+      }
+    }
+  }
 };
 
 export const debugGlobalLink = series.apply(undefined,
