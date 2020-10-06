@@ -1,7 +1,7 @@
 {
   "name": "nickelcat",
   "description": "The core for evaluating the action stream.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "main": "./src/index",
   "scripts": {
     "test": "jest ./test --watch"

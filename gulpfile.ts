@@ -57,7 +57,7 @@ export const install = process.env.CI ?
   })));
 
 export const link = async () => {
-  for (const pkg of (await readdir(resolve('./packages')))) {
+  for (const pkg of packageNames) {
     if (await access(resolve(`./packages/${pkg}/package.json`))) {
       if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
         await unlink(`./packages/${pkg}/dist/package.json`);
@@ -70,7 +70,7 @@ export const link = async () => {
       }
     }
   }
-  for (const pkg of (await readdir(resolve('./packages')))) {
+  for (const pkg of packageNames) {
     if (await access(resolve(`./packages/${pkg}/node_modules`))) {
       if (await access(resolve(`./packages/${pkg}/dist/node_modules`))) {
         await unlink(`./packages/${pkg}/dist/node_modules`);
@@ -124,12 +124,12 @@ export const publish = series(
       )).replace(/"version" *: *".+?"/, `"version": "${version}"`)
     );
 
-    for (const pkg of (await readdir(resolve('./packages')))) {
+    for (const pkg of packageNames) {
       if (await access(resolve(`./packages/${pkg}/package.json`))) {
         let text = await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8');
         const oldVer = JSON.parse(text).version;
         text.replace(RegExp(`"version" *: *"${oldVer}"`), `"version": "${version}"`);
-        for (const depName of (await readdir(resolve('./packages')))) {
+        for (const depName of packageNames) {
           if (await access(resolve(`./packages/${depName}/package.json`))) {
             const dep = JSON.parse(await readFile(
               resolve(`./packages/${depName}/package.json`), 'utf8'
