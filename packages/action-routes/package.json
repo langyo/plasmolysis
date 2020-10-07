@@ -1,7 +1,7 @@
 {
   "name": "nickelcat-action-routes",
   "description": "The core library for evaluating the action stream.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "./src/index",
   "scripts": {
     "test": "jest --watch"
@@ -19,8 +19,14 @@
   },
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "dependencies": {
-    "nickelcat": "latest",
     "seamless-immutable": "^7.1.4",
     "shortid": "^2.2.15"
+  },
+  "peerDependencies": {
+    "nickelcat": "latest"
+  },
+  "nickelcatPackageInfo": {
+    "version": "1",
+    "name": "routes"
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "nickelcat",
   "description": "The core for evaluating the action stream.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "./src/index",
   "scripts": {
     "test": "jest ./test --watch"
@@ -23,5 +23,8 @@
     "chalk": "^4.0.0",
     "shortid": "^2.2.15",
     "vue": "^2.6.11"
+  },
+  "peerDependencies": {
+    "nickelcat-action-preset": "latest"
   }
 }

@@ -12,6 +12,7 @@ import {
 import { resolve } from 'path';
 import { spawn } from 'child_process';
 import * as inquirer from 'inquirer';
+import * as jsonFormat from 'sort-package-json';
 
 import * as ts from 'gulp-typescript';
 import * as del from 'del';
@@ -126,25 +127,30 @@ export const publish = series(
 
     for (const pkg of packageNames) {
       if (await access(resolve(`./packages/${pkg}/package.json`))) {
-        let text = await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8');
-        const oldVer = JSON.parse(text).version;
-        text.replace(RegExp(`"version" *: *"${oldVer}"`), `"version": "${version}"`);
+        let cfg = JSON.parse(await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8'));
+        cfg.version = version;
         for (const depName of packageNames) {
           if (await access(resolve(`./packages/${depName}/package.json`))) {
-            const dep = JSON.parse(await readFile(
+            const { name } = JSON.parse(await readFile(
               resolve(`./packages/${depName}/package.json`), 'utf8'
-            )).name;
-            text.replace(
-              RegExp(`"${dep}" *: *".+?"`),
-              `"${dep}": "${version}"`
-            );
+            ));
+            if (
+              typeof cfg.peerDependencies !== 'undefined' &&
+              typeof cfg.peerDependencies[name] !== 'undefined'
+            ) {
+              cfg.peerDependencies[name] = version;
+            }
           }
         }
         // Write to the source file first.
-        await writeFile(resolve(`./packages/${pkg}/package.json`), text);
+        await writeFile(
+          resolve(`./packages/${pkg}/package.json`), jsonFormat(cfg)
+        );
         // Rewrite the main tag.
-        text.replace(RegExp(`"main" *: *".+?" *,`), '');
-        await writeFile(resolve(`./packages/${pkg}/dist/package.json`), text);
+        cfg.main = './index.js';
+        await writeFile(
+          resolve(`./packages/${pkg}/dist/package.json`), jsonFormat(cfg)
+        );
       }
     }
 

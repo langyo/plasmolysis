@@ -1,7 +1,7 @@
 {
   "name": "nickelcat-dev-server",
   "description": "The develop server for nickelcat applications.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "index.js",
   "scripts": {
     "test": "jest ./test --watch"
@@ -38,8 +38,6 @@
     "chokidar": "^3.4.0",
     "error-stack-parser": "^2.0.6",
     "memfs": "^3.2.0",
-    "nickelcat": "latest",
-    "nickelcat-action-preset": "latest",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "shortid": "^2.2.15",
@@ -48,5 +46,9 @@
     "unionfs": "^4.4.0",
     "vm2": "^3.9.2",
     "webpack": "^4.43.0"
+  },
+  "peerDependencies": {
+    "nickelcat": "latest",
+    "nickelcat-action-preset": "latest"
   }
 }

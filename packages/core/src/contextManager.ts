@@ -10,9 +10,9 @@ import { glueManagerFactory } from './guleManager';
 const {
   packageInfo: actionPresetPackage
 } = require('nickelcat-action-preset/context').getContexts;
-const {
-  packageInfo: actionRoutesPackage
-} = require('nickelcat-action-routes/context').getContexts;
+// const {
+//   packageInfo: actionRoutesPackage
+// } = require('nickelcat-action-routes/context').getContexts;
 
 export function contextManagerFactory(
   projectPackage: IProjectPackage,
@@ -48,7 +48,7 @@ export function contextManagerFactory(
 
   // Initialize the preset package.
   loadActionPackage(actionPresetPackage);
-  loadActionPackage(actionRoutesPackage);
+  // loadActionPackage(actionRoutesPackage);
 
   function getContexts(): any {
     return new Proxy({}, {
