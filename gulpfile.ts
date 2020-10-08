@@ -180,7 +180,7 @@ export const publish = series(
   series.apply(undefined, packageNames.map(name => () => spawn(
     process.platform === 'win32' ? `npm.cmd` : 'npm', ['publish'], {
     stdio: 'inherit',
-    cwd: resolve(`./packages/${name}`)
+    cwd: resolve(`./packages/${name}/dist/`)
   })))
 );
 
