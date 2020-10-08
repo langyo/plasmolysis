@@ -3,16 +3,19 @@
   "description": "The core library for evaluating the action stream.",
   "author": "langyo",
   "license": "Apache-2.0",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "keywords": [],
   "main": "./src/index",
+  "scripts": {
+    "test": "jest --watch"
+  },
   "dependencies": {
     "seamless-immutable": "^7.1.4",
     "shortid": "^2.2.15"
   },
   "peerDependencies": {
-    "nickelcat": "0.4.3"
+    "nickelcat": "0.4.4"
   },
   "bugs": {
     "url": "https://github.com/langyo/nickelcat/issues"
@@ -24,8 +27,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/langyo/nickelcat.git"
-  },
-  "scripts": {
-    "test": "jest --watch"
   }
 }

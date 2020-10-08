@@ -3,7 +3,7 @@
   "description": "The CLI for create an server project that using nickelcat.",
   "author": "langyo",
   "license": "Apache-2.0",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "keywords": [
     "cli",
     "nickelcat",
@@ -12,6 +12,10 @@
     "state"
   ],
   "main": "index.js",
+  "scripts": {
+    "start": "babel-node index.js",
+    "test": "jest ./test --watch"
+  },
   "dependencies": {
     "@babel/cli": "^7.8.4",
     "@babel/core": "^7.8.7",
@@ -21,10 +25,6 @@
     "inquirer": "^7.0.6"
   },
   "peerDependencies": {
-    "nickelcat": "0.4.3"
-  },
-  "scripts": {
-    "start": "babel-node index.js",
-    "test": "jest ./test --watch"
+    "nickelcat": "0.4.4"
   }
 }
