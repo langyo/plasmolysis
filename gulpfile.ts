@@ -12,7 +12,7 @@ import {
 import { resolve } from 'path';
 import { spawn } from 'child_process';
 import * as inquirer from 'inquirer';
-import * as jsonFormat from 'sort-package-json';
+import * as jsonFormatStringify from 'json-stringify-nice';
 
 import * as ts from 'gulp-typescript';
 import * as del from 'del';
@@ -142,14 +142,21 @@ export const publish = series(
             }
           }
         }
+
+        const ord = [
+          'name', 'description', 'author', 'license', 'version', 'scripts',
+          'dependencies', 'devDependencies', 'peerDependencies'
+        ];
         // Write to the source file first.
         await writeFile(
-          resolve(`./packages/${pkg}/package.json`), jsonFormat(cfg)
+          resolve(`./packages/${pkg}/package.json`),
+          jsonFormatStringify(cfg, ord)
         );
         // Rewrite the main tag.
         cfg.main = './index.js';
         await writeFile(
-          resolve(`./packages/${pkg}/dist/package.json`), jsonFormat(cfg)
+          resolve(`./packages/${pkg}/dist/package.json`),
+          jsonFormatStringify(cfg, ord)
         );
       }
     }

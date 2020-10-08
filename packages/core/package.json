@@ -1,22 +1,12 @@
 {
   "name": "nickelcat",
   "description": "The core for evaluating the action stream.",
-  "version": "0.4.2",
-  "main": "./src/index",
-  "scripts": {
-    "test": "jest ./test --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/langyo/nickelcat.git"
-  },
-  "keywords": [],
   "author": "langyo",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/langyo/nickelcat/issues"
-  },
+  "version": "0.4.3",
   "homepage": "https://github.com/langyo/nickelcat#readme",
+  "keywords": [],
+  "main": "./src/index",
   "dependencies": {
     "@types/react": "^16.9.46",
     "axios": "^0.20.0",
@@ -25,6 +15,16 @@
     "vue": "^2.6.11"
   },
   "peerDependencies": {
-    "nickelcat-action-preset": "latest"
+    "nickelcat-action-preset": "0.4.3"
+  },
+  "bugs": {
+    "url": "https://github.com/langyo/nickelcat/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langyo/nickelcat.git"
+  },
+  "scripts": {
+    "test": "jest ./test --watch"
   }
 }

@@ -1,22 +1,12 @@
 {
   "name": "nickelcat-action-preset",
   "description": "The core library for evaluating the action stream.",
-  "version": "0.4.2",
-  "main": "./src/index",
-  "scripts": {
-    "test": "jest --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/langyo/nickelcat.git"
-  },
-  "keywords": [],
   "author": "langyo",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/langyo/nickelcat/issues"
-  },
+  "version": "0.4.3",
   "homepage": "https://github.com/langyo/nickelcat#readme",
+  "keywords": [],
+  "main": "./src/index",
   "dependencies": {
     "@types/react": "^16.9.43",
     "seamless-immutable": "^7.1.4",
@@ -24,10 +14,20 @@
     "vue": "^2.6.11"
   },
   "peerDependencies": {
-    "nickelcat": "^0.4.1"
+    "nickelcat": "0.4.3"
+  },
+  "bugs": {
+    "url": "https://github.com/langyo/nickelcat/issues"
   },
   "nickelcatPackageInfo": {
-    "version": "1",
-    "name": "preset"
+    "name": "preset",
+    "version": "1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langyo/nickelcat.git"
+  },
+  "scripts": {
+    "test": "jest --watch"
   }
 }
