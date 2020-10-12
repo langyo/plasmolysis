@@ -35,22 +35,8 @@ export interface ISessionInfo {
   }
 }
 
-export type IRequestForwardFuncType =
-  (sessionInfo: ISessionInfo) => Promise<IRequestForwardObjectType>;
-
-export type IRequestForwardObjectType = {
-  status: 'processed',
-  code: number,
-  type: 'text/html' | 'application/json',
-  body: string
-} | {
-  status: 'ignored',
-  code: null,
-  type: null,
-  body: null
-};
-
 export { dirWatcher } from './dirWatcher';
-export { staticDepsBuilder } from './staticDepsBuilder';
-// export {} from './vmLoader';
+export { scan as dirScanner } from './dirScanner';
+export { vfsLoader } from './virtualFileSystemLoader';
+export { vmLoader } from './virtualMachineLoader';
 export { webpackCompilerFactory } from './webpackLoader';

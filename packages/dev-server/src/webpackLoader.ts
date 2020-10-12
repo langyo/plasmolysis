@@ -6,12 +6,15 @@ import { join } from 'path';
 import { IUnionFs } from 'unionfs';
 
 export function webpackCompilerFactory(
-  webpackConfig: { [key: string]: any }
+  entry: string,  // TODO - Refactory to get the code string.
+  target: 'node' | 'web',
+  extraOpts: webpack.Configuration = {}
 ): (fs: IUnionFs) => Promise<{ code: string, sourceMap: string }> {
   return async function (
     fs: IUnionFs
   ): Promise<{ code: string, sourceMap: string }> {
     const compiler = webpack({
+      entry, target,
       mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
       context: process.cwd(),
       module: {
@@ -67,7 +70,7 @@ export function webpackCompilerFactory(
         })],
       },
       devtool: 'source-map',
-      ...webpackConfig
+      ...extraOpts
     });
     compiler.inputFileSystem = fs;
     compiler.outputFileSystem = fs as any;
