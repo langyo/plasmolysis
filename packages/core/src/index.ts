@@ -22,54 +22,9 @@ export type IRuntimeFunc = {
   ) => Promise<{ [key: string]: any }>
 };
 
-export interface IContextManager {
-  readonly getContexts: () => Readonly<{
-    [key: string]: {
-      [func: string]: (...args: any[]) => any
-    }
-  }>,
-  readonly getConfig: (context: string) => Readonly<{ [key: string]: any }>,
-  readonly setConfig: (context: string, value: { [key: string]: any }) => void
-}
-
-export interface IRuntimeManager {
-  readonly loadRuntime: (
-    runtime: IRuntimeObject, tag: string, name: string
-  ) => void,
-  readonly registerAction: (
-    type: string,
-    runtime: { [platform in IPlatforms]?: IRuntimeFunc } | IRuntimeFunc
-  ) => void,
-  readonly getRuntimeList: (tag: string) => string[],
-  readonly hasRuntime: (tag: string, streamName: string) => boolean,
-  readonly runRuntime: (
-    tag: string,
-    streamName: string,
-    payload: { [key: string]: any },
-    localContext: { [key: string]: any }
-  ) => Promise<{ [key: string]: any }>
-}
-
-export interface IGlueManager {
-  readonly getProtocol: (platform: IPlatforms) => (
-    path: string, obj: { [key: string]: any }
-  ) => Promise<{ [key: string]: any }>,
-  readonly setProtocol: (
-    platform: IPlatforms,
-    func: (
-      path: string, obj: { [key: string]: any }
-    ) => Promise<{ [key: string]: any }>
-  ) => void,
-  readonly linkTo: (
-    platform: IPlatforms,
-    path: string,
-    obj: { [key: string]: any }
-  ) => Promise<{ [key: string]: any }>
-}
-
-export { contextManagerFactory } from './contextManager';
-export { runtimeManagerFactory } from './runtimeManager';
-export { glueManagerFactory } from './guleManager';
+export * as contextManager from './contextManager';
+export * as runtimeManager from './runtimeManager';
+export * as glueManager from './guleManager';
 
 export { series } from './lib/series';
 export { parallel } from './lib/parallel';

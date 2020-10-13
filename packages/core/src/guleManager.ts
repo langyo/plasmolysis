@@ -1,57 +1,44 @@
 import {
-  IGlueManager,
-  IContextManager,
   IPlatforms,
 } from './index';
 import axios from 'axios';
 
-export function glueManagerFactory(
-  contextManager: IContextManager,
-  platform: IPlatforms
-): IGlueManager {
-  let protocols: {
-    [platform in IPlatforms]?: (
-      path: string,
-      obj: { [key: string]: any }
-    ) => Promise<{ [key: string]: any }>
-  } = {
-    'js.node': async (path, obj) => await axios.post(`/${path.split('.').join('/')}`, obj)
-  };
-
-  function getProtocol(platform: IPlatforms): (
+let protocols: {
+  [platform in IPlatforms]?: (
     path: string,
     obj: { [key: string]: any }
-  ) => Promise<{ [key: string]: any }> {
-    if (typeof protocols[platform] === 'undefined') {
-      throw new Error(`Unknown protocol: ${platform}.`);
-    }
-    return protocols[platform];
-  }
+  ) => Promise<{ [key: string]: any }>
+} = {
+  'js.node': async (path, obj) => await axios.post(`/${path.split('.').join('/')}`, obj)
+};
 
-  function setProtocol(
-    platform: IPlatforms,
-    func: (
-      path: string,
-      obj: { [key: string]: any }
-    ) => Promise<{ [key: string]: any }>
-  ) {
-    protocols[platform] = func;
+export function getProtocol(platform: IPlatforms): (
+  path: string,
+  obj: { [key: string]: any }
+) => Promise<{ [key: string]: any }> {
+  if (typeof protocols[platform] === 'undefined') {
+    throw new Error(`Unknown protocol: ${platform}.`);
   }
+  return protocols[platform];
+}
 
-  function linkTo(
-    platform: IPlatforms,
+export function setProtocol(
+  platform: IPlatforms,
+  func: (
     path: string,
-    payload: { [key: string]: any }
-  ): Promise<{ [key: string]: any }> {
-    if (typeof protocols[platform] === 'undefined') {
-      throw new Error(`Unknown protocol: ${platform}.`);
-    }
-    return protocols[platform](path, payload);
-  }
+    obj: { [key: string]: any }
+  ) => Promise<{ [key: string]: any }>
+) {
+  protocols[platform] = func;
+}
 
-  return Object.freeze({
-    setProtocol,
-    getProtocol,
-    linkTo
-  });
+export function linkTo(
+  platform: IPlatforms,
+  path: string,
+  payload: { [key: string]: any }
+): Promise<{ [key: string]: any }> {
+  if (typeof protocols[platform] === 'undefined') {
+    throw new Error(`Unknown protocol: ${platform}.`);
+  }
+  return protocols[platform](path, payload);
 }
