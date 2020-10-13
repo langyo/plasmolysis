@@ -1,8 +1,8 @@
 import {
-  IRuntime
+  IRuntimeObject
 } from '../index';
 
-export function series(...tasks: IRuntime[]): IRuntime {
+export function series(...tasks: IRuntimeObject[]): IRuntimeObject {
   return (platform, publicContexts) => async (
     payload, contexts, variants
   ) => {

@@ -1,14 +1,14 @@
 import {
-  IRuntime
+  IRuntimeObject
 } from '../index';
 
-export function parallel(...tasks: IRuntime[]);
-export function parallel(map: { [key: string]: IRuntime }, key: string);
+export function parallel(...tasks: IRuntimeObject[]);
+export function parallel(map: { [key: string]: IRuntimeObject }, key: string);
 export function parallel(
-  arg0: IRuntime | { [key: string]: IRuntime },
-  arg1?: IRuntime | string,
-  ...tasks: IRuntime[]
-): IRuntime {
+  arg0: IRuntimeObject | { [key: string]: IRuntimeObject },
+  arg1?: IRuntimeObject | string,
+  ...tasks: IRuntimeObject[]
+): IRuntimeObject {
   return (platform, publicContexts) => async (
     payload, contexts, variants
   ) => {
@@ -23,7 +23,7 @@ export function parallel(
         platform, publicContexts
       )(payload, contexts, variants);
     } else {
-      setTimeout(() => (arg1 as IRuntime)(
+      setTimeout(() => (arg1 as IRuntimeObject)(
         platform, publicContexts
       )(payload, contexts, variants), 0);
       for (const task of tasks) {

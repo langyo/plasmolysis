@@ -1,5 +1,5 @@
 import {
-  IRuntime,
+  IRuntimeObject,
   IPlatforms
 } from '../index';
 
@@ -12,9 +12,9 @@ export function martix(
       }
     }>,
     variants: Readonly<{ [key: string]: any }>
-  ) => { [key: string]: IRuntime },
+  ) => { [key: string]: IRuntimeObject },
   key?: string
-): IRuntime {
+): IRuntimeObject {
   return (platform, publicContexts) => async (
     payload, contexts, variants
   ) => {

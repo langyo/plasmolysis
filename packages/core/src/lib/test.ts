@@ -1,5 +1,5 @@
 import {
-  IRuntime
+  IRuntimeObject
 } from '../index';
 
 export function test(
@@ -8,8 +8,8 @@ export function test(
     contexts: { [key: string]: any },
     variants: { [key: string]: any }
   ) => boolean,
-  task: IRuntime
-): IRuntime {
+  task: IRuntimeObject
+): IRuntimeObject {
   return (platform, publicContexts) => async (
     payload, contexts, variants
   ) => {

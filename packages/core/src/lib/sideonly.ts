@@ -1,12 +1,12 @@
 import {
   IPlatforms,
-  IRuntime
+  IRuntimeObject
 } from '../index';
 
 export function sideonly(
   specPlatform: IPlatforms,
-  task: IRuntime
-): IRuntime {
+  task: IRuntimeObject
+): IRuntimeObject {
   return (platform, publicContexts) => async (
     payload, contexts, variants
   ) => {

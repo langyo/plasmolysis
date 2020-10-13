@@ -1,6 +1,6 @@
 import {
   IGetters,
-  IRuntime,
+  IRuntimeObject,
   IPlatforms
 } from '../index';
 import { generate } from 'shortid';
@@ -11,12 +11,12 @@ export function createModel(
     initState: { [key: string]: any },
     name?: string
   }
-): IRuntime;
+): IRuntimeObject;
 export function createModel(
   type: string,
   initState?: { [key: string]: any },
   name?: string
-): IRuntime;
+): IRuntimeObject;
 export function createModel(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     type: string,
@@ -25,7 +25,7 @@ export function createModel(
   }) | string,
   arg1?: { [key: string]: any },
   arg2?: string
-): IRuntime {
+): IRuntimeObject {
   const generator = typeof arg0 === 'string' ? () => ({
     type: arg0,
     initState: arg1 || {},

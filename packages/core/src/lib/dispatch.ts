@@ -1,10 +1,10 @@
 import {
-  IRuntime
+  IRuntimeObject
 } from '../index';
 
 export function dispatch(
   path: string
-): IRuntime {
+): IRuntimeObject {
   return (platform, { runtimeManager }) => async (
     payload, contexts, variants
   ) => {

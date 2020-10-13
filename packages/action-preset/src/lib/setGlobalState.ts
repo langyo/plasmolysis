@@ -1,6 +1,6 @@
 import {
   IGetters,
-  IRuntime,
+  IRuntimeObject,
   IPlatforms
 } from '../index';
 
@@ -8,15 +8,15 @@ export function setGlobalState(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   }
-): IRuntime;
+): IRuntimeObject;
 export function setGlobalState(
   combinedObj: { [key: string]: any }
-): IRuntime;
+): IRuntimeObject;
 export function setGlobalState(
   arg0: (payload: { [key: string]: any }, utils: IGetters) => {
     [key: string]: any
   } | { [key: string]: any }
-): IRuntime {
+): IRuntimeObject {
   const generator = typeof arg0 === 'string' ? () => arg0 : arg0;
   return (platform: IPlatforms) => platform === 'js.browser' ? async (
     payload: { [key: string]: any }, {

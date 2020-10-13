@@ -1,6 +1,6 @@
 import {
   IPlatforms,
-  IRuntime
+  IRuntimeObject
 } from '../../../core';
 import {
   IGetters
@@ -11,18 +11,18 @@ export function togglePage(
     type: string,
     initState: { [key: string]: any }
   }
-): IRuntime;
+): IRuntimeObject;
 export function togglePage(
   type: string,
   initState: { [key: string]: any }
-): IRuntime;
+): IRuntimeObject;
 export function togglePage(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     type: string,
     initState: { [key: string]: any }
   }) | string,
   arg1?: { [key: string]: any }
-): IRuntime {
+): IRuntimeObject {
   const generator = typeof arg0 === 'string' ? () => ({
     type: arg0,
     initState: arg1

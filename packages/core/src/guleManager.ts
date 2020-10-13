@@ -1,5 +1,4 @@
 import {
-  IProjectPackage,
   IGlueManager,
   IContextManager,
   IPlatforms,
@@ -7,7 +6,6 @@ import {
 import axios from 'axios';
 
 export function glueManagerFactory(
-  projectPackage: IProjectPackage,
   contextManager: IContextManager,
   platform: IPlatforms
 ): IGlueManager {

@@ -1,16 +1,13 @@
 import {
-  IProjectPackage,
-  IRuntime,
+  IRuntimeObject,
+  IRuntimeFunc,
   IRuntimeManager,
   IContextManager,
-  IGlueManager,
   IPlatforms,
 } from './index';
 
 export function runtimeManagerFactory(
-  projectPackage: IProjectPackage,
   contextManager: IContextManager,
-  glueManager: IGlueManager,
   platform: IPlatforms
 ): IRuntimeManager {
   let runtimes: {
@@ -24,51 +21,32 @@ export function runtimeManagerFactory(
       ) => Promise<{ [key: string]: any }>
     }
   } = {};
+  let actions: {
+    [key: string]: IRuntimeFunc
+  } = {};
 
   function loadRuntime(
-    runtime: IRuntime,
+    runtime: IRuntimeObject,
     tag: string,
     name: string
   ): void {
-    runtimes[tag][name] = runtime(platform, Object.freeze({
-      contextManager,
-      glueManager,
-      runtimeManager: Object.freeze({
-        loadRuntime,
-        loadPackage,
-        getRuntimeList,
-        hasRuntime,
-        runRuntime
-      })
-    }));
+    if (typeof runtime[platform] !== 'undefined') {
+      runtimes[tag][name] = runtime[platform];
+    }
   };
 
-  function loadPackage(projectPackage: IProjectPackage): void {
-    if (
-      typeof projectPackage.data !== 'undefined' &&
-      typeof projectPackage.data.webClient !== 'undefined'
-    ) {
-      for (const tag of Object.keys(projectPackage.data.webClient)) {
-        for (const streamName of
-          Object.keys(projectPackage.data.webClient[tag].controller)
-        ) {
-          // The extra compare and rewrite should be exported as the interfaces.
-          if (streamName === 'init') {
-            loadRuntime(() => async () => ({}), tag, 'init');
-          } else if (streamName === 'preload') {
-            loadRuntime(() => async () => ({}), tag, 'preload');
-          } else {
-            loadRuntime(
-              projectPackage.data.webClient[tag].controller[streamName],
-              tag, streamName
-            );
-          }
-        }
+  function registerAction(
+    type: string,
+    runtime: { [platform in IPlatforms]?: IRuntimeFunc } | IRuntimeFunc
+  ) {
+    if (typeof runtime === 'function') {
+      actions[type] = runtime;
+    } else {
+      if (typeof runtime[platform] !== undefined) {
+        actions[type] = runtime[platform] as IRuntimeFunc;
       }
     }
   }
-
-  loadPackage(projectPackage);
 
   function getRuntimeList(tag: string): string[] {
     if (typeof runtimes[tag] === 'undefined') {
@@ -111,7 +89,7 @@ export function runtimeManagerFactory(
 
   return Object.freeze({
     loadRuntime,
-    loadPackage,
+    registerAction,
     getRuntimeList,
     hasRuntime,
     runRuntime

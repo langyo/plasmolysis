@@ -1,10 +1,10 @@
 import {
-  IRuntime
+  IRuntimeObject
 } from '../index';
 
 export function wait(
   length: number
-): IRuntime {
+): IRuntimeObject {
   return () => async (
     payload
   ) => {

@@ -1,6 +1,6 @@
 import {
   IGetters,
-  IRuntime,
+  IRuntimeObject,
   IPlatforms
 } from '../index';
 
@@ -8,13 +8,13 @@ export function destoryModel(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
     id: string
   }
-): IRuntime;
-export function destoryModel(id: string): IRuntime;
+): IRuntimeObject;
+export function destoryModel(id: string): IRuntimeObject;
 export function destoryModel(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     id: string
   }) | string
-): IRuntime {
+): IRuntimeObject {
   const generator = typeof arg0 === 'string' ? () => ({ id: arg0 }) : arg0;
   return (platform: IPlatforms) => platform === 'js.browser' ? async (
     payload, {

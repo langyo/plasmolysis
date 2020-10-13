@@ -2,13 +2,13 @@ import {
   IPlatforms,
   IProjectPackage,
   IWebClientComponentType,
-  IRuntime
+  IRuntimeObject
 } from '../../core';
 export {
   IPlatforms,
   IProjectPackage,
   IWebClientComponentType,
-  IRuntime
+  IRuntimeObject
 };
 
 export interface IStateManager {

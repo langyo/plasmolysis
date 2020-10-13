@@ -1,8 +1,8 @@
 import {
   IPlatforms,
-  IProjectPackage,
   IContextManager,
-  IRuntimeManager, IGlueManager
+  IRuntimeManager,
+  IGlueManager
 } from './index';
 
 import { runtimeManagerFactory } from './runtimeManager';
@@ -15,7 +15,6 @@ const {
 // } = require('nickelcat-action-routes/context').getContexts;
 
 export function contextManagerFactory(
-  projectPackage: IProjectPackage,
   platform: IPlatforms
 ): IContextManager {
   let contexts: {
@@ -27,15 +26,12 @@ export function contextManagerFactory(
     getContexts,
     getConfig,
     setConfig,
-    loadProjectPackage,
     loadActionPackage
   });
   const glueManager: IGlueManager =
-    glueManagerFactory(projectPackage, contextManagerObj, platform);
+    glueManagerFactory(contextManagerObj, platform);
   const runtimeManager: IRuntimeManager =
-    runtimeManagerFactory(
-      projectPackage, contextManagerObj, glueManager, platform
-    );
+    runtimeManagerFactory(contextManagerObj, platform);
 
   function loadActionPackage(
     getter: (platform: IPlatforms) => { [key: string]: any }
@@ -58,7 +54,6 @@ export function contextManagerFactory(
         } else if (p === 'contextManager') {
           return Object.freeze({
             getContexts,
-            loadProjectPackage,
             loadActionPackage
           });
         } else if (p === 'runtimeManager') {
@@ -68,24 +63,6 @@ export function contextManagerFactory(
         }
       }
     });
-  }
-
-  function loadProjectPackage(projectPackage: IProjectPackage): void {
-    runtimeManager.loadPackage(projectPackage);
-    for (const platform of Object.keys(projectPackage.config)) {
-      configs[platform] = {
-        ...configs[platform],
-        ...projectPackage.config[platform]
-      };
-    }
-
-    for (const platform of Object.keys(getContexts)) {
-      for (const tag of Object.keys(getContexts[platform])) {
-        if (typeof getContexts[tag].loadPackage === 'function') {
-          getContexts[tag].loadPackage(projectPackage);
-        }
-      }
-    }
   }
 
   function getConfig(context: string): Readonly<{ [key: string]: any }> {
@@ -107,13 +84,10 @@ export function contextManagerFactory(
     }
   }
 
-  loadProjectPackage(projectPackage);
-
   return Object.freeze({
     getContexts,
     getConfig,
     setConfig,
-    loadProjectPackage,
     loadActionPackage
   });
 }
