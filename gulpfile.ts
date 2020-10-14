@@ -2,12 +2,13 @@ import {
   src, dest, series, watch as watchFiles, parallel
 } from 'gulp';
 import {
-  readdir,
   symlink,
   access,
   unlink,
   readFile,
-  writeFile
+  writeFile,
+  stat,
+  rmdir
 } from 'promisely-fs';
 import { resolve } from 'path';
 import { spawn } from 'child_process';
@@ -58,7 +59,19 @@ export const install = process.env.CI ?
   })));
 
 export const link = async () => {
+  // Scan all the packages and get the packages' names.
+  let deps: { [key: string]: string } = {};
   for (const pkg of packageNames) {
+    if (await access(resolve(`./packages/${pkg}/package.json`))) {
+      deps[JSON.parse(
+        await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
+      ).name] = pkg;
+    }
+  }
+
+  // Create symlinks.
+  for (const pkg of packageNames) {
+    // Link 'package.json'.
     if (await access(resolve(`./packages/${pkg}/package.json`))) {
       if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
         await unlink(`./packages/${pkg}/dist/package.json`);
@@ -70,8 +83,8 @@ export const link = async () => {
         );
       }
     }
-  }
-  for (const pkg of packageNames) {
+
+    // Link 'node_modules' folder to the 'dist' folder.
     if (await access(resolve(`./packages/${pkg}/node_modules`))) {
       if (await access(resolve(`./packages/${pkg}/dist/node_modules`))) {
         await unlink(`./packages/${pkg}/dist/node_modules`);
@@ -82,6 +95,43 @@ export const link = async () => {
           resolve(`./packages/${pkg}/dist/node_modules`),
           'dir'
         );
+      }
+    }
+
+    // Link local packages to every 'node_modules' folders.
+    if (await access(resolve(`./packages/${pkg}/package.json`))) {
+      const { peerDependencies } = JSON.parse(
+        await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
+      );
+      for (const peerDep of Object.keys(peerDependencies)) {
+        if (
+          await access(resolve(`./packages/${deps[peerDep]}/node_modules`)) &&
+          await access(resolve(`./packages/${pkg}/node_modules`))
+        ) {
+          if (
+            await access(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
+          ) {
+            if ((
+              await stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
+            ).isSymbolicLink()) {
+              await unlink(
+                resolve(`./packages/${pkg}/node_modules/${peerDep}`)
+              );
+            } else if ((
+              await stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
+            ).isDirectory()) {
+              await rmdir(
+                resolve(`./packages/${pkg}/node_modules/${peerDep}`),
+                { recursive: true }
+              );
+            }
+          }
+          await symlink(
+            resolve(`./packages/${deps[peerDep]}/src`),
+            resolve(`./packages/${pkg}/node_modules/${peerDep}`),
+            'dir'
+          );
+        }
       }
     }
   }
