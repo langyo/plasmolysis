@@ -11,7 +11,7 @@ const {
 //   packageInfo: actionRoutesPackage
 // } = require('nickelcat-action-routes/context').getContexts;
 
-let platform: IPlatforms;
+const platform: IPlatforms = typeof window !== 'undefined' ? 'js.browser' : 'js.node';
 let contexts: {
   [type: string]: { [func: string]: (...args: any[]) => any }
 } = {};
@@ -21,13 +21,6 @@ export function getPlatform(): IPlatforms {
   return platform;
 }
 
-export function setPlatform(p: IPlatforms) {
-  if (typeof platform === 'undefined') {
-    platform = p;
-  } else {
-    throw new Error('You cannot set the platform tag for twice!');
-  }
-}
 export function loadActionPackage(
   getter: (platform: IPlatforms) => { [key: string]: any }
 ): void {

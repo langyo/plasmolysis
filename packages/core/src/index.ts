@@ -12,15 +12,13 @@ export type IWebClientComponentType =
 
 export interface IRuntimeObject {
   type: string,
-  args: any[]
+  args: { [key: string]: any }
 };
 
-export type IRuntimeFunc = {
-  [platform in IPlatforms]?: (
-    payload: { [key: string]: any },
-    variants: Readonly<{ [key: string]: any }>
-  ) => Promise<{ [key: string]: any }>
-};
+export type IRuntimeFunc = (args: { [key: string]: any }) => (
+  payload: { [key: string]: any },
+  variants: Readonly<{ [key: string]: any }>
+) => Promise<{ [key: string]: any }>;
 
 export * as contextManager from './contextManager';
 export * as runtimeManager from './runtimeManager';

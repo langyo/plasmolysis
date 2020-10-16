@@ -35,14 +35,11 @@ export function loadRuntime(
 
 export function registerAction(
   type: string,
-  runtime: { [platform in IPlatforms]?: IRuntimeFunc } | IRuntimeFunc
+  platform: IPlatforms,
+  runtime: IRuntimeFunc
 ) {
-  if (typeof runtime === 'function') {
+  if (platform === getPlatform()) {
     actions[type] = runtime;
-  } else {
-    if (typeof runtime[getPlatform()] !== undefined) {
-      actions[type] = runtime[getPlatform()] as IRuntimeFunc;
-    }
   }
 }
 
