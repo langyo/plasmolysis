@@ -1,8 +1,13 @@
+import { IRuntimeObject } from 'nickelcat';
+import { registerAction } from 'nickelcat/runtimeManager';
+import { IGetters } from '../index';
+import { getModelList } from '../modelManager';
 import {
-  IGetters,
-  IRuntimeObject,
-  IPlatforms
-} from '../index';
+  getGlobalState,
+  getState,
+  setState as wrappedSetState
+} from '../stateManager';
+import { getPageType } from 'nickelcat-action-routes/routeManager';
 
 export function setState(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
@@ -17,30 +22,30 @@ export function setState(
     [key: string]: any
   } | { [key: string]: any }
 ): IRuntimeObject {
-  const generator = typeof arg0 === 'string' ? () => arg0 : arg0;
-  return (platform: IPlatforms) => platform === 'js.browser' ? async (
-    payload: { [key: string]: any }, {
-      stateManager: {
-        getState,
-        getGlobalState,
-        getModelList,
-        setState
-      },
-      routeManager: {
-        getPageType
-      }
-    }, {
+  return {
+    type: 'preset.setState',
+    args: {
+      generator: typeof arg0 === 'string' ? () => arg0 : arg0
+    }
+  };
+};
+
+registerAction(
+  'preset.setState',
+  'js.browser',
+  ({ generator }) => async (
+    payload, {
       modelType, modelID
     }) => {
     const obj = generator(payload, {
-      getState: () => getState(modelID),
-      getGlobalState,
-      getModelList,
-      getPageType,
+      state: getState(modelID),
+      globalState: getGlobalState(),
+      modelList: getModelList(),
+      pageType: getPageType(),
       modelType,
       modelID
     });
-    setState(modelID, obj);
+    wrappedSetState(modelID, obj);
     return payload;
-  } : undefined;
-};
+  }
+);

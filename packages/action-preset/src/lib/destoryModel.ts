@@ -1,8 +1,12 @@
+import { IRuntimeObject } from 'nickelcat';
+import { registerAction } from 'nickelcat/runtimeManager';
+import { IGetters } from '../index';
+import { getModelList } from '../modelManager';
 import {
-  IGetters,
-  IRuntimeObject,
-  IPlatforms
-} from '../index';
+  getGlobalState,
+  getState
+} from '../stateManager';
+import { getPageType } from 'nickelcat-action-routes/routeManager';
 
 export function destoryModel(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
@@ -15,31 +19,31 @@ export function destoryModel(
     id: string
   }) | string
 ): IRuntimeObject {
-  const generator = typeof arg0 === 'string' ? () => ({ id: arg0 }) : arg0;
-  return (platform: IPlatforms) => platform === 'js.browser' ? async (
+  return {
+    type: 'preset.destoryModel',
+    args: {
+      generator: typeof arg0 === 'string' ? () => ({ id: arg0 }) : arg0
+    }
+  };
+};
+
+registerAction(
+  'preset.destoryModel',
+  'js.browser',
+  ({ generator }) => async (
     payload, {
-      stateManager: {
-        getState,
-        getGlobalState,
-        getModelList,
-        destoryModel
-      },
-      routeManager: {
-        getPageType
-      }
-    }, {
       modelType, modelID
     }
   ) => {
     const { id } = generator(payload, {
-      getState: () => getState(modelID),
-      getGlobalState,
-      getModelList,
-      getPageType,
+      state: getState(modelID),
+      globalState: getGlobalState(),
+      modelList: getModelList(),
+      pageType: getPageType(),
       modelType,
       modelID
     });
     destoryModel(id);
     return payload;
-  } : undefined;
-};
+  }
+);

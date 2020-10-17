@@ -2,8 +2,8 @@ import {
   IPlatforms
 } from '../../core';
 
-import { routeManager } from './routeManager';
-import { sessionManager } from './sessionManager';
+import * as routeManager from './routeManager';
+import * as sessionManager from './sessionManager';
 
 export function getContexts(platform: IPlatforms): { [key: string]: any } {
   switch (platform) {

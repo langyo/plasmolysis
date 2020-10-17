@@ -1,10 +1,15 @@
+import { IRuntimeObject } from 'nickelcat';
+import { registerAction } from 'nickelcat/runtimeManager';
+import { IGetters } from 'nickelcat-action-preset';
+import { getModelList } from 'nickelcat-action-preset/modelManager';
 import {
-  IPlatforms,
-  IRuntimeObject
-} from '../../../core';
+  getGlobalState,
+  getState
+} from 'nickelcat-action-preset/stateManager';
 import {
-  IGetters
-} from '../../../action-preset';
+  getPageType,
+  loadPage
+} from '../routeManager';
 
 export function togglePage(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
@@ -23,29 +28,29 @@ export function togglePage(
   }) | string,
   arg1?: { [key: string]: any }
 ): IRuntimeObject {
-  const generator = typeof arg0 === 'string' ? () => ({
-    type: arg0,
-    initState: arg1
-  }) : arg0;
-  return (platform: IPlatforms) => platform === 'js.browser' ? async (
-    payload: { [key: string]: any }, {
-      stateManager: {
-        getState,
-        getGlobalState,
-        getModelList
-      },
-      routeManager: {
-        getPageType,
-        loadPage
-      }
-    }, {
+  return {
+    type: 'preset.destoryModel',
+    args: {
+      generator: typeof arg0 === 'string' ? () => ({
+        type: arg0,
+        initState: arg1
+      }) : arg0
+    }
+  };
+};
+
+registerAction(
+  'routes.togglePage',
+  'js.browser',
+  ({ generator }) => async (
+    payload, {
       modelType, modelID
     }) => {
     const { type, initState } = generator(payload, {
-      getState: () => getState(modelID),
-      getGlobalState,
-      getModelList,
-      getPageType,
+      state: getState(modelID),
+      globalState: getGlobalState(),
+      modelList: getModelList(),
+      pageType: getPageType(),
       modelType,
       modelID
     });
@@ -65,5 +70,5 @@ export function togglePage(
         }` : ''
       }`);
     return payload;
-  } : undefined;
-};
+  }
+);

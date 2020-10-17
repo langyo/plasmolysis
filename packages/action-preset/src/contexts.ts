@@ -2,8 +2,8 @@ import {
   IPlatforms
 } from '../../core';
 
-import { modelManager } from './modelManager';
-import { stateManager } from './stateManager';
+import * as modelManager from './modelManager';
+import * as stateManager from './stateManager';
 
 export { IGlobalState } from './stateManager';
 

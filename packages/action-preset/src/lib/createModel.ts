@@ -1,8 +1,12 @@
+import { IRuntimeObject } from 'nickelcat';
+import { registerAction } from 'nickelcat/runtimeManager';
+import { IGetters } from '../index';
+import { getModelList } from '../modelManager';
 import {
-  IGetters,
-  IRuntimeObject,
-  IPlatforms
-} from '../index';
+  getGlobalState,
+  getState
+} from '../stateManager';
+import { getPageType } from 'nickelcat-action-routes/routeManager';
 import { generate } from 'shortid';
 
 export function createModel(
@@ -32,30 +36,29 @@ export function createModel(
     name: arg2 || generate()
   }) : arg0;
 
-  return (platform: IPlatforms) => platform === 'js.browser' ? async (
+  return {
+    type: 'preset.createModel',
+    args: { generator }
+  };
+};
+
+registerAction(
+  'preset.createModel',
+  'js.browser',
+  ({ generator }) => async (
     payload, {
-      stateManager: {
-        getState,
-        getGlobalState,
-        getModelList,
-        createModel
-      },
-      routeManager: {
-        getPageType
-      }
-    }, {
       modelType, modelID
     }
   ) => {
     const { type, initState, name } = generator(payload, {
-      getState: () => getState(modelID),
-      getGlobalState,
-      getModelList,
-      getPageType,
+      state: getState(modelID),
+      globalState: getGlobalState(),
+      modelList: getModelList(),
+      pageType: getPageType(),
       modelType,
       modelID
     });
     createModel(type, initState, name);
     return payload;
-  } : undefined;
-};
+  }
+);

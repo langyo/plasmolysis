@@ -17,7 +17,8 @@
     "vue": "^2.6.11"
   },
   "peerDependencies": {
-    "nickelcat": "0.4.4"
+    "nickelcat": "0.4.4",
+    "nickelcat-action-routes": "0.4.4"
   },
   "bugs": {
     "url": "https://github.com/langyo/nickelcat/issues"
