@@ -1,23 +1,31 @@
-import {
-  IRuntimeObject
-} from '../index';
+import { IRuntimeObject } from '../index';
+import { hasRuntime, runRuntime, registerAction } from '../runtimeManager';
 
 export function dispatch(
   path: string
 ): IRuntimeObject {
-  return (platform, { runtimeManager }) => async (
-    payload, contexts, variants
-  ) => {
-    if (path.indexOf('.') < 0) {
-      throw new Error(`Illegal path: ${path}`);
-    }
-    const tag = path.substr(path.indexOf('.'));
-    const streamName = path.substr(path.indexOf('.') + 1, path.length);
-    if (!runtimeManager.hasRuntime(tag, streamName)) {
-      throw new Error(`Illegal path: ${path}`);
-    }
-    return await runtimeManager.runRuntime(
-      tag, streamName, payload, variants
-    );
+  if (path.indexOf('.') < 0) {
+    throw new Error(`Illegal path: ${path}`);
+  }
+  const tag = path.substr(path.indexOf('.'));
+  const name = path.substr(path.indexOf('.') + 1, path.length);
+  return {
+    type: '*.dispatch',
+    args: { tag, name }
   };
 }
+
+registerAction(
+  '*.dispatch',
+  '*',
+  ({ tag, name }) => async (
+    payload, variants
+  ) => {
+    if (!hasRuntime(tag, name)) {
+      throw new Error(`Illegal path: ${tag}.${name}`);
+    }
+    return await runRuntime(
+      tag, name, payload, variants
+    );
+  }
+);

@@ -10,13 +10,7 @@ import {
 
 let runtimes: {
   [tag: string]: {
-    [actionName: string]: (
-      payload: { [key: string]: any },
-      contexts: Readonly<{
-        [key: string]: { [func: string]: (...args: any[]) => any }
-      }>,
-      variants: Readonly<{ [key: string]: any }>
-    ) => Promise<{ [key: string]: any }>
+    [actionName: string]: IRuntimeObject
   }
 } = {};
 let actions: {
@@ -35,11 +29,14 @@ export function loadRuntime(
 
 export function registerAction(
   type: string,
-  platform: IPlatforms,
+  platform: IPlatforms | '*',
   runtime: IRuntimeFunc
 ) {
-  if (platform === getPlatform()) {
+  if (platform === getPlatform() || platform === '*') {
     actions[type] = runtime;
+  }
+  else {
+    actions[type] = () => async payload => payload
   }
 }
 
@@ -63,21 +60,26 @@ export function hasRuntime(
   }
 }
 
+export async function runAction(
+  type: string,
+  args: { [key: string]: any },
+  payload: { [key: string]: any },
+  variants: { [key: string]: any }
+): Promise<{ [key: string]: any }> {
+  if (typeof actions[type] === 'undefined') {
+    throw new Error(
+      `Unknown action '${type}' at the getPlatform() '${getPlatform()}'.`
+    );
+  }
+  return await actions[type](args)(payload, variants);
+};
+
 export async function runRuntime(
   tag: string,
   name: string,
   payload: { [key: string]: any },
   variants: { [key: string]: any }
-): Promise<{ [key: string]: any }> {
-  if (
-    typeof runtimes[tag] === 'undefined' ||
-    typeof runtimes[tag][name] === 'undefined'
-  ) {
-    throw new Error(
-      `Unknown stream '${name}' from '${tag}' at the getPlatform() '${getPlatform()}'.`
-    );
-  }
-  return await runtimes[tag][name](
-    payload, getContexts(), variants
-  );
-};
+) {
+  const { type, args } = runtimes[tag][name];
+  return await runAction(type, args, payload, variants);
+}

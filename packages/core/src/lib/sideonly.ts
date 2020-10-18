@@ -1,20 +1,26 @@
-import {
-  IPlatforms,
-  IRuntimeObject
-} from '../index';
+import { IRuntimeObject, IPlatforms } from '../index';
+import { runAction, registerAction } from '../runtimeManager';
+import { getPlatform } from '../contextManager';
 
 export function sideonly(
-  specPlatform: IPlatforms,
+  side: IPlatforms,
   task: IRuntimeObject
 ): IRuntimeObject {
-  return (platform, publicContexts) => async (
-    payload, contexts, variants
-  ) => {
-    if (specPlatform === platform) {
-      payload = await task(
-        platform, publicContexts
-      )(payload, contexts, variants);
-    }
-    return payload;
+  return {
+    type: '*.sideonly',
+    args: { side, task }
   };
 }
+
+registerAction(
+  '*.sideonly',
+  '*',
+  ({ side, task }: { side: IPlatforms, task: IRuntimeObject }) => async (
+    payload, variants
+  ) => {
+    if (side === getPlatform()) {
+      payload = await runAction(task.type, task.args, payload, variants);
+    }
+    return payload;
+  }
+)

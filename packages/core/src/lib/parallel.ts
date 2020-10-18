@@ -1,41 +1,59 @@
-import {
-  IRuntimeObject
-} from '../index';
+import { IRuntimeObject } from '../index';
+import { runAction, registerAction } from '../runtimeManager';
 
-export function parallel(...tasks: IRuntimeObject[]);
-export function parallel(map: { [key: string]: IRuntimeObject }, key: string);
+export function parallel(...tasks: IRuntimeObject[]): IRuntimeObject;
 export function parallel(
-  arg0: IRuntimeObject | { [key: string]: IRuntimeObject },
-  arg1?: IRuntimeObject | string,
+  reducer: (
+    payload: { [key: string]: any }, reduced: { [key: string]: any }
+  ) => { [key: string]: any },
+  ...tasks: IRuntimeObject[]
+): IRuntimeObject;
+export function parallel(
+  reducer: ((
+    payload: { [key: string]: any }, reduced: { [key: string]: any }
+  ) => { [key: string]: any }) | IRuntimeObject,
   ...tasks: IRuntimeObject[]
 ): IRuntimeObject {
-  return (platform, publicContexts) => async (
-    payload, contexts, variants
-  ) => {
-    if (typeof arg0 === 'object') {
-      for (const key of Object.keys(arg0).filter(n => n !== arg1)) {
-        setTimeout(
-          () => arg0[key](
-            platform, publicContexts
-          )(payload, contexts, variants), 0);
+  return {
+    type: '*.parallel',
+    args: typeof reducer === 'function' ?
+      { reducer, tasks } :
+      {
+        reducer: (payload, reduced) => ({ ...reduced, ...payload }),
+        tasks: [reducer, ...tasks]
       }
-      return await arg0[(arg1 as string)](
-        platform, publicContexts
-      )(payload, contexts, variants);
-    } else {
-      setTimeout(() => (arg1 as IRuntimeObject)(
-        platform, publicContexts
-      )(payload, contexts, variants), 0);
-      for (const task of tasks) {
-        if (typeof task !== 'undefined') {
-          setTimeout(() => task(
-            platform, publicContexts
-          )(payload, contexts, variants), 0);
-        }
-      }
-      return typeof arg0 !== 'undefined' ? await arg0(
-        platform, publicContexts
-      )(payload, contexts, variants) : payload;
-    }
   };
 }
+
+registerAction(
+  '*.parallel',
+  '*',
+  ({ tasks, reducer }: {
+    tasks: IRuntimeObject[],
+    reducer: ((
+      payload: { [key: string]: any }, reduced: { [key: string]: any }
+    ) => { [key: string]: any })
+  }) => (payload, variants) => {
+    return new Promise((resolve, reject) => {
+      let reduced = {};
+      let count = 0;
+      for (const task of tasks) {
+        if (typeof task !== 'undefined') {
+          setTimeout(async () => {
+            try {
+              reduced = reducer(await runAction(
+                task.type, task.args, payload, variants
+              ), reduced);
+            } catch (e) {
+              reject(e);
+            }
+            count += 1;
+            if (count === tasks.length) {
+              resolve(reduced);
+            }
+          }, 0);
+        }
+      }
+    });
+  }
+)

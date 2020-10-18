@@ -1,27 +1,35 @@
-import {
-  IRuntimeObject
-} from '../index';
+import { IPlatforms, IRuntimeObject } from '../index';
+import { loadRuntime, registerAction } from '../runtimeManager';
+import { linkTo } from '../guleManager';
 
-export function link(path: string, task: IRuntimeObject);
-// TODO - Support the other languages' link bridge.
-// export function link(platform: IPlatforms, path: string, task: IRuntimeObject);
-// export function link(platform: IPlatforms, path: string);
 export function link(
+  platform: IPlatforms,
   path: string,
-  task: IRuntimeObject
+  task?: IRuntimeObject
 ): IRuntimeObject {
-  return (platform, { runtimeManager, glueManager }) => {
-    if (platform === 'js.node') {
-      runtimeManager.loadRuntime(task, 'http', path);
-      return undefined;
-    }
-    if (platform === 'js.browser') {
-      return async (
-        payload, contexts, variants
-      ) => {
-        return await glueManager.linkTo('js.node', path, payload);
-      };
-    }
-    return undefined;
+  return {
+    type: '*.link',
+    args: { platform, path, task }
   };
 }
+
+registerAction(
+  '*.link',
+  'js.node',
+  ({ path, task }: {
+    platform: IPlatforms, path: string, task: IRuntimeObject
+  }) => {
+    loadRuntime(task, 'http', path);
+    return async (payload, variants) => payload;
+  }
+);
+
+registerAction(
+  '*.link',
+  'js.browser',
+  ({ platform, path }: {
+    platform: IPlatforms, path: string, task: IRuntimeObject
+  }) => async (payload, variants) => {
+    return await linkTo(platform, path, payload);
+  }
+);

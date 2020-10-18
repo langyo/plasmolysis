@@ -1,47 +1,43 @@
-import {
-  IRuntimeObject,
-  IPlatforms
-} from '../index';
+import { IRuntimeObject } from '../index';
+import { runAction, registerAction } from '../runtimeManager';
 
 export function martix(
-  map: (platform: IPlatforms) => (
+  mapper: (
     payload: { [key: string]: any },
-    contexts: Readonly<{
-      [key: string]: {
-        [func: string]: (...args: any[]) => any
-      }
-    }>,
     variants: Readonly<{ [key: string]: any }>
   ) => { [key: string]: IRuntimeObject },
   key?: string
 ): IRuntimeObject {
-  return (platform, publicContexts) => async (
-    payload, contexts, variants
-  ) => {
-    const factory = map(platform);
-    if (typeof factory !== 'undefined') {
-      const mapped = factory(payload, contexts, variants);
-      if (typeof mapped[key] !== 'undefined') {
-        for (const name of Object.keys(mapped).filter(n => n !== key)) {
-          setTimeout(() => mapped[name](
-            platform, publicContexts
-          )(payload, contexts, variants), 0);
-        }
-        return await mapped[key](
-          platform, publicContexts
-        )(payload, contexts, variants);
-      }
-      else {
-        for (const name of Object.keys(mapped)) {
-          setTimeout(() => mapped[name](
-            platform, publicContexts
-          )(payload, contexts, variants), 0);
-        }
-        return payload;
-      }
-    }
-    else {
-      return payload;
-    }
+  return {
+    type: '*.martix',
+    args: { mapper, key }
   };
 }
+
+registerAction(
+  '*.martix',
+  '*',
+  ({ mapper, key }) => async (
+    payload, variants
+  ) => {
+    const mapped = mapper(payload, variants);
+    if (typeof mapped[key] !== 'undefined') {
+      for (const name of Object.keys(mapped).filter(n => n !== key)) {
+        setTimeout(() => runAction(
+          mapped[name].type, mapped[name].args, payload, variants
+        ), 0);
+      }
+      return await runAction(
+        mapped[key].type, mapped[key].args, payload, variants
+      );
+    }
+    else {
+      for (const name of Object.keys(mapped)) {
+        setTimeout(() => runAction(
+          mapped[name].type, mapped[name].args, payload, variants
+        ), 0);
+      }
+      return payload;
+    }
+  }
+)

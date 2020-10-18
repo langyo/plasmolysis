@@ -1,23 +1,31 @@
-import {
-  IRuntimeObject
-} from '../index';
+import { IRuntimeObject } from '../index';
+import { runAction, registerAction } from '../runtimeManager';
 
 export function loop(
   testFunc: (
     payload: { [key: string]: any },
-    contexts: { [key: string]: any },
     variants: { [key: string]: any }
   ) => boolean,
   task: IRuntimeObject
 ): IRuntimeObject {
-  return (platform, publicContexts) => async (
-    payload, contexts, variants
-  ) => {
-    while (testFunc(payload, contexts, variants)) {
-      payload = await task(
-        platform, publicContexts
-      )(payload, contexts, variants);
-    }
-    return payload;
+  return {
+    type: '*.loop',
+    args: { testFunc, task }
   };
 }
+
+registerAction(
+  '*.loop',
+  '*',
+  ({ testFunc, task }: {
+    testFunc: (
+      payload: { [key: string]: any },
+      variants: { [key: string]: any }
+    ) => boolean, task: IRuntimeObject
+  }) => async (payload, variants) => {
+    while (testFunc(payload, variants)) {
+      payload = await runAction(task.type, task.args, payload, variants);
+    }
+    return payload;
+  }
+)
