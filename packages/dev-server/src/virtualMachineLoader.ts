@@ -1,7 +1,4 @@
-import {
-  ISessionInfo
-} from './index';
-
+import { ISessionInfo } from './index';
 import { Script, createContext } from 'vm';
 import { parse as errorParse } from 'error-stack-parser';
 import { SourceMapConsumer } from 'source-map';

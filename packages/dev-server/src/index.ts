@@ -1,19 +1,3 @@
-export {
-  IProjectPackage,
-  IContextManager,
-  IPlatforms,
-  IWebClientComponentType,
-  IRuntimeManager
-} from '../../core';
-export {
-  IStateManager,
-  IModelManager
-} from '../../action-preset';
-export {
-  IRouteManager,
-  ISessionManager
-} from '../../action-routes';
-
 export interface ISessionInfo {
   ip: string,
   protocol: string,
