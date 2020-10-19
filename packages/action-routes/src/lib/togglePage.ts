@@ -29,7 +29,7 @@ export function togglePage(
   arg1?: { [key: string]: any }
 ): IRuntimeObject {
   return {
-    type: 'preset.destoryModel',
+    type: 'routes.togglePage',
     args: {
       generator: typeof arg0 === 'string' ? () => ({
         type: arg0,
