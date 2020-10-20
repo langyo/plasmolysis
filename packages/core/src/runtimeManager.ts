@@ -4,8 +4,7 @@ import {
   IPlatforms
 } from './index';
 import {
-  getPlatform,
-  getContexts
+  getPlatform
 } from './contextManager';
 
 let runtimes: {

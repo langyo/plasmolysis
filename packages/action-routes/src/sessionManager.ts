@@ -5,6 +5,10 @@ let sessionChecksum: { [id: string]: string } = {};
 let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};
 let sessionLastUpdate: { [id: string]: number } = {};
 
+// export function _getVariants() {
+//   // How to generate the variant?
+// }
+
 export function joinSession(
   id: string,
   initState?: { [key: string]: any }
@@ -59,4 +63,8 @@ export function leaveSession(id: string): void {
   if (typeof sessionLastUpdate[id] !== 'undefined') {
     delete sessionLastUpdate[id];
   }
+}
+
+export function writeToSession(id: string, data: string) {
+  return;
 }
