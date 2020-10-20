@@ -15,7 +15,7 @@ export function pushContent(
 registerAction(
   'routes.pushContent',
   'js.node',
-  ({ }) => async payload => {
+  ({ }) => async (payload, { sessionID }) => {
     return payload;
   }
 );

@@ -15,7 +15,7 @@ export function pushHead(
 registerAction(
   'routes.pushHead',
   'js.node',
-  ({ }) => async payload => {
+  ({ }) => async (payload, { sessionID }) => {
     return payload;
   }
 );

@@ -1,7 +1,7 @@
 import { IRuntimeObject } from 'nickelcat';
 import { registerAction } from 'nickelcat/runtimeManager';
 
-export function pushContent(
+export function routeToService(
   key: string, value: string
 ): IRuntimeObject {
   return {
@@ -15,7 +15,7 @@ export function pushContent(
 registerAction(
   'routes.routeToService',
   'js.node',
-  ({ }) => async payload => {
+  ({ }) => async (payload, { sessionID }) => {
     return payload;
   }
 );

@@ -1,7 +1,7 @@
 import { IRuntimeObject } from 'nickelcat';
 import { registerAction } from 'nickelcat/runtimeManager';
 
-export function renderToStatic(
+export function routeToStatic(
   key: string, value: string
 ): IRuntimeObject {
   return {
@@ -15,7 +15,7 @@ export function renderToStatic(
 registerAction(
   'routes.renderToStatic',
   'js.node',
-  ({ }) => async payload => {
+  ({ }) => async (payload, { sessionID }) => {
     return payload;
   }
 );

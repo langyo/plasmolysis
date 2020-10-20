@@ -33,3 +33,4 @@ export { loop } from './lib/loop';
 export { wait } from './lib/wait';
 export { dispatch } from './lib/dispatch';
 export { link } from './lib/link';
+export { trap } from './lib/trap';
