@@ -23,4 +23,4 @@ export { dirWatcher } from './dirWatcher';
 export { scan as dirScanner } from './dirScanner';
 export { vfsLoader } from './virtualFileSystemLoader';
 export { vmLoader } from './virtualMachineLoader';
-export { webpackCompilerFactory } from './webpackLoader';
+export { webpackCompiler as webpackCompilerFactory } from './webpackLoader';
