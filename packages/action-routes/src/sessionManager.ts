@@ -5,9 +5,7 @@ let sessionChecksum: { [id: string]: string } = {};
 let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};
 let sessionLastUpdate: { [id: string]: number } = {};
 
-// export function _getVariants() {
-//   // How to generate the variant?
-// }
+let staticSPACodes: { [id: string]: string } = {};
 
 export function joinSession(
   id: string,

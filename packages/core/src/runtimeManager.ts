@@ -1,3 +1,5 @@
+import { generate } from 'shortid';
+
 import {
   IRuntimeObject,
   IRuntimeFunc,
@@ -15,6 +17,7 @@ let runtimes: {
 let actions: {
   [key: string]: IRuntimeFunc
 } = {};
+let entityRegistrationMap: { [key: string]: string[] } = {};
 
 export function loadRuntime(
   runtime: IRuntimeObject,
@@ -81,4 +84,36 @@ export async function runRuntime(
 ) {
   const { type, args } = runtimes[tag][name];
   return await runAction(type, args, payload, variants);
+}
+
+export function summonEntity(
+  contextName: string, id: string = generate()
+): string {
+  if (typeof entityRegistrationMap[id] === 'undefined') {
+    entityRegistrationMap[id] = [contextName];
+  } else {
+    entityRegistrationMap[id].push(contextName);
+  }
+  return id;
+}
+
+export function killEntity(contextName: string, id: string) {
+  if (typeof entityRegistrationMap[id] !== 'undefined') {
+    if (entityRegistrationMap[id].indexOf(contextName) >= 0) {
+      if (entityRegistrationMap[id].length === 1) {
+        delete entityRegistrationMap[id];
+      } else {
+        entityRegistrationMap[id] =
+          entityRegistrationMap[id].filter(n => n !== contextName);
+      }
+    }
+  }
+}
+
+export function getEntityStatus(id: string) {
+  if (typeof entityRegistrationMap[id] === 'undefined') {
+    return [];
+  } else {
+    return entityRegistrationMap[id];
+  }
 }
