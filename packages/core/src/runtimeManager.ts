@@ -91,7 +91,7 @@ export function summonEntity(
 ): string {
   if (typeof entityRegistrationMap[id] === 'undefined') {
     entityRegistrationMap[id] = [contextName];
-  } else {
+  } else if (entityRegistrationMap[id].indexOf(contextName) < 0) {
     entityRegistrationMap[id].push(contextName);
   }
   return id;

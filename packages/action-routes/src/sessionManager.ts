@@ -5,7 +5,8 @@ let sessionChecksum: { [id: string]: string } = {};
 let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};
 let sessionLastUpdate: { [id: string]: number } = {};
 
-let staticSPACodes: { [id: string]: string } = {};
+let staticComponentCodes: { [id: string]: string } = {};
+// TODO - Move to Pneumatic.
 
 export function joinSession(
   id: string,
