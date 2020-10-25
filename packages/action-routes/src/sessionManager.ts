@@ -1,66 +1,82 @@
 import { generate } from 'shortid';
-import { from, merge } from "seamless-immutable";
+import { Writable } from 'stream';
 
-let sessionChecksum: { [id: string]: string } = {};
-let sessionState: { [id: string]: Readonly<{ [key: string]: any }> } = {};
-let sessionLastUpdate: { [id: string]: number } = {};
+interface ICookie {
+  value: string,
+  maxAge?: number,
+  expires?: Date,
+  path?: string,
+  domain?: string,
+  secure?: boolean,
+  httpOnly?: boolean,
+  sameSite?: boolean,
+  signed?: boolean
+}
 
-let staticComponentCodes: { [id: string]: string } = {};
-// TODO - Move to Pneumatic.
+export interface ISessionInfo {
+  ip: string,
+  protocol: string,
+  lastUpdate?: number,
+  alive?: boolean,
+  host: string,
+  path: string,
+  query: { [key: string]: string },
+  cookies: {
+    [key: string]: ICookie
+  }
+}
+
+let sessionInfo: { [id: string]: ISessionInfo } = {};
+let sessionStream: { [id: string]: Writable } = {};
 
 export function joinSession(
-  id: string,
-  initState?: { [key: string]: any }
+  info: ISessionInfo,
+  stream: Writable,
+  modifier?: {} // TODO - Such as cookies, heads.
 ): string {
-  const checksum = generate();
-  sessionChecksum[id] = checksum;
-  sessionState[id] = from(initState || {});
-  sessionLastUpdate[id] = Date.now();
-  return checksum;
+  const id = generate();
+  sessionInfo[id] = info;
+  sessionInfo[id].lastUpdate = Date.now();
+  sessionInfo[id].alive = true;
+  sessionStream[id] = stream;
+  return id;
 }
 
-export function verifySession(id: string, checksum: string): boolean {
-  return sessionChecksum[id] === checksum;
-}
-
-export function getSessionState(id: string): Readonly<{ [key: string]: any }> {
-  if (typeof sessionState[id] === 'undefined') {
+export function getCookies(id: string): Readonly<{ [key: string]: ICookie }> {
+  if (typeof sessionInfo[id] === 'undefined') {
     throw new Error(`Cannot find the session '${id}'.`);
   }
-  return sessionState[id];
+  return sessionInfo[id].cookies;
 }
 
-export function setSessionState(
-  id: string,
-  state: Readonly<{ [key: string]: any }>
-): void {
-  if (typeof sessionState[id] === 'undefined') {
-    throw new Error(`Cannot find the session '${id}'.`);
-  }
-  sessionState[id] = merge(sessionState[id], state);
-  sessionLastUpdate[id] = Date.now();
-}
-
-export function getSessionList(): { [id: string]: string } {
-  return sessionChecksum;
+export function getSessionList(): string[] {
+  return Object.keys(sessionInfo);
 }
 
 export function getSessionAge(id: string): number {
-  if (typeof sessionLastUpdate[id] === 'undefined') {
+  if (typeof sessionInfo[id] === 'undefined') {
     throw new Error(`Cannot find the session '${id}'.`);
   }
-  return Date.now() - sessionLastUpdate[id];
+  return Date.now() - sessionInfo[id].lastUpdate;
 }
 
+// Cut down the connection to the client, but keep the session exist.
 export function leaveSession(id: string): void {
-  if (typeof sessionChecksum[id] !== 'undefined') {
-    delete sessionChecksum[id];
+  if (typeof sessionStream[id] !== 'undefined') {
+    delete sessionStream[id];
   }
-  if (typeof sessionState[id] !== 'undefined') {
-    delete sessionState[id];
+  if (typeof sessionInfo[id] !== 'undefined') {
+    sessionInfo[id].alive = false;
   }
-  if (typeof sessionLastUpdate[id] !== 'undefined') {
-    delete sessionLastUpdate[id];
+}
+
+// Delete the session, including the entity itself.
+export function killEntity(id: string): void {
+  if (typeof sessionStream[id] !== 'undefined') {
+    delete sessionStream[id];
+  }
+  if (typeof sessionInfo[id] !== 'undefined') {
+    delete sessionInfo[id];
   }
 }
 
