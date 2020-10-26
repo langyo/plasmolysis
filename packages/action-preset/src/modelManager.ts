@@ -59,7 +59,7 @@ export function bindComponent(
     }), {})
   }), document.getElementById(elementID));
   appendListener(() => {
-    render(createElement(components[modelType] as any, , {
+    render(createElement(components[modelType] as any, {
       ...getState(modelID),
       ...getGlobalState(),
       ...getRuntimeList(

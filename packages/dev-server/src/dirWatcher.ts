@@ -2,34 +2,35 @@ import { watch as watchFiles } from 'chokidar';
 import * as realFs from 'fs';
 import { join } from 'path';
 
-export interface INode {
-  [key: string]: string | INode
-};
-
-export function dirScanner(path: string): INode {
-  let nodes: INode = {};
-  for (const fileName of realFs.readdirSync(path)) {
-    if (realFs.statSync(join(path, fileName)).isDirectory()) {
-      nodes[fileName.substr(fileName.lastIndexOf('.'))] =
-        dirScanner(join(path, fileName));
+export function dirScanner(path: string = process.cwd()) {
+  function dfs(path: string, route: string = '.') {
+    let nodes: { path: string, route: string }[] = [];
+    for (const fileName of realFs.readdirSync(path)) {
+      if (realFs.statSync(join(path, fileName)).isDirectory()) {
+        nodes.concat(dfs(join(path, fileName), `${route}.${fileName}`));
+      }
+      else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName)) {
+        nodes.push({ path: join(path, fileName), route: route.substr(1) });
+      }
     }
-    else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName)) {
-      nodes[fileName.substr(fileName.lastIndexOf('.'))] =
-        join(path, fileName);
-    }
+    return nodes;
   }
-  return nodes;
+  return Object.keys(realFs.readdirSync(path)).reduce((obj, key) => ({
+    ...obj,
+    [key]: dfs(join(path, `./${key}`))
+  }), {});
 }
 
 export async function dirWatcher(
-  path: string, callback: (diffPaths: string[]) => Promise<void>
+  path: string,
+  callback: (diffPaths: { path: string, type: string }[]) => Promise<void>
 ): Promise<void> {
   // The flag that the timer is running.
   let delayWaiting: boolean = false;
   // The flag that the files were changed when the timer was running.
   let changedDuringDelay: boolean = false;
   // The list for the files that have been changed.
-  let diffList: string[] = [];
+  let diffList: { path: string, type: string }[] = [];
 
   async function delayUpdate() {
     delayWaiting = true;
@@ -47,13 +48,13 @@ export async function dirWatcher(
 
   watchFiles(path, {
     ignored: /(node_modules)|(\.git)/
-  }).on('all', async (_event, path) => {
+  }).on('all', async (type, path) => {
     if (delayWaiting) {
       changedDuringDelay = true;
-      diffList.push(path);
+      diffList.push({ type, path });
     }
     else {
-      diffList.push(path);
+      diffList.push({ type, path });
       await delayUpdate();
     }
   });
