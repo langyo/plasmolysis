@@ -1,28 +1,4 @@
 import { watch as watchFiles } from 'chokidar';
-import * as realFs from 'fs';
-import { join } from 'path';
-
-export function dirScanner(path: string = process.cwd()) {
-  function dfs(path: string, route: string = '') {
-    let nodes: { path: string, route: string }[] = [];
-    for (const fileName of realFs.readdirSync(path)) {
-      if (realFs.statSync(join(path, fileName)).isDirectory()) {
-        nodes.concat(dfs(join(path, fileName), `${route}.${fileName}`));
-      }
-      else if (/(\.js)|(\.mjs)|(\.ts)|(\.jsx)|(\.tsx)$/.test(fileName)) {
-        nodes.push({
-          path: join(path, fileName),
-          route: /^(.+)(\.[a-z]+)$/.exec(`${route}.${fileName}`.substr(1))[1]
-        });
-      }
-    }
-    return nodes;
-  }
-  return realFs.readdirSync(path).reduce((obj, key) => ({
-    ...obj,
-    [key]: dfs(join(path, `./${key}`))
-  }), {});
-}
 
 export async function dirWatcher(
   path: string,
@@ -58,10 +34,9 @@ export async function dirWatcher(
       return;
     }
 
-    const route = /^(.+)(\.[a-z]+)$/.exec(filePath
-      .substr(path.length + 1)
+    const route = /^\.?(.+)(\.[a-z]+)$/.exec(filePath
+      .substr(path.length)
       .split(/[\\\/]/)
-      .splice(1)
       .join('.'))[1];
 
     if (delayWaiting) {
