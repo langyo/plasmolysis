@@ -3,7 +3,9 @@ import { watch as watchFiles } from 'chokidar';
 export async function dirWatcher(
   path: string,
   callback: (diffPaths: {
-    path: string, type: string, route: string
+    path: string,
+    type: 'add' | 'change' | 'unlink',
+    route: string
   }[]) => Promise<void>
 ): Promise<void> {
   // The flag that the timer is running.
@@ -11,7 +13,11 @@ export async function dirWatcher(
   // The flag that the files were changed when the timer was running.
   let changedDuringDelay: boolean = false;
   // The list for the files that have been changed.
-  let diffList: { path: string, type: string, route: string }[] = [];
+  let diffList: {
+    path: string,
+    type: 'add' | 'change' | 'unlink',
+    route: string
+  }[] = [];
 
   async function delayUpdate() {
     delayWaiting = true;
@@ -42,12 +48,12 @@ export async function dirWatcher(
     if (delayWaiting) {
       changedDuringDelay = true;
       diffList.push({
-        type, path: filePath, route
+        type: type as any, path: filePath, route
       });
     }
     else {
       diffList.push({
-        type, path: filePath, route
+        type: type as any, path: filePath, route
       });
       await delayUpdate();
     }
