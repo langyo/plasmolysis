@@ -26,6 +26,11 @@ const packageNames = [
   'create-app',
   'dev-server'
 ];
+const linkPackageNames = [
+  'action-preset',
+  'action-routes',
+  'core'
+]
 
 export const clean = series.apply(undefined, packageNames.map(
   name => () => del(`./packages/${name}/dist`))
@@ -61,7 +66,7 @@ export const install = process.env.CI ?
 export const link = async () => {
   // Scan all the packages and get the packages' names.
   let deps: { [key: string]: string } = {};
-  for (const pkg of packageNames) {
+  for (const pkg of linkPackageNames) {
     if (await access(resolve(`./packages/${pkg}/package.json`))) {
       deps[JSON.parse(
         await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
