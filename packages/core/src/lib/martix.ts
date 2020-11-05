@@ -1,5 +1,6 @@
 import { IRuntimeObject } from '../index';
 import { runAction, registerAction } from '../runtimeManager';
+import { actionEnterEvent, actionLeaveEvent } from '../logManager';
 
 export function martix(
   mapper: (
@@ -23,19 +24,26 @@ registerAction(
     const mapped = mapper(payload, variants);
     if (typeof mapped[key] !== 'undefined') {
       for (const name of Object.keys(mapped).filter(n => n !== key)) {
-        setTimeout(() => runAction(
-          mapped[name].type, mapped[name].args, payload, variants
-        ), 0);
+        setTimeout(() => {
+          actionEnterEvent(mapped[name].type, variants.entityId, payload);
+          runAction(mapped[name].type, mapped[name].args, payload, variants);
+          actionLeaveEvent(mapped[name].type, variants.entityId, payload);
+        }, 0);
       }
-      return await runAction(
+      actionEnterEvent(mapped[key].type, variants.entityId, payload);
+      const ret = await runAction(
         mapped[key].type, mapped[key].args, payload, variants
       );
+      actionLeaveEvent(mapped[key].type, variants.entityId, payload);
+      return ret;
     }
     else {
       for (const name of Object.keys(mapped)) {
-        setTimeout(() => runAction(
-          mapped[name].type, mapped[name].args, payload, variants
-        ), 0);
+        setTimeout(() => {
+          actionEnterEvent(mapped[name].type, variants.entityId, payload);
+          runAction(mapped[name].type, mapped[name].args, payload, variants);
+          actionLeaveEvent(mapped[name].type, variants.entityId, payload);
+        }, 0);
       }
       return payload;
     }

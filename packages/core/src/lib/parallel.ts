@@ -1,5 +1,6 @@
 import { IRuntimeObject } from '../index';
 import { runAction, registerAction } from '../runtimeManager';
+import { actionEnterEvent, actionLeaveEvent } from '../logManager';
 
 export function parallel(...tasks: IRuntimeObject[]): IRuntimeObject;
 export function parallel(
@@ -41,9 +42,11 @@ registerAction(
         if (typeof task !== 'undefined') {
           setTimeout(async () => {
             try {
+              actionEnterEvent(task.type, variants.entityId, payload);
               reduced = reducer(await runAction(
                 task.type, task.args, payload, variants
               ), reduced);
+              actionLeaveEvent(task.type, variants.entityId, payload);
             } catch (e) {
               reject(e);
             }
