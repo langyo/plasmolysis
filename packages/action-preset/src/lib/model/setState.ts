@@ -1,12 +1,12 @@
 import { IRuntimeObject } from 'nickelcat';
 import { registerAction } from 'nickelcat/runtimeManager';
-import { IGetters } from '../index';
-import { getModelList } from '../modelManager';
+import { IGetters } from '../../index';
+import { getModelList } from '../../modelManager';
 import {
   getGlobalState,
   getState,
   setState as wrappedSetState
-} from '../stateManager';
+} from '../../stateManager';
 import { getPageType } from 'nickelcat-action-routes/routeManager';
 
 export function setState(

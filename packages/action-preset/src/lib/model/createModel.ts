@@ -1,11 +1,11 @@
 import { IRuntimeObject } from 'nickelcat';
 import { registerAction } from 'nickelcat/runtimeManager';
-import { IGetters } from '../index';
-import { getModelList } from '../modelManager';
+import { IGetters } from '../../index';
+import { getModelList } from '../../modelManager';
 import {
   getGlobalState,
   getState
-} from '../stateManager';
+} from '../../stateManager';
 import { getPageType } from 'nickelcat-action-routes/routeManager';
 import { generate } from 'shortid';
 

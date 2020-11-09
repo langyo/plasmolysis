@@ -7,10 +7,10 @@ export interface IGetters {
   modelList: { [modelType: string]: string[] }
 };
 
-export { createModel } from './lib/createModel';
-export { destoryModel } from './lib/destoryModel';
-export { setGlobalState } from './lib/setGlobalState';
-export { setState } from './lib/setState';
+export { createModel } from './lib/model/createModel';
+export { destoryModel } from './lib/model/destoryModel';
+export { setGlobalState } from './lib/model/setGlobalState';
+export { setState } from './lib/model/setState';
 
 export * as modelManager from './modelManager';
 export * as stateManager from './stateManager';
