@@ -88,3 +88,21 @@ export function registerHook(
     afterHook[target].push(callback);
   }
 }
+
+export function transferArgs(target: string, args: any[]) {
+  if (typeof beforeHook[target] === 'undefined') {
+    return args;
+  }
+  return beforeHook[target].reduce(
+    (args, callback) => callback(args), args
+  );
+}
+
+export function transferRet(target: string, ret: any) {
+  if (typeof afterHook[target] === 'undefined') {
+    return ret;
+  }
+  return afterHook[target].reduce(
+    (ret, callback) => callback(ret), ret
+  );
+}
