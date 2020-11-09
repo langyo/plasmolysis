@@ -8,6 +8,20 @@ interface ILog {
 };
 let logs: ILog[] = [];
 
+let timeoutObjStorage: NodeJS.Timeout;
+let threshold: number = 0;
+let exportCallbackFunc: (logs: ILog[]) => Promise<void>;
+
+function exportCallback() {
+  exportCallbackFunc(logs.splice(0, logs.length));
+}
+
+function checkThreshold() {
+  if (threshold > 0 && logs.length >= threshold) {
+    exportCallback();
+  }
+}
+
 export function actionEnterEvent(
   actionType: string, entityId: string,
   payload: { [key: string]: string }
@@ -16,6 +30,7 @@ export function actionEnterEvent(
     time: Date.now(), level: 'info', type: 'enter',
     entityId, actionType, payload
   });
+  checkThreshold();
 }
 
 export function actionLeaveEvent(
@@ -26,6 +41,7 @@ export function actionLeaveEvent(
     time: Date.now(), level: 'info', type: 'leave',
     entityId, actionType, payload
   });
+  checkThreshold();
 }
 
 export function actionCrashEvent(
@@ -36,37 +52,44 @@ export function actionCrashEvent(
     time: Date.now(), level: 'info', type: 'crash',
     entityId, actionType, payload
   });
+  checkThreshold();
 }
 
 export function getAllLogs(): ILog[] {
   return logs.splice(0, logs.length);
 }
 
-let taskTimer: NodeJS.Timeout;
-
 export function registerExportTask(
-  duration: number,
   callback: (logs: ILog[]) => Promise<void>,
-  reportLevel: 'info' | 'warn' | 'error' = 'info'
+  reportLevel: 'info' | 'warn' | 'error' = 'info',
+  { duration, maxCount }: { duration?: number, maxCount?: number }
 ) {
-  if (typeof taskTimer !== 'undefined') {
-    clearTimeout(taskTimer);
+  if (typeof timeoutObjStorage !== 'undefined') {
+    clearTimeout(timeoutObjStorage);
   }
-
-  taskTimer = setTimeout(async () => {
+  exportCallbackFunc = async () => {
     await callback(logs.splice(0, logs.length)
       .filter(({ level }) =>
         reportLevel === 'warn' ? (level === 'warn' || level === 'error') :
           reportLevel === 'error' ? (level === 'error') : true
       )
     );
-  }, duration);
+  };
+
+  if (typeof duration === 'number' && duration > 0) {
+    // Timing.
+    timeoutObjStorage = setTimeout(() => exportCallback(), duration);
+  }
+  if (typeof maxCount === 'number' && maxCount > 0) {
+    // Setting thresholds.
+    threshold = maxCount;
+  }
 }
 
 export function registerCleanTask(duration: number) {
-  if (typeof taskTimer !== 'undefined') {
-    clearTimeout(taskTimer);
+  if (typeof timeoutObjStorage !== 'undefined') {
+    clearTimeout(timeoutObjStorage);
   }
 
-  taskTimer = setTimeout(() => logs.splice(0, logs.length), duration);
+  timeoutObjStorage = setTimeout(() => logs.splice(0, logs.length), duration);
 }
