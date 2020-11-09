@@ -10,7 +10,6 @@ import 'nickelcat-action-routes/context';
 
 const platform: IPlatforms = typeof window !== 'undefined' ? 'js.browser' : 'js.node';
 let configs: { [key: string]: any } = {};
-let variantGetters: { [key: string]: (entityID: string) => { [key: string]: any } } = {};
 
 export function getPlatform(): IPlatforms {
   return platform;
@@ -38,6 +37,10 @@ export function setConfig(
   }
 }
 
+let variantGetters: {
+  [key: string]: (entityID: string) => { [key: string]: any }
+} = {};
+
 export function registerVariantGetter(
   contextName: string,
   getter: (entityID: string) => { [key: string]: any }
@@ -47,10 +50,41 @@ export function registerVariantGetter(
 
 export function getVariants(entityID: string) {
   let ret = {};
-  for(const contextName of getEntityStatus(entityID)) {
+  for (const contextName of getEntityStatus(entityID)) {
     if (typeof variantGetters[contextName] !== 'undefined') {
       ret = { ...ret, ...variantGetters[contextName](entityID) };
     }
   }
   return ret;
+}
+
+let beforeHook: {
+  [target: string]: ((args: any[]) => any)[]
+} = {};
+let afterHook: {
+  [target: string]: ((ret: any) => any)[]
+} = {};
+
+export function registerHook(
+  beforeOrAfter: 'before', target: string, callback: (args: any[]) => any
+): void;
+export function registerHook(
+  beforeOrAfter: 'after', target: string, callback: (ret: any) => any
+): void;
+export function registerHook(
+  beforeOrAfter: 'before' | 'after',
+  target: string,
+  callback: ((args: any[]) => any) | ((ret: any) => any)
+): void {
+  if (beforeOrAfter === 'before') {
+    if (typeof beforeHook[target] === 'undefined') {
+      beforeHook[target] = [];
+    }
+    beforeHook[target].unshift(callback);
+  } else {
+    if (typeof afterHook[target] === 'undefined') {
+      afterHook[target] = [];
+    }
+    afterHook[target].push(callback);
+  }
 }
