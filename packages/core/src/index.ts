@@ -26,7 +26,6 @@ export * as glueManager from './guleManager';
 
 export { series } from './lib/series';
 export { parallel } from './lib/parallel';
-export { martix } from './lib/martix';
 export { sideonly } from './lib/sideonly';
 export { test } from './lib/test';
 export { loop } from './lib/loop';
