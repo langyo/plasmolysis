@@ -15,7 +15,10 @@ let runtimes: {
   }
 } = {};
 let actions: {
-  [key: string]: IRuntimeFunc
+  [actionName: string]: IRuntimeFunc
+} = {};
+let actionPlatformTags: {
+  [actionName: string]: string[]
 } = {};
 let entityRegistrationMap: { [key: string]: string[] } = {};
 
@@ -40,6 +43,11 @@ export function registerAction(
   else {
     actions[type] = () => async payload => payload
   }
+
+  if (typeof actionPlatformTags[type] === 'undefined') {
+    actionPlatformTags[type] = [];
+  }
+  actionPlatformTags[type].push(platform);
 }
 
 export function getRuntimeList(tag: string): string[] {
@@ -60,6 +68,13 @@ export function hasRuntime(
   } else {
     return true;
   }
+}
+
+export function hasAction(
+  type: string, platform: IPlatforms
+): boolean {
+  return typeof actionPlatformTags[type] !== 'undefined' &&
+    actionPlatformTags[type].indexOf(platform) >= 0;
 }
 
 export async function runAction(
