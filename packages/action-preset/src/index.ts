@@ -7,6 +7,25 @@ export interface IGetters {
   modelList: { [modelType: string]: string[] }
 };
 
+export interface IInitArgs {
+  isServerRender: boolean,
+  url: {
+    path: string,
+    query: string,
+    fragment: string
+  },
+  ip: string,
+  cookie: {
+    [key: string]: string
+  },
+  callerInfo?: {
+    callerPath: string,
+    extraData: {
+      [key: string]: string
+    }
+  }
+};
+
 export { createModel } from './lib/model/createModel';
 export { destoryModel } from './lib/model/destoryModel';
 export { setGlobalState } from './lib/model/setGlobalState';

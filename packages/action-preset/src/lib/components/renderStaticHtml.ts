@@ -1,7 +1,9 @@
 import { IRuntimeObject } from 'nickelcat';
+import { IInitArgs } from '../../index';
 
 export function renderStaticHtml(
-  func: (...args: any[]) => string
+  init: (args: IInitArgs) => { [key: string]: any },
+  component: (...args: any[]) => string
 ): IRuntimeObject {
-  return { type: 'preset.renderStaticString', args: { func } }
+  return { type: 'preset.renderStaticString', args: { init, component } }
 }

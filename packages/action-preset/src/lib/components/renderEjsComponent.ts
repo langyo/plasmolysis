@@ -1,7 +1,9 @@
 import { IRuntimeObject } from 'nickelcat';
+import { IInitArgs } from '../../index';
 
 export function renderEjsComponent(
-  func: (...args: any[]) => string
+  init: (args: IInitArgs) => { [key: string]: any },
+  component: (...args: any[]) => string
 ): IRuntimeObject {
-  return { type: 'preset.renderEjsComponent', args: { func } }
+  return { type: 'preset.renderEjsComponent', args: { init, component } }
 }

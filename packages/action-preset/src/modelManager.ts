@@ -9,6 +9,8 @@ import {
   getGlobalState,
   appendListener
 } from './stateManager';
+import { IInitArgs } from './index';
+
 import { createElement } from 'react';
 import { renderToString, hydrate, render } from 'react-dom';
 
@@ -17,7 +19,8 @@ let bindRenderTasks: { [id: string]: string } = {};
 
 export function storageComponent(
   modelType: string,
-  component: IWebClientComponentType
+  component: IWebClientComponentType,
+  initFunc: (args: IInitArgs) => { [key: string]: any }
 ): void {
   components[modelType] = component;
   // TODO - Deal the render tasks.
