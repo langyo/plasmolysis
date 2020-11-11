@@ -2,7 +2,7 @@ import {
   IPlatforms
 } from './index';
 
-import { getEntityStatus } from './runtimeManager';
+import { getEntityDependencyStatus } from './runtimeManager';
 import './guleManager';
 
 import 'nickelcat-action-preset';
@@ -23,7 +23,7 @@ export function getConfig(context: string): Readonly<{ [key: string]: any }> {
   }
 }
 
-export function setConfig(
+export function pushConfig(
   context: string,
   value: { [key: string]: any }
 ): void {
@@ -50,7 +50,7 @@ export function registerVariantGetter(
 
 export function getVariants(entityID: string) {
   let ret = {};
-  for (const contextName of getEntityStatus(entityID)) {
+  for (const contextName of getEntityDependencyStatus(entityID)) {
     if (typeof variantGetters[contextName] !== 'undefined') {
       ret = { ...ret, ...variantGetters[contextName](entityID) };
     }
@@ -105,4 +105,14 @@ export function transferRet(target: string, ret: any) {
   return afterHook[target].reduce(
     (ret, callback) => callback(ret), ret
   );
+}
+
+export function registerContextInit(
+  context: string,
+  callback: (configs: { [config: string]: any }) => void
+) {
+  if (typeof configs[context] === 'undefined') {
+    throw new Error(`Cannot find the configs for the context '${context}'`);
+  }
+  callback(configs[context]);
 }

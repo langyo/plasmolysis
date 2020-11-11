@@ -9,18 +9,9 @@ import {
   getPlatform
 } from './contextManager';
 
-let runtimes: {
-  [tag: string]: {
-    [actionName: string]: IRuntimeObject
-  }
-} = {};
-let actions: {
-  [actionName: string]: IRuntimeFunc
-} = {};
-let actionPlatformTags: {
-  [actionName: string]: string[]
-} = {};
-let entityRegistrationMap: { [key: string]: string[] } = {};
+let runtimes: { [tag: string]: { [actionName: string]: IRuntimeObject } } = {};
+let actions: { [actionName: string]: IRuntimeFunc } = {};
+let actionPlatformTags: { [actionName: string]: string[] } = {};
 
 export function loadRuntime(
   runtime: IRuntimeObject,
@@ -101,8 +92,19 @@ export async function runRuntime(
   return await runAction(type, args, payload, variants);
 }
 
+let entityRegistrationMap: { [entity: string]: string[] } = {};
+let entityStorage: {
+  [entity: string]: { [context: string]: { [key: string]: string | number } }
+} = {};
+
 export function summonEntity(
-  contextName: string, id: string = generate()
+  contextName: string, id: string = generate(),
+  sourceContextConfig?: {
+    name: string,
+    variants: {
+      [key: string]: any
+    }
+  }
 ): string {
   if (typeof entityRegistrationMap[id] === 'undefined') {
     entityRegistrationMap[id] = [contextName];
@@ -125,10 +127,39 @@ export function killEntity(contextName: string, id: string) {
   }
 }
 
-export function getEntityStatus(id: string) {
-  if (typeof entityRegistrationMap[id] === 'undefined') {
+export function getEntityDependencyStatus(entityId: string) {
+  if (typeof entityRegistrationMap[entityId] === 'undefined') {
     return [];
   } else {
-    return entityRegistrationMap[id];
+    return entityRegistrationMap[entityId];
   }
+}
+
+export function getEntityStorage(entityId: string, context: string) {
+  if (typeof entityStorage[entityId] === 'undefined') {
+    throw new Error(`Unknown entity '${entityId}'.`);
+  }
+  if (typeof entityStorage[entityId][context] === 'undefined') {
+    return {};
+  }
+  return entityStorage[entityId][context];
+}
+
+export function setEntityStorage(entityId: string, context: string, content: {
+  [key: string]: string | number
+}) {
+  if (typeof entityStorage[entityId] === 'undefined') {
+    throw new Error(`Unknown entity '${entityId}'.`);
+  }
+  if (typeof entityStorage[entityId][context] === 'undefined') {
+    entityStorage[entityId][context] = { ...content };
+  } else {
+    entityStorage[entityId][context] = {
+      ...entityStorage[entityId][context], ...content
+    };
+  }
+}
+
+export function getEntityStorageArchive() {
+  return { ...entityStorage };
 }

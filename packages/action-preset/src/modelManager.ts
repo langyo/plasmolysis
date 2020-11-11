@@ -1,8 +1,11 @@
-import { IWebClientComponentType } from 'nickelcat';
+import { IRuntimeObject, IWebClientComponentType } from 'nickelcat';
 import {
   summonEntity,
+  killEntity,
   getRuntimeList,
-  runRuntime
+  runRuntime,
+  getEntityStorage,
+  setEntityStorage
 } from 'nickelcat/runtimeManager';
 import {
   getState,
@@ -14,14 +17,14 @@ import { IInitArgs } from './index';
 import { createElement } from 'react';
 import { renderToString, hydrate, render } from 'react-dom';
 
+// TODO - Use the runtime manager's entity storage.
 let components: { [key: string]: IWebClientComponentType } = {};
 let bindRenderTasks: { [id: string]: string } = {};
 
 export function storageComponent(
-  modelType: string,
-  component: IWebClientComponentType,
-  initFunc: (args: IInitArgs) => { [key: string]: any }
-): void {
+  modelType: string, {
+    type, args: { component, init }
+  }: IRuntimeObject): void {
   components[modelType] = component;
   // TODO - Deal the render tasks.
 };
@@ -31,7 +34,8 @@ export function getModelList(): string[] {
 }
 
 export function preRenderComponent(
-  type: string
+  type: string,
+  initArgs: IInitArgs
 ): string {
   return renderToString(createElement(components[type] as any, {
     // TODO - Write the initialize state from the controller.

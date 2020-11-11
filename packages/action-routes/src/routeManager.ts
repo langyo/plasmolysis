@@ -1,10 +1,18 @@
 import {
+  getEntityDependencyStatus,
+  getEntityStorage,
+  setEntityStorage
+} from 'nickelcat/runtimeManager';
+import {
   getModelIDList,
   createModel,
   destoryModel
 } from 'nickelcat-action-preset/stateManager';
 
+// TODO - Use the runtime manager's entity storage.
 let title: string = '';
+let pageType: string = '';
+let pageID: string = '';
 
 export function loadPage(pageType: string, initState: { [key: string]: any }): void {
   if (typeof getModelIDList()['$page'] !== 'undefined') {
