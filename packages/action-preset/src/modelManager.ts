@@ -1,12 +1,14 @@
 import { IRuntimeObject, IWebClientComponentType } from 'nickelcat';
 import {
-  summonEntity,
-  killEntity,
   getRuntimeList,
   runRuntime,
+} from 'nickelcat/runtimeManager';
+import {
+  summonEntity,
+  killEntity,
   getEntityStorage,
   setEntityStorage
-} from 'nickelcat/runtimeManager';
+} from 'nickelcat/entityManager';
 import {
   getState,
   getGlobalState,

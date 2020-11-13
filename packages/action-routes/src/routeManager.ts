@@ -2,7 +2,7 @@ import {
   getEntityDependencyStatus,
   getEntityStorage,
   setEntityStorage
-} from 'nickelcat/runtimeManager';
+} from 'nickelcat/entityManager';
 import {
   getModelIDList,
   createModel,

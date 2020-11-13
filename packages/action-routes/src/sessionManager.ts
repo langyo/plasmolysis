@@ -71,7 +71,7 @@ export function leaveSession(id: string): void {
 }
 
 // Delete the session, including the entity itself.
-export function killEntity(id: string): void {
+export function killSession(id: string): void {
   if (typeof sessionStream[id] !== 'undefined') {
     delete sessionStream[id];
   }

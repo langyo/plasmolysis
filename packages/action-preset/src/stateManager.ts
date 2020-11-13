@@ -1,8 +1,8 @@
+import { runRuntime } from 'nickelcat/runtimeManager';
 import {
-  runRuntime,
   getEntityStorage,
   setEntityStorage
-} from 'nickelcat/runtimeManager';
+} from 'nickelcat/entityManager';
 
 export interface IGlobalState {
   [key: string]: unknown

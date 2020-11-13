@@ -2,7 +2,9 @@ import {
   IPlatforms
 } from './index';
 
-import { getEntityDependencyStatus } from './runtimeManager';
+import './runtimeManager';
+import './actionManager';
+import { getEntityDependencyStatus } from './entityManager';
 import './guleManager';
 
 import 'nickelcat-action-preset';
