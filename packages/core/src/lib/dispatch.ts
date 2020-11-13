@@ -1,5 +1,6 @@
 import { IRuntimeObject } from '../index';
-import { hasRuntime, runRuntime, registerAction } from '../runtimeManager';
+import { hasRuntime, runRuntime } from '../runtimeManager';
+import { registerAction } from '../actionManager';
 
 export function dispatch(
   path: string

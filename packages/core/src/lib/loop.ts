@@ -1,5 +1,5 @@
 import { IRuntimeObject } from '../index';
-import { runAction, registerAction } from '../runtimeManager';
+import { runAction, registerAction } from '../actionManager';
 import { actionEnterEvent, actionLeaveEvent } from '../logManager';
 
 export function loop(

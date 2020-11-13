@@ -1,5 +1,5 @@
 import { IRuntimeObject } from '../index';
-import { registerAction } from '../runtimeManager';
+import { registerAction } from '../actionManager';
 
 export function wait(length: number): IRuntimeObject {
   return {

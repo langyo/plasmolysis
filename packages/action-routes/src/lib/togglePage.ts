@@ -1,5 +1,5 @@
 import { IRuntimeObject } from 'nickelcat';
-import { registerAction } from 'nickelcat/runtimeManager';
+import { registerAction } from 'nickelcat/actionManager';
 import { IGetters } from 'nickelcat-action-preset';
 import { getModelList } from 'nickelcat-action-preset/modelManager';
 import {

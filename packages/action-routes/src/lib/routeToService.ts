@@ -1,5 +1,5 @@
 import { IRuntimeObject } from 'nickelcat';
-import { registerAction } from 'nickelcat/runtimeManager';
+import { registerAction } from 'nickelcat/actionManager';
 
 export function routeToService(
   key: string, value: string

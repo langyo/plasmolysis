@@ -1,5 +1,5 @@
 import { IRuntimeObject, IPlatforms } from '../index';
-import { runAction, registerAction } from '../runtimeManager';
+import { runAction, registerAction } from '../actionManager';
 import { getPlatform } from '../contextManager';
 import { actionEnterEvent, actionLeaveEvent } from '../logManager';
 

@@ -1,5 +1,6 @@
 import { IPlatforms, IRuntimeObject } from '../index';
-import { loadRuntime, registerAction } from '../runtimeManager';
+import { loadRuntime } from '../runtimeManager';
+import { registerAction } from '../actionManager';
 import { linkTo } from '../guleManager';
 
 export function link(
