@@ -1,7 +1,6 @@
 import {
-  getEntityDependencyStatus,
-  getEntityStorage,
-  setEntityStorage
+  getVariantsFromContext,
+  setVariantsFromContext
 } from 'nickelcat/entityManager';
 import {
   getModelIDList,

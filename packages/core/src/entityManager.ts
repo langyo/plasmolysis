@@ -1,73 +1,79 @@
 import { generate } from 'shortid';
 
-let entityRegistrationMap: { [entity: string]: string[] } = {};
-let entityStorage: {
-  [entity: string]: { [context: string]: { [key: string]: string | number } }
+let variantGetters: {
+  [key: string]: (entityID: string) => { [key: string]: any }
 } = {};
 
+export function registerVariantGetter(
+  contextName: string,
+  getter: (entityID: string) => { [key: string]: any }
+) {
+  variantGetters[contextName] = getter;
+}
+
+let entityVariants: {
+  [entityID: string]: {
+    [context: string]: { [key: string]: string | number }
+  }
+} = {};
+
+export function getVariants(entityID: string) {
+  return Object.keys(entityVariants[entityID]).reduce((obj, contextName) => ({
+    ...obj,
+    ...entityVariants[entityID][contextName]
+  }), {});
+}
+
 export function summonEntity(
-  contextName: string, id: string = generate(),
-  sourceContextConfig?: {
-    name: string,
-    variants: {
+  id: string = generate(),
+  sourceContextVariants: {
+    [name: string]: {
       [key: string]: any
     }
-  }
+  } = {}
 ): string {
-  if (typeof entityRegistrationMap[id] === 'undefined') {
-    entityRegistrationMap[id] = [contextName];
-  } else if (entityRegistrationMap[id].indexOf(contextName) < 0) {
-    entityRegistrationMap[id].push(contextName);
+  if (typeof entityVariants[id] === 'undefined') {
+    entityVariants[id] = sourceContextVariants;
+  }
+  for (const contextName of Object.keys(variantGetters)) {
+    if (typeof entityVariants[id][contextName] === 'undefined') {
+      entityVariants[id][contextName] = variantGetters[contextName](id);
+    }
   }
   return id;
 }
 
-export function killEntity(contextName: string, id: string) {
-  if (typeof entityRegistrationMap[id] !== 'undefined') {
-    if (entityRegistrationMap[id].indexOf(contextName) >= 0) {
-      if (entityRegistrationMap[id].length === 1) {
-        delete entityRegistrationMap[id];
-      } else {
-        entityRegistrationMap[id] =
-          entityRegistrationMap[id].filter(n => n !== contextName);
-      }
-    }
-  }
+export function killEntity(id: string) {
+  delete entityVariants[id];
 }
 
-export function getEntityDependencyStatus(entityId: string) {
-  if (typeof entityRegistrationMap[entityId] === 'undefined') {
-    return [];
-  } else {
-    return entityRegistrationMap[entityId];
-  }
-}
-
-export function getEntityStorage(entityId: string, context: string) {
-  if (typeof entityStorage[entityId] === 'undefined') {
+export function getVariantsFromContext(entityId: string, context: string) {
+  if (typeof entityVariants[entityId] === 'undefined') {
     throw new Error(`Unknown entity '${entityId}'.`);
   }
-  if (typeof entityStorage[entityId][context] === 'undefined') {
+  if (typeof entityVariants[entityId][context] === 'undefined') {
     return {};
   }
-  return entityStorage[entityId][context];
+  return entityVariants[entityId][context];
 }
 
-export function setEntityStorage(entityId: string, context: string, content: {
-  [key: string]: string | number
-}) {
-  if (typeof entityStorage[entityId] === 'undefined') {
+export function setVariantsFromContext(
+  entityId: string,
+  context: string,
+  content: { [key: string]: string | number }
+) {
+  if (typeof entityVariants[entityId] === 'undefined') {
     throw new Error(`Unknown entity '${entityId}'.`);
   }
-  if (typeof entityStorage[entityId][context] === 'undefined') {
-    entityStorage[entityId][context] = { ...content };
+  if (typeof entityVariants[entityId][context] === 'undefined') {
+    entityVariants[entityId][context] = { ...content };
   } else {
-    entityStorage[entityId][context] = {
-      ...entityStorage[entityId][context], ...content
+    entityVariants[entityId][context] = {
+      ...entityVariants[entityId][context], ...content
     };
   }
 }
 
 export function getEntityStorageArchive() {
-  return { ...entityStorage };
+  return { ...entityVariants };
 }

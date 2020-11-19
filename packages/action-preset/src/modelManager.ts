@@ -6,8 +6,8 @@ import {
 import {
   summonEntity,
   killEntity,
-  getEntityStorage,
-  setEntityStorage
+  getVariantsFromContext,
+  setVariantsFromContext
 } from 'nickelcat/entityManager';
 import {
   getState,
@@ -151,7 +151,7 @@ export function bindComponent(
           }), {})
         }), document.getElementById(elementID));
       }, modelID);
-      summonEntity('modelManager', modelID);
+      summonEntity(modelID);
       return modelID;
 
     // TODO - The other frameworks' support.

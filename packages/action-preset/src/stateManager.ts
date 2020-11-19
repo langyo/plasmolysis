@@ -1,7 +1,7 @@
 import { runRuntime } from 'nickelcat/runtimeManager';
 import {
-  getEntityStorage,
-  setEntityStorage
+  getVariantsFromContext,
+  setVariantsFromContext
 } from 'nickelcat/entityManager';
 
 export interface IGlobalState {

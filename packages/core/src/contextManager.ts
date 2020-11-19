@@ -4,7 +4,7 @@ import {
 
 import './runtimeManager';
 import './actionManager';
-import { getEntityDependencyStatus } from './entityManager';
+import './entityManager';
 import './guleManager';
 
 import 'nickelcat-action-preset';
@@ -37,27 +37,6 @@ export function pushConfig(
       ...value
     };
   }
-}
-
-let variantGetters: {
-  [key: string]: (entityID: string) => { [key: string]: any }
-} = {};
-
-export function registerVariantGetter(
-  contextName: string,
-  getter: (entityID: string) => { [key: string]: any }
-) {
-  variantGetters[contextName] = getter;
-}
-
-export function getVariants(entityID: string) {
-  let ret = {};
-  for (const contextName of getEntityDependencyStatus(entityID)) {
-    if (typeof variantGetters[contextName] !== 'undefined') {
-      ret = { ...ret, ...variantGetters[contextName](entityID) };
-    }
-  }
-  return ret;
 }
 
 let beforeHook: {
