@@ -9,7 +9,7 @@ import {
 } from 'nickelcat-action-preset/stateManager';
 
 // TODO - Use the runtime manager's entity storage.
-let title: string = '';
+let pageTitle: string = '';
 let pageType: string = '';
 let pageID: string = '';
 
@@ -30,10 +30,10 @@ export function getPageType(): string {
 }
 
 export function setPageTitle(currentTitle: string): void {
-  title = currentTitle;
-  document.title = title;
+  pageTitle = currentTitle;
+  document.title = pageTitle;
 }
 
 export function getPageTitle(): string {
-  return title;
+  return pageTitle;
 }

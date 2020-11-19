@@ -4,10 +4,7 @@ import {
   runRuntime,
 } from 'nickelcat/runtimeManager';
 import {
-  summonEntity,
-  killEntity,
-  getVariantsFromContext,
-  setVariantsFromContext
+  summonEntity
 } from 'nickelcat/entityManager';
 import {
   getState,
@@ -24,7 +21,7 @@ let components: {
     renderEngine: 'react' | 'vue' | 'ejs' | 'static'
     comoponent: IWebClientComponentType,
     init: (args: IInitArgs) => { [key: string]: string | number },
-    actions: string[]   // The controllers are saved at the runtime manager.
+    actions: string[]   // The controllers are saved in the runtime manager.
   }
 } = {};
 let bindRenderTasks: { [modelType: string]: string[] } = {};

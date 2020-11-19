@@ -1,8 +1,4 @@
 import { runRuntime } from 'nickelcat/runtimeManager';
-import {
-  getVariantsFromContext,
-  setVariantsFromContext
-} from 'nickelcat/entityManager';
 
 export interface IGlobalState {
   [key: string]: unknown
@@ -15,7 +11,6 @@ interface IModelStateRoute {
 import { generate } from 'shortid';
 import { from, merge, without } from "seamless-immutable";
 
-// TODO - Use the runtime manager's entity storage.
 let globalState: Readonly<{ [key: string]: any }> = from({});
 let modelStateRoute: IModelStateRoute = from({});
 let modelIDMap: { [modelID: string]: string } = from({});

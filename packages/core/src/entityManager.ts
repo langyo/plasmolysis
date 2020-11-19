@@ -18,10 +18,7 @@ let entityVariants: {
 } = {};
 
 export function getVariants(entityID: string) {
-  return Object.keys(entityVariants[entityID]).reduce((obj, contextName) => ({
-    ...obj,
-    ...entityVariants[entityID][contextName]
-  }), {});
+  return entityVariants[entityID];
 }
 
 export function summonEntity(
