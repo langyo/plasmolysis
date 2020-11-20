@@ -3,74 +3,91 @@ import { generate } from 'shortid';
 let variantGetters: {
   [key: string]: (entityID: string) => { [key: string]: any }
 } = {};
+let variantInitializer: {
+  [key: string]: (entityID: string, onlyMemoried?: boolean) => void
+} = {};
+let variantDestructor: {
+  [key: string]: (entityID: string, onlyMemoried?: boolean) => void
+} = {};
+let entitys: string[] = [];
 
 export function registerVariantGetter(
   contextName: string,
-  getter: (entityID: string) => { [key: string]: any }
+  getter: (entityID: string) => { [key: string]: any },
+  initializer: (entityID: string) => void,
+  destructor: (entityID: string) => void,
+  dependentContexts: string[] = []
 ) {
   variantGetters[contextName] = getter;
+
+  let initializerArgs: string[] = [];
+  variantInitializer[contextName] = (
+    entityID: string, onlyMemoried: boolean = false
+  ) => {
+    if (initializerArgs.indexOf(entityID) < 0) {
+      initializerArgs.push(entityID);
+      for (const dep of dependentContexts) {
+        if (typeof variantInitializer[dep] === 'undefined') {
+          throw new Error(`Need the dependent context '${dep}'.`);
+        }
+        variantInitializer[dep](entityID);
+      }
+      if (!onlyMemoried) {
+        initializer(entityID);
+      }
+    }
+  };
+
+  let destructorArgs: string[] = [];
+  variantDestructor[contextName] = (
+    entityID: string, onlyMemoried: boolean = false
+  ) => {
+    if (destructorArgs.indexOf(entityID) < 0) {
+      destructorArgs.push(entityID);
+      if (!onlyMemoried) {
+        destructor(entityID);
+      }
+      for (const dep of dependentContexts.reverse()) {
+        if (typeof variantDestructor[dep] === 'undefined') {
+          throw new Error(`Need the dependent context '${dep}'.`);
+        }
+        variantDestructor[dep](entityID);
+      }
+    }
+  };
 }
 
-let entityVariants: {
-  [entityID: string]: {
-    [context: string]: { [key: string]: string | number }
-  }
-} = {};
-
 export function getVariants(entityID: string) {
-  return entityVariants[entityID];
+  return Object.keys(variantGetters).reduce((obj, name) => ({
+    ...obj,
+    ...variantGetters[name](entityID)
+  }), {});
 }
 
 export function summonEntity(
   id: string = generate(),
-  sourceContextVariants: {
-    [name: string]: {
-      [key: string]: any
-    }
-  } = {}
+  sourceContext?: string
 ): string {
-  if (typeof entityVariants[id] === 'undefined') {
-    entityVariants[id] = sourceContextVariants;
-  }
-  for (const contextName of Object.keys(variantGetters)) {
-    if (typeof entityVariants[id][contextName] === 'undefined') {
-      entityVariants[id][contextName] = variantGetters[contextName](id);
+  for (const context of Object.keys(variantInitializer)) {
+    if (context === sourceContext) {
+      variantInitializer[context](id, true);
+    } else {
+      variantInitializer[context](id);
     }
   }
   return id;
 }
 
-export function killEntity(id: string) {
-  delete entityVariants[id];
-}
-
-export function getVariantsFromContext(entityId: string, context: string) {
-  if (typeof entityVariants[entityId] === 'undefined') {
-    throw new Error(`Unknown entity '${entityId}'.`);
-  }
-  if (typeof entityVariants[entityId][context] === 'undefined') {
-    return {};
-  }
-  return entityVariants[entityId][context];
-}
-
-export function setVariantsFromContext(
-  entityId: string,
-  context: string,
-  content: { [key: string]: string | number }
+export function killEntity(
+  id: string = generate(),
+  sourceContext?: string
 ) {
-  if (typeof entityVariants[entityId] === 'undefined') {
-    throw new Error(`Unknown entity '${entityId}'.`);
+  for (const context of Object.keys(variantDestructor)) {
+    if (context === sourceContext) {
+      variantDestructor[context](id, true);
+    } else {
+      variantDestructor[context](id);
+    }
   }
-  if (typeof entityVariants[entityId][context] === 'undefined') {
-    entityVariants[entityId][context] = { ...content };
-  } else {
-    entityVariants[entityId][context] = {
-      ...entityVariants[entityId][context], ...content
-    };
-  }
-}
-
-export function getEntityStorageArchive() {
-  return { ...entityVariants };
+  delete entitys[id];
 }
