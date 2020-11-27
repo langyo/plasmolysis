@@ -4,9 +4,6 @@ import {
   runRuntime,
 } from 'nickelcat/runtimeManager';
 import {
-  summonEntity
-} from 'nickelcat/entityManager';
-import {
   getState,
   getGlobalState,
   appendListener
@@ -15,6 +12,7 @@ import { IInitArgs } from './index';
 
 import { createElement } from 'react';
 import { renderToString, hydrate, render } from 'react-dom';
+import { generate } from 'shortid';
 
 let components: {
   [modelType: string]: {
@@ -106,7 +104,7 @@ export function preRenderComponent(
 
 export function bindComponent(
   modelType: string,
-  modelID: string = summonEntity('modelManager')
+  modelID: string = generate()
 ): string {
   if (typeof components[modelType] === 'undefined') {
     // Wait the render task until the component has registered.
@@ -148,7 +146,6 @@ export function bindComponent(
           }), {})
         }), document.getElementById(elementID));
       }, modelID);
-      summonEntity(modelID);
       return modelID;
 
     // TODO - The other frameworks' support.

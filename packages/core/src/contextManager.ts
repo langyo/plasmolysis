@@ -4,7 +4,6 @@ import {
 
 import './runtimeManager';
 import './actionManager';
-import './entityManager';
 import './guleManager';
 
 import 'nickelcat-action-preset';
