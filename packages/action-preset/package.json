@@ -11,12 +11,12 @@
     "test": "jest --watch"
   },
   "dependencies": {
-    "@types/react": "^16.9.43",
+    "@types/react": "^17.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "seamless-immutable": "^7.1.4",
-    "shortid": "^2.2.15",
-    "vue": "^2.6.11"
+    "shortid": "^2.2.16",
+    "vue": "^2.6.12"
   },
   "peerDependencies": {
     "nickelcat": "0.4.5",

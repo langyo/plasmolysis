@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "seamless-immutable": "^7.1.4",
-    "shortid": "^2.2.15"
+    "shortid": "^2.2.16"
   },
   "peerDependencies": {
     "nickelcat": "0.4.5",

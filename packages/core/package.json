@@ -11,11 +11,11 @@
     "test": "jest ./test --watch"
   },
   "dependencies": {
-    "@types/react": "^16.9.46",
-    "axios": "^0.20.0",
-    "chalk": "^4.0.0",
-    "shortid": "^2.2.15",
-    "vue": "^2.6.11"
+    "@types/react": "^17.0.0",
+    "axios": "^0.21.0",
+    "chalk": "^4.1.0",
+    "shortid": "^2.2.16",
+    "vue": "^2.6.12"
   },
   "peerDependencies": {
     "nickelcat-action-preset": "0.4.5"
