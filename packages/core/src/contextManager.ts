@@ -7,7 +7,7 @@ import './actionManager';
 import './guleManager';
 
 import 'nickelcat-action-preset';
-import 'nickelcat-action-routes/context';
+import 'nickelcat-action-routes';
 
 const platform: IPlatforms = typeof window !== 'undefined' ? 'js.browser' : 'js.node';
 let configs: { [key: string]: any } = {};

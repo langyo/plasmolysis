@@ -132,7 +132,7 @@ export const link = async () => {
             }
           }
           await symlink(
-            resolve(`./packages/${deps[peerDep]}/src`),
+            resolve(`./packages/${deps[peerDep]}/dist`),
             resolve(`./packages/${pkg}/node_modules/${peerDep}`),
             'dir'
           );
