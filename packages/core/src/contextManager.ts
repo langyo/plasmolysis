@@ -2,10 +2,6 @@ import {
   IPlatforms
 } from './index';
 
-import './runtimeManager';
-import './actionManager';
-import './guleManager';
-
 import 'nickelcat-action-preset';
 import 'nickelcat-action-routes';
 

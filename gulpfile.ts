@@ -2,14 +2,14 @@ import {
   src, dest, series, watch as watchFiles, parallel
 } from 'gulp';
 import {
-  symlink,
-  access,
-  unlink,
-  readFile,
-  writeFile,
-  stat,
-  rmdir
-} from 'promisely-fs';
+  symlinkSync as symlink,
+  existsSync as exists,
+  unlinkSync as unlink,
+  readFileSync as readFile,
+  writeFileSync as writeFile,
+  lstatSync as stat,
+  rmdirSync as rmdir
+} from 'fs';
 import { resolve } from 'path';
 import { spawn } from 'child_process';
 import * as inquirer from 'inquirer';
@@ -20,16 +20,16 @@ import * as del from 'del';
 import * as merge from 'merge2';
 
 const packageNames = [
+  'core',
   'action-preset',
   'action-routes',
-  'core',
   'create-app',
   'dev-server'
 ];
 const linkPackageNames = [
+  'core',
   'action-preset',
   'action-routes',
-  'core'
 ]
 
 export const clean = series.apply(undefined, packageNames.map(
@@ -63,75 +63,35 @@ export const install = process.env.CI ?
     cwd: resolve(`./packages/${name}`)
   })));
 
-export const link = async () => {
-  // Scan all the packages and get the packages' names.
-  let deps: { [key: string]: string } = {};
-  for (const pkg of linkPackageNames) {
-    if (await access(resolve(`./packages/${pkg}/package.json`))) {
-      deps[JSON.parse(
-        await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
-      ).name] = pkg;
-    }
-  }
-
+async function linkDepsToDist() {
   // Create symlinks.
   for (const pkg of packageNames) {
-    // Link 'package.json'.
-    if (await access(resolve(`./packages/${pkg}/package.json`))) {
-      if (await access(resolve(`./packages/${pkg}/dist/package.json`))) {
-        await unlink(`./packages/${pkg}/dist/package.json`);
-      }
-      if (await access(resolve(`./packages/${pkg}/dist`))) {
-        await symlink(
-          resolve(`./packages/${pkg}/package.json`),
-          resolve(`./packages/${pkg}/dist/package.json`)
-        );
-      }
-    }
-
-    // Link 'node_modules' folder to the 'dist' folder.
-    if (await access(resolve(`./packages/${pkg}/node_modules`))) {
-      if (await access(resolve(`./packages/${pkg}/dist/node_modules`))) {
-        await unlink(`./packages/${pkg}/dist/node_modules`);
-      }
-      if (await access(resolve(`./packages/${pkg}/dist`))) {
-        await symlink(
-          resolve(`./packages/${pkg}/node_modules`),
-          resolve(`./packages/${pkg}/dist/node_modules`),
-          'dir'
-        );
+    // Scan all the packages and get the packages' names.
+    let deps: { [key: string]: string } = {};
+    for (const pkg of linkPackageNames) {
+      if (exists(resolve(`./packages/${pkg}/package.json`))) {
+        deps[JSON.parse(
+          readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
+        ).name] = pkg;
       }
     }
 
     // Link local packages to every 'node_modules' folders.
-    if (await access(resolve(`./packages/${pkg}/package.json`))) {
+    if (exists(resolve(`./packages/${pkg}/package.json`))) {
       const { peerDependencies } = JSON.parse(
-        await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
+        readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
       );
       for (const peerDep of Object.keys(peerDependencies)) {
         if (
-          await access(resolve(`./packages/${deps[peerDep]}/node_modules`)) &&
-          await access(resolve(`./packages/${pkg}/node_modules`))
+          exists(resolve(`./packages/${deps[peerDep]}/node_modules`)) &&
+          exists(resolve(`./packages/${pkg}/node_modules`))
         ) {
-          if (
-            await access(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
-          ) {
-            if ((
-              await stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
-            ).isSymbolicLink()) {
-              await unlink(
-                resolve(`./packages/${pkg}/node_modules/${peerDep}`)
-              );
-            } else if ((
-              await stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
-            ).isDirectory()) {
-              await rmdir(
-                resolve(`./packages/${pkg}/node_modules/${peerDep}`),
-                { recursive: true }
-              );
-            }
+          if ((
+            stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
+          ).isSymbolicLink()) {
+            unlink(resolve(`./packages/${pkg}/node_modules/${peerDep}`));
           }
-          await symlink(
+          symlink(
             resolve(`./packages/${deps[peerDep]}/dist`),
             resolve(`./packages/${pkg}/node_modules/${peerDep}`),
             'dir'
@@ -140,6 +100,78 @@ export const link = async () => {
       }
     }
   }
+}
+
+async function linkDepsToSrc() {
+  // Create symlinks.
+  for (const pkg of packageNames) {
+    // Scan all the packages and get the packages' names.
+    let deps: { [key: string]: string } = {};
+    for (const pkg of linkPackageNames) {
+      if (exists(resolve(`./packages/${pkg}/package.json`))) {
+        deps[JSON.parse(
+          readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
+        ).name] = pkg;
+      }
+    }
+
+    // Link local packages to every 'node_modules' folders.
+    if (exists(resolve(`./packages/${pkg}/package.json`))) {
+      const { peerDependencies } = JSON.parse(
+        readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
+      );
+      for (const peerDep of Object.keys(peerDependencies)) {
+        if (
+          exists(resolve(`./packages/${deps[peerDep]}/node_modules`)) &&
+          exists(resolve(`./packages/${pkg}/node_modules`))
+        ) {
+          if ((
+            stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
+          ).isSymbolicLink()) {
+            unlink(resolve(`./packages/${pkg}/node_modules/${peerDep}`));
+          }
+          symlink(
+            resolve(`./packages/${deps[peerDep]}/src`),
+            resolve(`./packages/${pkg}/node_modules/${peerDep}`),
+            'dir'
+          );
+        }
+      }
+    }
+  }
+}
+
+export const link = async () => {
+  // Create symlinks.
+  for (const pkg of packageNames) {
+    // Link 'package.json'.
+    if (exists(resolve(`./packages/${pkg}/package.json`))) {
+      try {
+        unlink(`./packages/${pkg}/dist/package.json`);
+      } catch(e) { }
+      symlink(
+        resolve(`./packages/${pkg}/package.json`),
+        resolve(`./packages/${pkg}/dist/package.json`)
+      );
+    }
+
+    // Link 'node_modules' folder to the 'dist' folder.
+    if (exists(resolve(`./packages/${pkg}/node_modules`))) {
+      try {
+        unlink(`./packages/${pkg}/dist/node_modules`);
+      } catch(e) { }
+      if (exists(resolve(`./packages/${pkg}/dist`))) {
+        symlink(
+          resolve(`./packages/${pkg}/node_modules`),
+          resolve(`./packages/${pkg}/dist/node_modules`),
+          'dir'
+        );
+      }
+    }
+  }
+
+  // Link local packages to every 'node_modules' folders.
+  await linkDepsToDist();
 };
 
 export const debugGlobalLink = series.apply(undefined,
@@ -149,7 +181,7 @@ export const debugGlobalLink = series.apply(undefined,
     cwd: resolve(`./packages/${name}/dist`)
   })));
 
-export const build = series(clean, compile, link);
+export const build = series(clean, linkDepsToSrc, compile, link);
 
 export const publish = series(
   clean, compile,
@@ -158,7 +190,7 @@ export const publish = series(
   async () => {
     const [major, minor, patch]: [number, number, number]
       = JSON.parse(
-        await readFile(resolve(`./package.json`), 'utf8')
+        readFile(resolve(`./package.json`), 'utf8')
       ).version.split('.').map((n: string) => +n);
     const { version } = await inquirer.prompt([
       {
@@ -173,20 +205,20 @@ export const publish = series(
       }
     ]);
 
-    await writeFile(
+    writeFile(
       resolve(`./package.json`),
-      (await readFile(
+      (readFile(
         resolve(`./package.json`), 'utf8'
       )).replace(/"version" *: *".+?"/, `"version": "${version}"`)
     );
 
     for (const pkg of packageNames) {
-      if (await access(resolve(`./packages/${pkg}/package.json`))) {
-        let cfg = JSON.parse(await readFile(resolve(`./packages/${pkg}/package.json`), 'utf8'));
+      if (exists(resolve(`./packages/${pkg}/package.json`))) {
+        let cfg = JSON.parse(readFile(resolve(`./packages/${pkg}/package.json`), 'utf8'));
         cfg.version = version;
         for (const depName of packageNames) {
-          if (await access(resolve(`./packages/${depName}/package.json`))) {
-            const { name } = JSON.parse(await readFile(
+          if (exists(resolve(`./packages/${depName}/package.json`))) {
+            const { name } = JSON.parse(readFile(
               resolve(`./packages/${depName}/package.json`), 'utf8'
             ));
             if (
@@ -203,13 +235,13 @@ export const publish = series(
           'dependencies', 'devDependencies', 'peerDependencies'
         ];
         // Write to the source file first.
-        await writeFile(
+        writeFile(
           resolve(`./packages/${pkg}/package.json`),
           jsonFormatStringify(cfg, ord)
         );
         // Rewrite the main tag.
         cfg.main = './index.js';
-        await writeFile(
+        writeFile(
           resolve(`./packages/${pkg}/dist/package.json`),
           jsonFormatStringify(cfg, ord)
         );

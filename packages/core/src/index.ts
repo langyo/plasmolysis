@@ -20,9 +20,11 @@ export type IRuntimeFunc = (args: { [key: string]: any }) => (
   variants: Readonly<{ [key: string]: any }>
 ) => Promise<{ [key: string]: any }>;
 
-export * as contextManager from './contextManager';
-export * as runtimeManager from './runtimeManager';
-export * as glueManager from './guleManager';
+import './contextManager';
+import './actionManager';
+import './logManager';
+import './runtimeManager';
+import './guleManager';
 
 export { series } from './lib/series';
 export { parallel } from './lib/parallel';
