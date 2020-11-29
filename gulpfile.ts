@@ -64,7 +64,7 @@ export const install = process.env.CI ?
   })));
 
 async function linkDepsToDist() {
-  // Create symlinks.
+  // Create symlinks from  the 'node_modules' to 'dist' folders.
   for (const pkg of packageNames) {
     // Scan all the packages and get the packages' names.
     let deps: { [key: string]: string } = {};
@@ -103,7 +103,7 @@ async function linkDepsToDist() {
 }
 
 async function linkDepsToSrc() {
-  // Create symlinks.
+  // Create symlinks from  the 'node_modules' to 'src' folders.
   for (const pkg of packageNames) {
     // Scan all the packages and get the packages' names.
     let deps: { [key: string]: string } = {};
@@ -169,9 +169,6 @@ export const link = async () => {
       }
     }
   }
-
-  // Link local packages to every 'node_modules' folders.
-  await linkDepsToDist();
 };
 
 export const debugGlobalLink = series.apply(undefined,
@@ -181,7 +178,7 @@ export const debugGlobalLink = series.apply(undefined,
     cwd: resolve(`./packages/${name}/dist`)
   })));
 
-export const build = series(clean, linkDepsToSrc, compile, link);
+export const build = series(clean, linkDepsToSrc, compile, link, linkDepsToDist);
 
 export const publish = series(
   clean, compile,
