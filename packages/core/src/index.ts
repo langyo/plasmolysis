@@ -36,3 +36,6 @@ export { dispatch } from './lib/dispatch';
 export { link } from './lib/link';
 export { trap } from './lib/trap';
 export { crash } from './lib/crash';
+
+import 'nickelcat-action-preset';
+import 'nickelcat-action-routes';

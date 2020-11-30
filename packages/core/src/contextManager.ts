@@ -2,9 +2,6 @@ import {
   IPlatforms
 } from './index';
 
-import 'nickelcat-action-preset';
-import 'nickelcat-action-routes';
-
 const platform: IPlatforms = typeof window !== 'undefined' ? 'js.browser' : 'js.node';
 let configs: { [key: string]: any } = {};
 

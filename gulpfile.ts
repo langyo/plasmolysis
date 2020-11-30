@@ -63,47 +63,8 @@ export const install = process.env.CI ?
     cwd: resolve(`./packages/${name}`)
   })));
 
-async function linkDepsToDist() {
-  // Create symlinks from  the 'node_modules' to 'dist' folders.
-  for (const pkg of packageNames) {
-    // Scan all the packages and get the packages' names.
-    let deps: { [key: string]: string } = {};
-    for (const pkg of linkPackageNames) {
-      if (exists(resolve(`./packages/${pkg}/package.json`))) {
-        deps[JSON.parse(
-          readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
-        ).name] = pkg;
-      }
-    }
-
-    // Link local packages to every 'node_modules' folders.
-    if (exists(resolve(`./packages/${pkg}/package.json`))) {
-      const { peerDependencies } = JSON.parse(
-        readFile(resolve(`./packages/${pkg}/package.json`), 'utf8')
-      );
-      for (const peerDep of Object.keys(peerDependencies)) {
-        if (
-          exists(resolve(`./packages/${deps[peerDep]}/node_modules`)) &&
-          exists(resolve(`./packages/${pkg}/node_modules`))
-        ) {
-          if ((
-            stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
-          ).isSymbolicLink()) {
-            unlink(resolve(`./packages/${pkg}/node_modules/${peerDep}`));
-          }
-          symlink(
-            resolve(`./packages/${deps[peerDep]}/dist`),
-            resolve(`./packages/${pkg}/node_modules/${peerDep}`),
-            'dir'
-          );
-        }
-      }
-    }
-  }
-}
-
 async function linkDepsToSrc() {
-  // Create symlinks from  the 'node_modules' to 'src' folders.
+  // Create symlinks from the 'node_modules' to 'src' folders.
   for (const pkg of packageNames) {
     // Scan all the packages and get the packages' names.
     let deps: { [key: string]: string } = {};
@@ -141,7 +102,7 @@ async function linkDepsToSrc() {
   }
 }
 
-export const link = async () => {
+async function linkPkgJsonFile() {
   // Create symlinks.
   for (const pkg of packageNames) {
     // Link 'package.json'.
@@ -154,7 +115,11 @@ export const link = async () => {
         resolve(`./packages/${pkg}/dist/package.json`)
       );
     }
+  }
+}
 
+async function linkDistDepsFolder() {
+  for (const pkg of packageNames) {
     // Link 'node_modules' folder to the 'dist' folder.
     if (exists(resolve(`./packages/${pkg}/node_modules`))) {
       try {
@@ -169,7 +134,9 @@ export const link = async () => {
       }
     }
   }
-};
+}
+
+export const link = series(linkDepsToSrc, linkPkgJsonFile, linkDistDepsFolder);
 
 export const debugGlobalLink = series.apply(undefined,
   packageNames.map(name => () => spawn(
@@ -178,7 +145,7 @@ export const debugGlobalLink = series.apply(undefined,
     cwd: resolve(`./packages/${name}/dist`)
   })));
 
-export const build = series(clean, linkDepsToSrc, compile, link, linkDepsToDist);
+export const build = series(clean, compile, link);
 
 export const publish = series(
   clean, compile,
@@ -246,10 +213,19 @@ export const publish = series(
     }
 
     // Create a version tag.
-    return spawn(
-      'git',
-      ['tag', '-a', `v${version}`, '-m', `v${version}`],
-      { stdio: 'inherit', cwd: process.cwd() }
+    return series.call(null,
+      spawn(
+        'git', ['add', '.'],
+        { stdio: 'inherit', cwd: process.cwd() }
+      ),
+      spawn(
+        'git', ['commit', '-m', `v${version}`],
+        { stdio: 'inherit', cwd: process.cwd() }
+      ),
+      spawn(
+        'git', ['tag', '-a', `v${version}`, '-m', `v${version}`],
+        { stdio: 'inherit', cwd: process.cwd() }
+      )
     );
   },
 
