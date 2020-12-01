@@ -1,6 +1,4 @@
-import {
-  IPlatforms,
-} from './index';
+import { IPlatforms } from './index';
 import axios from 'axios';
 
 let protocols: {

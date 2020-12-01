@@ -1,7 +1,7 @@
 import { IPlatforms, IRuntimeObject } from '../index';
 import { loadRuntime } from '../runtimeManager';
 import { registerAction } from '../actionManager';
-import { linkTo } from '../guleManager';
+import { linkTo } from '../linkManager';
 
 export function link(
   platform: IPlatforms,

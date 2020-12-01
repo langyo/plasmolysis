@@ -24,7 +24,7 @@ import './contextManager';
 import './actionManager';
 import './logManager';
 import './runtimeManager';
-import './guleManager';
+import './linkManager';
 
 export { series } from './lib/series';
 export { parallel } from './lib/parallel';
