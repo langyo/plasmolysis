@@ -86,11 +86,14 @@ async function linkDepsToSrc() {
           exists(resolve(`./packages/${deps[peerDep]}/node_modules`)) &&
           exists(resolve(`./packages/${pkg}/node_modules`))
         ) {
-          if ((
-            stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
-          ).isSymbolicLink()) {
-            unlink(resolve(`./packages/${pkg}/node_modules/${peerDep}`));
-          }
+          try {
+            if ((
+              stat(resolve(`./packages/${pkg}/node_modules/${peerDep}`))
+            ).isSymbolicLink()) {
+              unlink(resolve(`./packages/${pkg}/node_modules/${peerDep}`));
+            }
+          } catch(e) { }
+
           symlink(
             resolve(`./packages/${deps[peerDep]}/src`),
             resolve(`./packages/${pkg}/node_modules/${peerDep}`),
@@ -145,7 +148,7 @@ export const debugGlobalLink = series.apply(undefined,
     cwd: resolve(`./packages/${name}/dist`)
   })));
 
-export const build = series(clean, compile, link);
+export const build = series(clean, linkDepsToSrc, compile, link);
 
 export const publish = series(
   clean, compile,

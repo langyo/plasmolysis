@@ -15,6 +15,14 @@
     "test": "jest ./test --watch"
   },
   "dependencies": {
+    "@babel/core": "^7.12.9",
+    "@babel/preset-react": "^7.12.7",
+    "@babel/preset-typescript": "^7.12.7",
+    "error-stack-parser": "^2.0.6",
+    "memfs": "^3.2.0",
+    "terser-webpack-plugin": "^5.0.3",
+    "unionfs": "^4.4.0",
+    "webpack": "^5.9.0"
   },
   "peerDependencies": {
     "nickelcat": "0.4.5",
