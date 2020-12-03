@@ -1,6 +1,6 @@
 import { IRuntimeObject } from '../index';
 import { runAction, registerAction } from '../actionManager';
-import { actionEnterEvent, actionLeaveEvent } from '../logManager';
+import { eventLog } from '../logManager';
 
 export function series(...tasks: IRuntimeObject[]): IRuntimeObject {
   return {
@@ -17,9 +17,9 @@ registerAction(
   ) => {
     for (const task of tasks) {
       if (typeof task !== 'undefined') {
-        actionEnterEvent(task.type, variants.entityId, payload);
+        eventLog('actionEnter', task.type, variants.id);
         payload = await runAction(task.type, task.args, payload, variants);
-        actionLeaveEvent(task.type, variants.entityId, payload);
+        eventLog('actionLeave', task.type, variants.id);
       }
     }
     return payload;

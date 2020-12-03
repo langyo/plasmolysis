@@ -31,5 +31,13 @@ export { destoryModel } from './lib/model/destoryModel';
 export { setGlobalState } from './lib/model/setGlobalState';
 export { setState } from './lib/model/setState';
 
+export { renderReactComponent } from './lib/component/renderReactComponent';
+export { renderVueComponent } from './lib/component/renderVueComponent';
+export { renderEjsComponent } from './lib/component/renderEjsComponent';
+export { renderStaticHtml } from './lib/component/renderStaticHtml';
+
+export { routeHttp } from './lib/route/routeHttp';
+export { routeWebSocket } from './lib/route/routeWebSocket';
+
 export * as modelManager from './modelManager';
 export * as stateManager from './stateManager';

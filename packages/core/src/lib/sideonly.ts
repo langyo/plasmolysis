@@ -1,7 +1,7 @@
 import { IRuntimeObject, IPlatforms } from '../index';
 import { runAction, registerAction } from '../actionManager';
 import { getPlatform } from '../contextManager';
-import { actionEnterEvent, actionLeaveEvent } from '../logManager';
+import { eventLog } from '../logManager';
 
 export function sideonly(
   side: IPlatforms,
@@ -20,9 +20,9 @@ registerAction(
     payload, variants
   ) => {
     if (side === getPlatform()) {
-      actionEnterEvent(task.type, variants.entityId, payload);
+      eventLog('actionEnter', task.type, variants.id);
       payload = await runAction(task.type, task.args, payload, variants);
-      actionLeaveEvent(task.type, variants.entityId, payload);
+      eventLog('actionLeave', task.type, variants.id);
     }
     return payload;
   }

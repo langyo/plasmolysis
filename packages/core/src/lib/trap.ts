@@ -1,8 +1,6 @@
 import { IRuntimeObject } from '../index';
 import { runAction, registerAction } from '../actionManager';
-import {
-  actionEnterEvent, actionLeaveEvent, actionCrashEvent
-} from '../logManager';
+import { eventLog } from '../logManager';
 
 export function trap(
   task: IRuntimeObject,
@@ -21,12 +19,12 @@ registerAction(
     task: IRuntimeObject, errTask: IRuntimeObject
   }) => async (payload, variants) => {
     try {
-      actionEnterEvent(task.type, variants.entityId, payload);
+      eventLog('actionEnter', task.type, variants.id);
       const ret = await runAction(task.type, task.args, payload, variants);
-      actionLeaveEvent(task.type, variants.entityId, payload);
+      eventLog('actionLeave', task.type, variants.id);
       return ret;
     } catch (err) {
-      actionCrashEvent(errTask.type, variants.entityId, payload);
+      eventLog('actionCrash', errTask.type, variants.id);
       return await runAction(
         errTask.type, errTask.args, { payload, err }, variants
       );

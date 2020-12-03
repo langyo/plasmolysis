@@ -1,95 +1,59 @@
-interface ILog {
+type IEventType =
+  'actionEnter' | 'actionLeave' | 'actionCrash' |
+  'info' | 'warn' | 'error' |
+  'runtimeInstall' | 'runtimeUninstall';
+type ICallback = (log: ILog) => any;
+
+export interface ILog {
   time: number,
-  level: 'info' | 'debug' | 'warn' | 'error',
-  actionType: string,
-  entityId: string,
-  type: 'enter' | 'leave' | 'crash' | 'debug',
-  payload: { [key: string]: any }
+  path: string,
+  eventType: IEventType,
+  extraInfo: string
 };
+
 let logs: ILog[] = [];
+let callbackFunc: ICallback[] = [];
 
-let timeoutObjStorage: NodeJS.Timeout;
-let threshold: number = 0;
-let exportCallbackFunc: (logs: ILog[]) => Promise<void>;
-
-function exportCallback() {
-  exportCallbackFunc(logs.splice(0, logs.length));
-}
-
-function checkThreshold() {
-  if (threshold > 0 && logs.length >= threshold) {
-    exportCallback();
+function runCallback(log: ILog) {
+  for (const func of callbackFunc) {
+    func(log);
   }
 }
 
-export function actionEnterEvent(
-  actionType: string, entityId: string,
-  payload: { [key: string]: string }
-) {
-  logs.push({
-    time: Date.now(), level: 'info', type: 'enter',
-    entityId, actionType, payload
-  });
-  checkThreshold();
+export function registerCallback(cb: ICallback) {
+  callbackFunc.push(cb);
 }
 
-export function actionLeaveEvent(
-  actionType: string, entityId: string,
-  payload: { [key: string]: string }
+export function log(
+  level: 'info' | 'warn' | 'error',
+  ...args: string[]
 ) {
-  logs.push({
-    time: Date.now(), level: 'info', type: 'leave',
-    entityId, actionType, payload
-  });
-  checkThreshold();
-}
-
-export function actionCrashEvent(
-  actionType: string, entityId: string,
-  payload: { [key: string]: string }
-) {
-  logs.push({
-    time: Date.now(), level: 'info', type: 'crash',
-    entityId, actionType, payload
-  });
-  checkThreshold();
-}
-
-export function getAllLogs(): ILog[] {
-  return logs.splice(0, logs.length);
-}
-
-export function registerExportTask(
-  callback: (logs: ILog[]) => Promise<void>,
-  reportLevel: 'info' | 'warn' | 'error' = 'info',
-  { duration, maxCount }: { duration?: number, maxCount?: number }
-) {
-  if (typeof timeoutObjStorage !== 'undefined') {
-    clearTimeout(timeoutObjStorage);
-  }
-  exportCallbackFunc = async () => {
-    await callback(logs.splice(0, logs.length)
-      .filter(({ level }) =>
-        reportLevel === 'warn' ? (level === 'warn' || level === 'error') :
-          reportLevel === 'error' ? (level === 'error') : true
-      )
-    );
+  const log: ILog = {
+    time: Date.now(),
+    eventType: level,
+    path: '',
+    extraInfo: args.join(' ')
   };
-
-  if (typeof duration === 'number' && duration > 0) {
-    // Timing.
-    timeoutObjStorage = setTimeout(() => exportCallback(), duration);
-  }
-  if (typeof maxCount === 'number' && maxCount > 0) {
-    // Setting thresholds.
-    threshold = maxCount;
-  }
+  logs.push(log);
+  runCallback(log);
 }
 
-export function registerCleanTask(duration: number) {
-  if (typeof timeoutObjStorage !== 'undefined') {
-    clearTimeout(timeoutObjStorage);
+export function eventLog(
+  eventType: IEventType,
+  path: string,
+  extraInfo: string
+) {
+  const log: ILog = {
+    time: Date.now(),
+    eventType,
+    path,
+    extraInfo
   }
+  logs.push(log);
+  runCallback(log);
+}
 
-  timeoutObjStorage = setTimeout(() => logs.splice(0, logs.length), duration);
+
+export function getLogs(): ILog[] {
+  return logs.splice(0, logs.length);
 }
