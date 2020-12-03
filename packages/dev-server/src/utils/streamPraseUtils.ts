@@ -29,6 +29,8 @@ export function filterSpecialAction(stream: IRuntimeObject, type: string) {
       case type:
         ret.push({ ...obj, route });
         return;
+      default:
+        return;
     }
   };
   dfs(stream);

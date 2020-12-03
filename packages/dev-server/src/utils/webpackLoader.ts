@@ -28,7 +28,6 @@ function vfsLoader(
 
 export async function webpackCompiler(
   code: string,
-  target: 'node' | 'web',
   extraOpts: webpack.Configuration = {},
   extraFiles: { [path: string]: string } = {}
 ): Promise<{ code: string, sourceMap: string }> {
@@ -38,7 +37,6 @@ export async function webpackCompiler(
   });
   const compiler = webpack({
     entry: join(process.cwd(), './__entry.ts'),
-    target,
     mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
     context: process.cwd(),
     module: {

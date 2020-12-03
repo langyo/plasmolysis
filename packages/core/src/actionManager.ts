@@ -41,7 +41,7 @@ export async function runAction(
 ): Promise<{ [key: string]: any }> {
   if (typeof actions[type] === 'undefined') {
     throw new Error(
-      `Unknown action '${type}' at the getPlatform() '${getPlatform()}'.`
+      `Unknown action '${type}' at the platform '${getPlatform()}'.`
     );
   }
   return await actions[type](args)(payload, variants);

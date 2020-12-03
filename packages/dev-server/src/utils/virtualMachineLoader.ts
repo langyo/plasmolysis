@@ -1,9 +1,11 @@
 import { Script, createContext } from 'vm';
 import { parse as errorParse } from 'error-stack-parser';
 import { SourceMapConsumer } from 'source-map';
+import { log } from 'nickelcat/logManager';
 
 export function vmLoader(
   { code, sourceMap }: { code: string, sourceMap: string },
+  path: string,
   caller: (...args: any[]) => Promise<any>
 ) {
   const context = createContext({
@@ -16,7 +18,7 @@ export function vmLoader(
 
   try {
     (new Script(code)).runInContext(context);
-    console.log('The server has been loaded.');
+    log('info', 'VM has loaded', path);
   } catch (e) {
     (async function () {
       const errInfo = errorParse(e);
@@ -36,7 +38,7 @@ export function vmLoader(
         }
       }
       console.error('');
-      throw e;
+      // throw e;
     })();
   }
 
