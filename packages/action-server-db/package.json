@@ -1,6 +1,7 @@
 {
-  "name": "nickelcat-action-client-threejs",
+  "name": "nickelcat-action-server-db",
   "description": "The library for evaluating the action stream.",
+  "version": "0",
   "scripts": {
     "test": "jest --watch"
   },

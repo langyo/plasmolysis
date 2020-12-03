@@ -1,5 +1,5 @@
 {
-  "name": "nickelcat-action-server-mongodb",
+  "name": "nickelcat-action-server-netfs",
   "description": "The library for evaluating the action stream.",
   "version": "0",
   "scripts": {
