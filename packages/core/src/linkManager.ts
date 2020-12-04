@@ -1,13 +1,13 @@
 import { IPlatforms } from './index';
+import { getPlatform } from './contextManager';
 import axios from 'axios';
 
-let protocols: {
+let targetProtocols: {
   [platform in IPlatforms]?: (
     path: string,
     obj: { [key: string]: any }
   ) => Promise<{ [key: string]: any }>
 } = {
-  // TODO - From what to what?
   'js.node': async (path, obj) => await axios.post(`/${path.split('.').join('/')}`, obj)
 };
 
@@ -15,29 +15,40 @@ export function getProtocol(platform: IPlatforms): (
   path: string,
   obj: { [key: string]: any }
 ) => Promise<{ [key: string]: any }> {
-  if (typeof protocols[platform] === 'undefined') {
+  if (typeof targetProtocols[platform] === 'undefined') {
     throw new Error(`Unknown protocol: ${platform}.`);
   }
-  return protocols[platform];
+  return targetProtocols[platform];
 }
 
 export function setProtocol(
-  platform: IPlatforms,
+  targetPlatform: IPlatforms,
   func: (
     path: string,
     obj: { [key: string]: any }
   ) => Promise<{ [key: string]: any }>
 ) {
-  protocols[platform] = func;
+  targetProtocols[targetPlatform] = func;
 }
 
-export function linkTo(
+switch(getPlatform()) {
+  case 'js.browser':
+    setProtocol(
+      'js.node',
+      (path, obj) => await axios.post(`/${path.split('.').join('/')}`, obj)
+    );
+    break;
+  default:
+    break;
+}
+
+export async function linkTo(
   platform: IPlatforms,
   path: string,
   payload: { [key: string]: any }
 ): Promise<{ [key: string]: any }> {
-  if (typeof protocols[platform] === 'undefined') {
-    throw new Error(`Unknown protocol: ${platform}.`);
+  if (typeof targetProtocols[platform] === 'undefined') {
+    throw new Error(`Cannot transfer to the platform: ${platform}.`);
   }
-  return protocols[platform](path, payload);
+  return await targetProtocols[platform](path, payload);
 }

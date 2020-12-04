@@ -5,5 +5,9 @@ export { routeToService } from './lib/routeToService';
 export { renderComponent } from './lib/renderComponent';
 export { togglePage } from './lib/togglePage';
 
-export * as routeManager from './routeManager';
-export * as sessionManager from './sessionManager';
+import { getPlatform } from 'nickelcat/contextManager';
+if (getPlatform() === 'js.browser') {
+  require('./routeManager');
+} else if (getPlatform() === 'js.node') {
+  require('./sessionManager');
+}

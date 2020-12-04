@@ -1,4 +1,7 @@
-import { runRuntime } from 'nickelcat/runtimeManager';
+import {
+  runRuntime,
+  registerVariantsGenerator
+} from 'nickelcat/runtimeManager';
 
 export interface IGlobalState {
   [key: string]: unknown
@@ -8,14 +11,20 @@ interface IModelStateRoute {
   [modelType: string]: string[]
 };
 
-import { generate } from 'shortid';
-import { from, merge, without } from "seamless-immutable";
+type IListenerFunc = (diff: ({
+  type: string,
+  id: string,
+  type: 'create' | 'change' | 'remove'
+})[]) => void;
 
-let globalState: Readonly<{ [key: string]: any }> = from({});
-let modelStateRoute: IModelStateRoute = from({});
-let modelIDMap: { [modelID: string]: string } = from({});
-let prevModelIDMap: { [modelID: string]: string } = from({});
-let modelState: Readonly<{ [key: string]: any }> = from({});
+import { generate } from 'shortid';
+
+// TODO - Check the logic.
+let globalState: Readonly<{ [key: string]: any }> = {};
+let modelStateRoute: IModelStateRoute = {};
+let modelIDMap: { [modelID: string]: string } = {};
+let prevModelIDMap: { [modelID: string]: string } = {};
+let modelState: Readonly<{ [key: string]: any }> = {};
 
 let listeners: {
   [id: string]: (
@@ -28,7 +37,7 @@ export function updateListeners() {
   for (const id of Object.keys(listeners)) {
     listeners[id](prevModelIDMap, modelIDMap);
   }
-  prevModelIDMap = from(modelIDMap);
+  prevModelIDMap = { ...modelIDMap };
 }
 
 export function appendListener(
@@ -69,7 +78,7 @@ export function getState(modelID: string): Readonly<{ [key: string]: any }> {
   if (typeof modelState[modelID] === 'undefined') {
     throw new Error(`The model '${modelID}' doesn't exist.`);
   }
-  return from(modelState[modelID]);
+  return { ...modelState[modelID] };
 }
 
 export function setGlobalState(combineState: { [key: string]: any }): void {
@@ -78,15 +87,15 @@ export function setGlobalState(combineState: { [key: string]: any }): void {
 }
 
 export function getGlobalState(): IGlobalState {
-  return from(globalState);
+  return { ...globalState };
 }
 
 export function getModelList(): IModelStateRoute {
-  return from(modelStateRoute);
+  return { ...modelStateRoute };
 }
 
 export function getModelIDList(): { [modelID: string]: string } {
-  return from(modelIDMap);
+  return { ...modelIDMap };
 }
 
 export function createModel(
@@ -108,15 +117,16 @@ export function createModel(
     throw new Error(`The model '${modelID}' has been declared.`);
   }
 
-  modelState = merge(modelState, {
+  modelState = {
+    ...modelState,
     [modelID]: runRuntime(
       modelType, 'init', initState, { modelType, modelID }
     )
-  });
-  modelStateRoute = merge(
-    modelStateRoute, { [modelType]: [...modelStateRoute[modelType], modelID] }
-  );
-  modelIDMap = merge(modelIDMap, { [modelID]: modelType });
+  };
+  modelStateRoute = {
+    ...modelStateRoute, [modelType]: [...modelStateRoute[modelType], modelID]
+  };
+  modelIDMap = { ...modelIDMap, [modelID]: modelType };
   updateListeners();
   return modelID;
 }
@@ -128,13 +138,17 @@ export function destoryModel(modelID: string): void {
   ) {
     throw new Error(`The model '${modelID}' doesn't exist.`);
   }
-  modelState = without(modelState, modelID);
-  const modelType = modelIDMap[modelID];
-  modelStateRoute = merge(
-    modelStateRoute,
-    { [modelType]: [modelStateRoute[modelType].filter(n => n !== modelID)] }
+  modelState = Object.keys(modelState).filter(n => n !== modelID).reduce(
+    (obj, key) => ({ ...obj, [key]: modelState[key] }), {}
   );
-  modelIDMap = without(modelState, modelID);
+  const modelType = modelIDMap[modelID];
+  modelStateRoute = {
+    ...modelStateRoute,
+    [modelType]: modelStateRoute[modelType].filter(n => n !== modelID)
+  };
+  modelIDMap = Object.keys(modelIDMap).filter(n => n !== modelID).reduce(
+    (obj, key) => ({ ...obj, [key]: modelIDMap[key] }), {}
+  );
   updateListeners();
 }
 
@@ -154,3 +168,7 @@ export function evaluateModelAction(
     modelType, actionType, payload, { modelType, modelID }
   );
 }
+
+registerVariantsGenerator('state', (id: string) => modelState[id] || {});
+registerVariantsGenerator('globalState', (id: string) => globalState);
+registerVariantsGenerator('models', (id: string) => modelIDMap);

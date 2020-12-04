@@ -80,12 +80,8 @@ export function transferRet(target: string, ret: any) {
   );
 }
 
-export function registerContextInit(
-  context: string,
-  callback: (configs: { [config: string]: any }) => void
-) {
-  if (typeof configs[context] === 'undefined') {
-    throw new Error(`Cannot find the configs for the context '${context}'`);
-  }
-  callback(configs[context]);
+export function registerContext(
+  contextName: string
+): { [config: string]: any } {
+  return configs[contextName] || {};
 }

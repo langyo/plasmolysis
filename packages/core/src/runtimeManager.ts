@@ -34,12 +34,29 @@ export function hasRuntime(
   }
 }
 
+type IVariantsGenerator =
+  (id: string) => string | number | { [key: string]: any };
+
+let variantsGenerators: { [tag: string]: IVariantsGenerator } = {};
+
+export function registerVariantsGenerator(
+  tag: string, generator: IVariantsGenerator
+) {
+  variantsGenerators[tag] = generator;
+}
+
+export function generateVariants(id: string) {
+  return Object.keys(variantsGenerators).reduce(
+    (obj, tag) => ({ ...obj, [tag]: variantsGenerators[tag](id) }), { id }
+  );
+}
+
 export async function runRuntime(
   tag: string,
   name: string,
-  payload: { [key: string]: any },
-  variants: { [key: string]: any }
+  id: string,
+  payload: { [key: string]: any }
 ) {
   const { type, args } = runtimes[tag][name];
-  return await runAction(type, args, payload, variants);
+  return await runAction(type, args, payload, generateVariants(id));
 }

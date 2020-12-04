@@ -2,6 +2,7 @@ import { IRuntimeObject, IWebClientComponentType } from 'nickelcat';
 import {
   getRuntimeList,
   runRuntime,
+  registerVariantsGenerator
 } from 'nickelcat/runtimeManager';
 import {
   getState,
@@ -24,42 +25,27 @@ let components: {
 } = {};
 let bindRenderTasks: { [modelType: string]: string[] } = {};
 
+const staticRenderMap = {
+  'preset.renderEjsComponent': 'ejs',
+  'preset.renderReactComponent': 'react',
+  'preset.renderVueComponent': 'vue',
+  'preset.renderStaticHtml': 'static'
+};
+
 export function storageComponent(
   modelType: string,
-  actions: { [type: string]: IRuntimeObject }
+  component: IRuntimeObject,
+  actions: string[]
 ): void {
-  if (
-    typeof actions.component === 'undefined' ||
-    typeof actions.component.type === 'undefined' ||
-    typeof actions.component.args === 'undefined' ||
-    typeof actions.component.args.component === 'undefined' ||
-    typeof actions.component.args.init === 'undefined'
-  ) {
-    throw new Error('Need a current component!');
+  if (Object.keys(staticRenderMap).indexOf(component.type) < 0) {
+    throw new Error(`Unknown component type '${component.type}'`);
   }
-  if ([
-    'preset.renderEjsComponent',
-    'preset.renderReactComponent',
-    'preset.renderVueComponent',
-    'preset.renderStaticHtml'
-  ].indexOf(actions.component.type) < 0) {
-    throw new Error(`Unknown component type '${actions.component.type}'`);
-  }
-
-  const staticRenderMap = {
-    'preset.renderEjsComponent': 'ejs',
-    'preset.renderReactComponent': 'react',
-    'preset.renderVueComponent': 'vue',
-    'preset.renderStaticHtml': 'static'
-  };
 
   components[modelType] = {
     renderEngine: staticRenderMap[actions.component.type],
     comoponent: actions.component.args.component,
     init: actions.component.args.init,
-    actions: Object.keys(actions).filter(
-      key => ['path', 'protocol', 'component'].indexOf(key) < 0
-    )
+    actions
   };
 
   if (typeof bindRenderTasks[modelType] !== 'undefined') {
@@ -130,6 +116,7 @@ export function bindComponent(
             })
         }), {})
       }), document.getElementById(elementID));
+
       appendListener(() => {
         render(createElement(components[modelType] as any, {
           ...getState(modelID),
