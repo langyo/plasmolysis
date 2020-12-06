@@ -35,7 +35,7 @@ switch(getPlatform()) {
   case 'js.browser':
     setProtocol(
       'js.node',
-      (path, obj) => await axios.post(`/${path.split('.').join('/')}`, obj)
+      async (path, obj) => await axios.post(`/${path.split('.').join('/')}`, obj)
     );
     break;
   default:

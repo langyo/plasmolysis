@@ -3,27 +3,35 @@ import {
   createModel,
   destoryModel
 } from 'nickelcat-action-preset/stateManager';
+import {
+  bindComponent
+} from 'nickelcat-action-preset/modelManager';
+import { generate } from 'shortid';
 
 let pageTitle: string = '';
 let pageType: string = '';
-let pageID: string = '';
+let pageID: string = generate();
 
 export function loadPage(
   pageType: string,
   initState: { [key: string]: any }
 ): void {
-  if (typeof getModelIDList()['$page'] !== 'undefined') {
-    destoryModel('$page');
+  if (typeof getModelIDList()[pageID] !== 'undefined') {
+    destoryModel(pageID);
   }
-  createModel(pageType, initState, '$page');
+  pageID = generate();
+  createModel(
+    pageType, initState, pageID,
+    bindComponent(pageTitle, pageID, initState)
+  );
 }
 
 export function getPageType(): string {
-  if (typeof getModelIDList()['$page'] === 'undefined') {
+  if (typeof getModelIDList()[pageID] === 'undefined') {
     return '';
   }
   else {
-    return getModelIDList()['$page'];
+    return getModelIDList()[pageID];
   }
 }
 

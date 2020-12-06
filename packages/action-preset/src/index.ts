@@ -39,7 +39,7 @@ export { renderStaticHtml } from './lib/component/renderStaticHtml';
 export { routeHttp } from './lib/route/routeHttp';
 export { routeWebSocket } from './lib/route/routeWebSocket';
 
-import { getPlatform } from 'nickelcat/contextManger';
+import { getPlatform } from 'nickelcat/contextManager';
 if (getPlatform() === 'js.browser') {
   require('./modelManager');
   require('./stateManager');

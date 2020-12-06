@@ -92,7 +92,7 @@ async function linkDepsToSrc() {
             ).isSymbolicLink()) {
               unlink(resolve(`./packages/${pkg}/node_modules/${peerDep}`));
             }
-          } catch(e) { }
+          } catch(e) { /* Ignore */ }
 
           symlink(
             resolve(`./packages/${deps[peerDep]}/src`),
@@ -112,7 +112,7 @@ async function linkPkgJsonFile() {
     if (exists(resolve(`./packages/${pkg}/package.json`))) {
       try {
         unlink(`./packages/${pkg}/dist/package.json`);
-      } catch(e) { }
+      } catch(e) { /* Ignore */ }
       symlink(
         resolve(`./packages/${pkg}/package.json`),
         resolve(`./packages/${pkg}/dist/package.json`)
@@ -127,7 +127,7 @@ async function linkDistDepsFolder() {
     if (exists(resolve(`./packages/${pkg}/node_modules`))) {
       try {
         unlink(`./packages/${pkg}/dist/node_modules`);
-      } catch(e) { }
+      } catch(e) { /* Ignore */ }
       if (exists(resolve(`./packages/${pkg}/dist`))) {
         symlink(
           resolve(`./packages/${pkg}/node_modules`),
@@ -216,7 +216,7 @@ export const publish = series(
     }
 
     // Create a version tag.
-    return series.call(null,
+    return series.call(undefined,
       spawn(
         'git', ['add', '.'],
         { stdio: 'inherit', cwd: process.cwd() }

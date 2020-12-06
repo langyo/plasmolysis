@@ -3,30 +3,35 @@ import { hasRuntime, runRuntime } from '../runtimeManager';
 import { registerAction } from '../actionManager';
 
 export function dispatch(
-  path: string
+  func: (variants: { [key: string]: unknown }) => ({
+    modelType: string, actionName: string, modelID: string
+  })
 ): IRuntimeObject {
-  if (path.indexOf('.') < 0) {
-    throw new Error(`Illegal path: ${path}`);
-  }
-  const tag = path.substr(path.indexOf('.'));
-  const name = path.substr(path.indexOf('.') + 1, path.length);
   return {
     type: '*.dispatch',
-    args: { tag, name }
+    args: { func }
   };
 }
 
 registerAction(
   '*.dispatch',
   '*',
-  ({ tag, name }) => async (
+  ({ func }: {
+    func: (
+      payload: { [key: string]: unknown },
+      variants: { [key: string]: unknown }
+    ) => ({
+      modelType: string, actionName: string, modelID: string
+    })
+  }) => async (
     payload, variants
   ) => {
-    if (!hasRuntime(tag, name)) {
-      throw new Error(`Illegal path: ${tag}.${name}`);
+      const { modelType, actionName, modelID } = func(payload, variants);
+      if (!hasRuntime(modelType, actionName)) {
+        throw new Error(`Illegal path: ${modelType}.${actionName}`);
+      }
+      return await runRuntime(
+        modelType, actionName, modelID, payload
+      );
     }
-    return await runRuntime(
-      tag, name, payload, variants
-    );
-  }
 );
