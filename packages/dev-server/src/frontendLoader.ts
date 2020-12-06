@@ -13,7 +13,8 @@ export async function installComponent(
   options: {
     routePath: string,
     isGlobalComponent?: boolean,
-    isPageEntry?: boolean
+    isPageEntry?: boolean,
+    extraActionPackages?: string[]
   }
 ) {
   switch (component.type) {
@@ -21,15 +22,20 @@ export async function installComponent(
       const { code, sourceMap } = await webpackCompiler(`
 window.__nickelcat_action_preset.modelManager.storageComponent(
   ${options.routePath},
-  require(${filePath}).component
+  require(${filePath}).component,
+  ${JSON.stringify(Object.keys(controllers))}
 );
-      `, 'web', {
+      `, {
+        target: 'web',
         externals: {
           'react': '__react',
           'react-dom': '__react_dom',
           'nickelcat': '__nickelcat',
           'nickelcat-action-preset': '__nickelcat_action_preset',
-          'nickelcat-action-routes': '__nickelcat_action_routes'
+          'nickelcat-action-routes': '__nickelcat_action_routes',
+          ...(options.extraActionPackages || []).reduce((obj, pkg) => ({
+            ...obj, [pkg]: `__${pkg.split('-').join('_')}`
+          }), {})
         }
       });
       compiledSourceCode[options.routePath] = code;
@@ -46,4 +52,5 @@ window.__nickelcat_action_preset.modelManager.storageComponent(
 }
 
 export async function uninstallComponent() {
+  // TODO - Try to dynamic uninstall.
 }

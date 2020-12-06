@@ -1,13 +1,12 @@
 import { IRuntimeObject, IWebClientComponentType } from 'nickelcat';
 import {
   getRuntimeList,
-  runRuntime,
-  registerVariantsGenerator
+  runRuntime
 } from 'nickelcat/runtimeManager';
 import {
   getState,
   getGlobalState,
-  appendListener
+  createModel
 } from './stateManager';
 import { IInitArgs } from './index';
 
@@ -23,7 +22,19 @@ let components: {
     actions: string[]   // The controllers are saved in the runtime manager.
   }
 } = {};
-let bindRenderTasks: { [modelType: string]: string[] } = {};
+
+declare global {
+  interface Window {
+    __$bindRenderTasks: {
+      [modelType: string]: {
+        [modelID: string]: {
+          // Initial state from the server.
+          [key: string]: any
+        }
+      }
+    }
+  }
+}
 
 const staticRenderMap = {
   'preset.renderEjsComponent': 'ejs',
@@ -42,17 +53,25 @@ export function storageComponent(
   }
 
   components[modelType] = {
-    renderEngine: staticRenderMap[actions.component.type],
-    comoponent: actions.component.args.component,
-    init: actions.component.args.init,
+    renderEngine: staticRenderMap[component.type],
+    comoponent: component.args.component,
+    init: component.args.init,
     actions
   };
 
-  if (typeof bindRenderTasks[modelType] !== 'undefined') {
-    for (const modelID of bindRenderTasks[modelType]) {
-      bindComponent(modelType, modelID);
+  if (typeof window.__$bindRenderTasks[modelType] !== 'undefined') {
+    for (const modelID of Object.keys(window.__$bindRenderTasks[modelType])) {
+      createModel(
+        modelType,
+        window.__$bindRenderTasks[modelType][modelID],
+        modelID,
+        bindComponent(
+          modelType, modelID,
+          window.__$bindRenderTasks[modelType][modelID]
+        )
+      );
     }
-    delete bindRenderTasks[modelType];
+    delete window.__$bindRenderTasks[modelType];
   }
 };
 
@@ -60,6 +79,8 @@ export function getModelList(): string[] {
   return Object.keys(components);
 }
 
+// Pre render the component at the server,
+// and returns a static DOM string.
 export function preRenderComponent(
   modelType: string,
   initArgs: IInitArgs
@@ -88,36 +109,32 @@ export function preRenderComponent(
 
 }
 
+// Binds data to an existing DOM component,
+// and returns a callback called when the component is updated.
 export function bindComponent(
   modelType: string,
-  modelID: string = generate()
-): string {
+  modelID: string = generate(),
+  initState: { [key: string]: any } = {}
+): (() => void) {
   if (typeof components[modelType] === 'undefined') {
-    // Wait the render task until the component has registered.
-    if (typeof bindRenderTasks[modelType] === 'undefined') {
-      bindRenderTasks[modelType] = [];
-    }
-    bindRenderTasks[modelType].push(modelID);
-    return modelID;
+    throw new Error(`The component render must exist: '${modelType}'.`);
   }
 
   switch (components[modelType].renderEngine) {
     case 'react':
       const elementID = `nickelcat-model-${modelID}`;
       hydrate(createElement(components[modelType] as any, {
-        ...getState(modelID),
+        ...initState,
         ...getGlobalState(),
-        ...getRuntimeList(modelType).reduce((obj, key) => ({
+        ...components[modelType].actions.reduce((obj, key) => ({
           ...obj,
-          [key]: (payload: { [key: string]: any }) =>
-            runRuntime(modelType, key, payload, {
-              modelType,
-              modelID
-            })
+          [key]:
+            (payload: { [key: string]: any }) =>
+              runRuntime(modelType, key, modelID, payload)
         }), {})
       }), document.getElementById(elementID));
 
-      appendListener(() => {
+      return () => {
         render(createElement(components[modelType] as any, {
           ...getState(modelID),
           ...getGlobalState(),
@@ -125,15 +142,12 @@ export function bindComponent(
             modelType
           ).reduce((obj, key) => ({
             ...obj,
-            [key]: (payload: { [key: string]: any }) =>
-              runRuntime(modelType, key, payload, {
-                modelType,
-                modelID
-              })
+            [key]:
+              (payload: { [key: string]: any }) =>
+                runRuntime(modelType, key, modelID, payload)
           }), {})
         }), document.getElementById(elementID));
-      }, modelID);
-      return modelID;
+      };
 
     // TODO - The other frameworks' support.
     case 'vue':

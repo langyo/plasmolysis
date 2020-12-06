@@ -7,57 +7,24 @@ export interface IGlobalState {
   [key: string]: unknown
 };
 
-interface IModelStateRoute {
-  [modelType: string]: string[]
-};
-
-type IListenerFunc = (diff: ({
-  type: string,
-  id: string,
-  type: 'create' | 'change' | 'remove'
-})[]) => void;
-
-import { generate } from 'shortid';
-
-// TODO - Check the logic.
-let globalState: Readonly<{ [key: string]: any }> = {};
-let modelStateRoute: IModelStateRoute = {};
+let globalState: { [key: string]: any } = {};
+let modelState: { [key: string]: any } = {};
 let modelIDMap: { [modelID: string]: string } = {};
-let prevModelIDMap: { [modelID: string]: string } = {};
-let modelState: Readonly<{ [key: string]: any }> = {};
+let listeners: { [id: string]: () => void } = {};
 
-let listeners: {
-  [id: string]: (
-    prevModelIDMap: { [modelID: string]: string },
-    nextModelIDMap: { [modelID: string]: string }
-  ) => void
-} = {};
-
-export function updateListeners() {
-  for (const id of Object.keys(listeners)) {
-    listeners[id](prevModelIDMap, modelIDMap);
+export function getState(modelID: string): Readonly<{ [key: string]: any }> {
+  if (typeof modelState[modelID] === 'undefined') {
+    throw new Error(`The model '${modelID}' doesn't exist.`);
   }
-  prevModelIDMap = { ...modelIDMap };
+  return { ...modelState[modelID] };
 }
 
-export function appendListener(
-  func: (
-    prevIDList: { [modelID: string]: string },
-    nextIDList: { [modelID: string]: string }
-  ) => void,
-  id: string
-): void {
-  if (typeof listeners[id] !== 'undefined') {
-    throw new Error(`The listener '${id}' has already declared.`);
-  }
-  listeners[id] = func;
+export function getGlobalState(): IGlobalState {
+  return { ...globalState };
 }
 
-export function removeListener(id: string): void {
-  if (typeof listeners[id] === 'undefined') {
-    throw new Error(`The listener '${id}' doesn't exist.`);
-  }
-  delete listeners[id];
+export function getModelIDList(): { [modelID: string]: string } {
+  return { ...modelIDMap };
 }
 
 export function setState(
@@ -70,46 +37,19 @@ export function setState(
   ) {
     throw new Error(`The model '${modelID}' doesn't exist.`);
   }
-  modelState = merge(modelState, { [modelID]: combineState });
-  updateListeners();
-}
-
-export function getState(modelID: string): Readonly<{ [key: string]: any }> {
-  if (typeof modelState[modelID] === 'undefined') {
-    throw new Error(`The model '${modelID}' doesn't exist.`);
-  }
-  return { ...modelState[modelID] };
+  modelState = { ...modelState, [modelID]: combineState };
 }
 
 export function setGlobalState(combineState: { [key: string]: any }): void {
-  globalState = merge(globalState, combineState);
-  updateListeners();
-}
-
-export function getGlobalState(): IGlobalState {
-  return { ...globalState };
-}
-
-export function getModelList(): IModelStateRoute {
-  return { ...modelStateRoute };
-}
-
-export function getModelIDList(): { [modelID: string]: string } {
-  return { ...modelIDMap };
+  globalState = { ...globalState, ...combineState };
 }
 
 export function createModel(
   modelType: string,
-  initState?: { [key: string]: any },
-  modelID?: string
+  initState: { [key: string]: any },
+  modelID: string,
+  updateListener: () => void
 ): string {
-  if (typeof initState === 'undefined') {
-    initState = {};
-  }
-  if (typeof modelID === 'undefined') {
-    modelID = generate();
-  }
-
   if (
     typeof modelState[modelID] !== 'undefined' ||
     typeof modelIDMap[modelID] !== 'undefined'
@@ -119,56 +59,26 @@ export function createModel(
 
   modelState = {
     ...modelState,
-    [modelID]: runRuntime(
-      modelType, 'init', initState, { modelType, modelID }
-    )
-  };
-  modelStateRoute = {
-    ...modelStateRoute, [modelType]: [...modelStateRoute[modelType], modelID]
+    [modelID]: initState
   };
   modelIDMap = { ...modelIDMap, [modelID]: modelType };
-  updateListeners();
+  listeners[modelID] = updateListener;
   return modelID;
 }
 
 export function destoryModel(modelID: string): void {
   if (
     typeof modelState[modelID] === 'undefined' ||
-    typeof modelIDMap[modelID] === 'undefined'
+    typeof modelIDMap[modelID] === 'undefined' ||
+    typeof listeners[modelID] === 'undefined'
   ) {
-    throw new Error(`The model '${modelID}' doesn't exist.`);
+    throw new Error(`The data of the model '${modelID}' is broken.`);
   }
-  modelState = Object.keys(modelState).filter(n => n !== modelID).reduce(
-    (obj, key) => ({ ...obj, [key]: modelState[key] }), {}
-  );
-  const modelType = modelIDMap[modelID];
-  modelStateRoute = {
-    ...modelStateRoute,
-    [modelType]: modelStateRoute[modelType].filter(n => n !== modelID)
-  };
-  modelIDMap = Object.keys(modelIDMap).filter(n => n !== modelID).reduce(
-    (obj, key) => ({ ...obj, [key]: modelIDMap[key] }), {}
-  );
-  updateListeners();
-}
-
-export function evaluateModelAction(
-  modelID: string,
-  actionType: string,
-  payload: { [key: string]: any }
-): Readonly<{ [key: string]: any }> {
-  if (
-    Object.keys(modelState).indexOf(modelID) < 0 ||
-    Object.keys(modelIDMap).indexOf(modelID) < 0
-  ) {
-    throw new Error(`The model '${modelID}' doesn't exist.`);
-  }
-  const modelType = modelIDMap[modelID];
-  return runRuntime(
-    modelType, actionType, payload, { modelType, modelID }
-  );
+  delete modelState[modelID];
+  delete modelIDMap[modelID];
+  delete listeners[modelID];
 }
 
 registerVariantsGenerator('state', (id: string) => modelState[id] || {});
-registerVariantsGenerator('globalState', (id: string) => globalState);
-registerVariantsGenerator('models', (id: string) => modelIDMap);
+registerVariantsGenerator('globalState', (_id: string) => globalState);
+registerVariantsGenerator('models', (_id: string) => modelIDMap);
