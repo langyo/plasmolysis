@@ -1,5 +1,5 @@
 import { IRuntimeObject } from 'nickelcat';
-import { IInitArgs } from '../../index';
+import { IInitArgs } from 'nickelcat-action-preset';
 
 export function routeWebSocket(
 ): IRuntimeObject {

@@ -1,9 +1,13 @@
-export { pushHead } from './lib/pushHead';
-export { pushContent } from './lib/pushContent';
-export { routeToStatic } from './lib/routeToStatic';
-export { routeToService } from './lib/routeToService';
-export { renderComponent } from './lib/renderComponent';
-export { togglePage } from './lib/togglePage';
+export { togglePage } from './lib/frontend/togglePage';
+
+export { routeHttp } from './lib/protocol/routeHttp';
+export { routeWebSocket } from './lib/protocol/routeWebSocket';
+
+export { pushHead } from './lib/service/pushHead';
+export { pushContent } from './lib/service/pushContent';
+export { routeToStatic } from './lib/service/routeToStatic';
+export { routeToService } from './lib/service/routeToService';
+export { renderComponent } from './lib/service/renderComponent';
 
 import { getPlatform } from 'nickelcat/contextManager';
 if (getPlatform() === 'js.browser') {

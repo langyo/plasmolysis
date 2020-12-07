@@ -8,8 +8,8 @@ import {
 } from 'nickelcat-action-preset/stateManager';
 import {
   getPageType,
-  loadPage
-} from '../routeManager';
+  togglePage as togglePageInside
+} from '../../routeManager';
 
 export function togglePage(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
@@ -55,7 +55,7 @@ registerAction(
       modelID
     });
 
-    loadPage(type, initState);
+    togglePageInside(type, initState);
     window.history.pushState(
       initState, '',
       `${type}${initState && typeof initState === 'object' && Object.keys(initState).length > 0 ?
