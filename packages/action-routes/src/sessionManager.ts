@@ -1,3 +1,4 @@
+import { registerVariantsGenerator } from 'nickelcat/runtimeManager';
 import { generate } from 'shortid';
 import { Writable } from 'stream';
 
@@ -13,73 +14,125 @@ interface ICookie {
   signed?: boolean
 }
 
+export type IIpv4 = [number, number, number, number];
+export type IIpv6 = [number, number, number, number, number, number];
+
+export type IProtocol = 'http' | 'webspcket';
+
 export interface ISessionInfo {
-  ip: string,
-  protocol: string,
-  lastUpdate?: number,
-  alive?: boolean,
-  host: string,
-  path: string,
-  query: { [key: string]: string },
+  ip: IIpv4 | IIpv6,
+  ipRoute: IIpv4[] | IIpv6[],
   cookies: {
     [key: string]: ICookie
-  }
+  },
+  verifyString: string,
+  lastVerifyRefreshTime: number
 }
 
-let sessionInfo: { [id: string]: ISessionInfo } = {};
-let sessionStream: { [id: string]: Writable } = {};
+export interface IActiveConnection {
+  protocol: IProtocol,
+  port: number,
+  birth: number,
+  lastUpdate: number,
+  lost: string,
+  path: string,
+  query: { [key: string]: string },
+  heads: { [key: string]: string },
+}
+
+let activeSessions: { [ip: string]: ISessionInfo } = {};
+let activeConnections: {
+  [ip: string]: {
+    [id: string]: IActiveConnection & { stream: Writable }
+  }
+} = {};
 
 export function joinSession(
-  info: ISessionInfo,
-  stream: Writable,
-  modifier?: {} // TODO - Such as cookies, heads.
+  sessionInfo: ISessionInfo,
+  connectionInfo: IActiveConnection,
+  stream: Writable
 ): string {
+  const ip = sessionInfo.ip.join('.');
+  activeSessions[ip] = sessionInfo;
+
   const id = generate();
-  sessionInfo[id] = info;
-  sessionInfo[id].lastUpdate = Date.now();
-  sessionInfo[id].alive = true;
-  sessionStream[id] = stream;
+  if (typeof activeConnections[ip] === 'undefined') {
+    activeConnections[ip] = {};
+  }
+  activeConnections[ip][id] = { ...connectionInfo, stream };
+
   return id;
 }
 
-export function getCookies(id: string): Readonly<{ [key: string]: ICookie }> {
-  if (typeof sessionInfo[id] === 'undefined') {
-    throw new Error(`Cannot find the session '${id}'.`);
-  }
-  return sessionInfo[id].cookies;
-}
-
 export function getSessionList(): string[] {
-  return Object.keys(sessionInfo);
+  return Object.keys(activeSessions);
 }
 
-export function getSessionAge(id: string): number {
-  if (typeof sessionInfo[id] === 'undefined') {
-    throw new Error(`Cannot find the session '${id}'.`);
+export function getConnectionList(ip: string): string[] {
+  return Object.keys(activeConnections[ip] && activeConnections[ip] || {});
+}
+
+export function getSessionInfo(ip: string): ISessionInfo {
+  if (typeof activeSessions[ip] === 'undefined') {
+    throw new Error(`The session '${ip}' is not exist.`);
   }
-  return Date.now() - sessionInfo[id].lastUpdate;
+  return activeSessions[ip];
+}
+
+export function getConnectionInfo(ip: string, id: string) {
+  if (
+    typeof activeConnections[ip] === 'undefined' ||
+    typeof activeConnections[ip][id] === 'undefined'
+  ) {
+    throw new Error(
+      `The connection '${id}' at the address '${ip}' is not exist.`
+    );
+  }
+  return activeConnections[ip][id];
 }
 
 // Cut down the connection to the client, but keep the session exist.
-export function leaveSession(id: string): void {
-  if (typeof sessionStream[id] !== 'undefined') {
-    delete sessionStream[id];
-  }
-  if (typeof sessionInfo[id] !== 'undefined') {
-    sessionInfo[id].alive = false;
+export function leaveConnection(ip: string, id: string): void {
+  if (
+    typeof activeSessions[ip] !== 'undefined' &&
+    typeof activeConnections[ip] !== 'undefined' &&
+    typeof activeConnections[ip][id] !== 'undefined'
+  ) {
+    activeConnections[ip][id].stream.end();
+    delete activeConnections[ip][id];
   }
 }
 
 // Delete the session, including the entity itself.
-export function killSession(id: string): void {
-  if (typeof sessionStream[id] !== 'undefined') {
-    delete sessionStream[id];
+export function killSession(ip: string): void {
+  if (typeof activeConnections[ip] !== 'undefined') {
+    for (const id of Object.keys(activeConnections[ip])) {
+      activeConnections[ip][id].stream.end();
+    }
+    delete activeConnections[ip];
   }
-  if (typeof sessionInfo[id] !== 'undefined') {
-    delete sessionInfo[id];
+  if (typeof activeSessions[ip] !== 'undefined') {
+    delete activeSessions[ip];
   }
 }
 
 export function writeToSession(id: string, data: string) {
   return;
 }
+
+registerVariantsGenerator('sessionInfo', (id: string) => {
+  for (const ip of Object.keys(activeConnections)) {
+    if (Object.keys(activeConnections[ip]).indexOf(id) >= 0) {
+      return ip;
+    }
+  }
+  throw new Error(`Cannot find the address of the connection '${id}'.`);
+});
+registerVariantsGenerator('connectionInfo', (id: string) => {
+  for (const ip of Object.keys(activeConnections)) {
+    if (typeof activeConnections[ip][id] !== 'undefined') {
+      return activeConnections[ip][id];
+    }
+  }
+  throw new Error(`Cannot find the address of the connection '${id}'.`);
+})

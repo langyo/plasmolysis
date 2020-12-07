@@ -62,9 +62,9 @@ export function getPageTitle(): string {
 
 export function setCookie(
   key: string, value: string,
-  { age, domain, path, sameSite, secure }: {
+  { expire, domain, path, sameSite, secure }: {
     // The default is valid only for this conversation.
-    age?: Date,
+    expire?: Date,
     domain?: string,
     path?: string,
     sameSite?: 'none' | 'strict' | 'lax',
@@ -73,8 +73,8 @@ export function setCookie(
   } = {}
 ) {
   let options: string[] = [];
-  if (typeof age !== 'undefined') {
-    options.push(`Expires=${age.toUTCString()}`);
+  if (typeof expire !== 'undefined') {
+    options.push(`Expires=${expire.toUTCString()}`);
   }
   if (typeof domain !== 'undefined') {
     if (
