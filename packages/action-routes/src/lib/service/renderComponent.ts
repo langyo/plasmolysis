@@ -6,9 +6,7 @@ export function renderComponent(
 ): IRuntimeObject {
   return {
     type: 'routes.renderComponent',
-    args: {
-      key, value
-    }
+    args: { key, value }
   };
 };
 

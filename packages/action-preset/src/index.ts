@@ -31,11 +31,6 @@ export { destoryModel } from './lib/model/destoryModel';
 export { setGlobalState } from './lib/model/setGlobalState';
 export { setState } from './lib/model/setState';
 
-export { renderReactComponent } from './lib/component/renderReactComponent';
-export { renderVueComponent } from './lib/component/renderVueComponent';
-export { renderEjsComponent } from './lib/component/renderEjsComponent';
-export { renderStaticHtml } from './lib/component/renderStaticHtml';
-
 import { getPlatform } from 'nickelcat/contextManager';
 if (getPlatform() === 'js.browser') {
   require('./modelManager');

@@ -7,7 +7,8 @@ export function routeWebSocket(
     port?: string,
     path: string,
     security?: 'wsOnly' | 'wssOnly' | 'auto'
-  }
+  },
+  action: IRuntimeObject
 ): IRuntimeObject {
   return {
     type: 'preset.routeWebSocket',
