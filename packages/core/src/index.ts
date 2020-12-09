@@ -2,7 +2,7 @@
 /// <reference types="vue" />
 
 export type IPlatforms =
-  'js.browser' | 'js.node' | 'js.electron' | 'js.cordova' | 'js.flutter';
+  'js.browser' | 'js.node' | 'js.native.electron' | 'js.native.cordova' | 'js.flutter';
 
 export type IWebClientComponentType =
   (props: {

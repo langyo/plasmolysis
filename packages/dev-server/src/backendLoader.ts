@@ -5,6 +5,7 @@ import {
   splitThroughRegex,
   vmLoader
 } from './utils';
+import { installComponent } from './frontendLoader';
 
 export let routeTasks: {
   [id: number]: {
@@ -23,10 +24,7 @@ export async function installRoute(
 ) {
   switch(route.type) {
     case 'preset.routeHttp':
-    case 'preset.routeFtp':
     case 'preset.routeWebSocket':
-    // case 'preset.routeSmtp':
-    // case 'preset.routeStaticFile':
     default:
   }
 }
