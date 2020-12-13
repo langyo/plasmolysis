@@ -15,9 +15,13 @@
     "test": "jest ./test --watch"
   },
   "dependencies": {
-    "@babel/core": "^7.12.9",
-    "@babel/preset-react": "^7.12.7",
-    "@babel/preset-typescript": "^7.12.7",
+    "@babel/core": "^7.12.10",
+    "@babel/generator": "^7.12.10",
+    "@babel/parser": "^7.12.10",
+    "@babel/preset-react": "^7.12.10",
+    "@babel/preset-typescript": "^7.12.10",
+    "@babel/traverse": "^7.12.10",
+    "@babel/types": "^7.12.10",
     "error-stack-parser": "^2.0.6",
     "memfs": "^3.2.0",
     "terser-webpack-plugin": "^5.0.3",
