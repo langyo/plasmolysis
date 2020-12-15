@@ -1,13 +1,11 @@
 import { IRuntimeObject } from 'nickelcat';
-import { registerAction } from 'nickelcat/actionManager';
 import { IGetters } from '../../index';
 import { getModelList } from '../../modelManager';
-import {
-  getGlobalState,
-  getState
-} from '../../stateManager';
+import { getGlobalState, getState } from '../../stateManager';
 import { getPageType } from 'nickelcat-action-routes/routeManager';
 import { generate } from 'shortid';
+
+// TODO - How to input the variants?
 
 export function createModel(
   func: (payload: { [key: string]: any }, utils: IGetters) => {
@@ -15,12 +13,12 @@ export function createModel(
     initState: { [key: string]: any },
     name?: string
   }
-): IRuntimeObject;
+): string;
 export function createModel(
   type: string,
   initState?: { [key: string]: any },
   name?: string
-): IRuntimeObject;
+): string;
 export function createModel(
   arg0: ((payload: { [key: string]: any }, utils: IGetters) => {
     type: string,
@@ -29,36 +27,21 @@ export function createModel(
   }) | string,
   arg1?: { [key: string]: any },
   arg2?: string
-): IRuntimeObject {
-  const generator = typeof arg0 === 'string' ? () => ({
-    type: arg0,
-    initState: arg1 || {},
-    name: arg2 || generate()
-  }) : arg0;
+): string {
+  const {
+    type, initState, name
+  } = typeof arg0 === 'string' ? {
+    type: arg0, initState: arg1, name: arg2
+  } : generator(payload, {
+    state: getState(modelID),
+    globalState: getGlobalState(),
+    modelList: getModelList(),
+    pageType: getPageType(),
+    modelType,
+    modelID
+  });
 
-  return {
-    type: 'preset.createModel',
-    args: { generator }
-  };
+  createModel(type, initState, name);
+  return payload;
 };
 
-registerAction(
-  'preset.createModel',
-  'js.browser',
-  ({ generator }) => async (
-    payload, {
-      modelType, modelID
-    }
-  ) => {
-    const { type, initState, name } = generator(payload, {
-      state: getState(modelID),
-      globalState: getGlobalState(),
-      modelList: getModelList(),
-      pageType: getPageType(),
-      modelType,
-      modelID
-    });
-    createModel(type, initState, name);
-    return payload;
-  }
-);

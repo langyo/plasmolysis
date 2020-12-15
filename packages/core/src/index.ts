@@ -1,19 +1,11 @@
 /// <reference types="react" />
 /// <reference types="vue" />
 
-export type IPlatforms =
-  'js.browser' | 'js.node' | 'js.native.electron' | 'js.native.cordova' | 'js.flutter';
-
 export type IWebClientComponentType =
   (props: {
     state: { [key: string]: unknown },
     trigger: { [key: string]: (payload: { [key: string]: any }) => void }
   }) => string | React.Component | Vue.Component;
-
-export interface IRuntimeObject {
-  type: string,
-  args: { [key: string]: any }
-};
 
 export type IRuntimeFunc = (args: { [key: string]: any }) => (
   payload: { [key: string]: any },
@@ -22,20 +14,12 @@ export type IRuntimeFunc = (args: { [key: string]: any }) => (
 
 import './contextManager';
 import './actionManager';
-import './logManager';
 import './runtimeManager';
 import './linkManager';
 
-export { series } from './lib/series';
-export { parallel } from './lib/parallel';
-export { sideonly } from './lib/sideonly';
-export { test } from './lib/test';
-export { loop } from './lib/loop';
-export { wait } from './lib/wait';
-export { dispatch } from './lib/dispatch';
-export { link } from './lib/link';
-export { trap } from './lib/trap';
-export { crash } from './lib/crash';
+export { to } from './lib/to';
+export { on } from './lib/on';
 
 import 'nickelcat-action-preset';
 import 'nickelcat-action-routes';
+

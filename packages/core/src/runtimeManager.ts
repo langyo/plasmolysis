@@ -1,17 +1,15 @@
-import { IRuntimeObject } from './index';
+import { IRuntimeFunc } from './index';
 import { getPlatform } from './contextManager';
 import { runAction } from './actionManager';
 
-let runtimes: { [tag: string]: { [actionName: string]: IRuntimeObject } } = {};
+let runtimes: { [tag: string]: { [actionName: string]: IRuntimeFunc } } = {};
 
 export function loadRuntime(
-  runtime: IRuntimeObject,
+  runtime: IRuntimeFunc,
   tag: string,
   name: string
 ): void {
-  if (typeof runtime[getPlatform()] !== 'undefined') {
-    runtimes[tag][name] = runtime[getPlatform()];
-  }
+  runtimes[tag][name] = runtime;
 };
 
 export function getRuntimeList(tag: string): string[] {
