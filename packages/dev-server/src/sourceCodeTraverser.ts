@@ -6,8 +6,9 @@ import * as t from '@babel/types';
 export function parseSourceCode(
   routePath: string, sourceCode: string
 ): { [env: string]: { [path: string]: { code: string, map: string } } } {
-  let importNodes = [];
-  let identifierMap: { [key: string]: string } = {
+  let importNodes: string[] = [];
+  let importSpecSet: string[] = [];
+  let specActionMap = {
     on: 'on',
     to: 'to'
   };
@@ -20,31 +21,44 @@ export function parseSourceCode(
       ImportDeclaration({ node }) {
         importNodes.push(node);
 
-        // Scan for the special importion.
-        if (node.source.value === 'nickelcat') {
-          for (const { type, imported, local } of specifiers) {
-            if (type === 'ImportSpecifier') {
-              switch (imported.name) {
-                case 'on':
-                case 'to':
-                  identifierMap[imported.name] = local.name;
-                  break;
-                default:
-                  break;
+        if (isActionPackage(node.source.value)) {
+          traverse(node, {
+            ImportSpecifier({ node }) {
+              importSpecSet.push(node.local.value);
+            } // TODO - Will support the other way.
+          });
+
+          if (node.source.value === 'nickelcat-action-preset') {
+            traverse(node, {
+              ImportSpecifier({ node }) {
+                switch(node.imported.value) {
+                  case 'on':
+                    specActionMap.on = node.local.value;
+                    break;
+                  case 'to':
+                    specActionMap.to = node.local.value;
+                    break;
+                  default:
+                    break;
+                }
               }
-            }
+            });
           }
         }
       },
       ExportNamedDeclaration({ node }) {
-        if (t.isVariableDeclaration(node.declaration, {
-          declarations: [
-            t.variableDeclarator(t.function())
-          ]
-        })) {
-          traverse(node.declaration.declarations[0].init.body.body, {
-
-          });
+        if (
+          t.isVariableDeclaration(node.declaration) &&
+          t.isCallExpression(node.declaration.declarations[0])
+        ) {
+          if (t.isStringLiteral(node.declaration.declarations[0].callee, {
+            value: specActionMap.on
+          })) {
+            node.declaration.declarations[0].replaceWith(traverse(
+              node.declaration.declarations[0], {
+              }
+            ));
+          }
         }
       }
     }
