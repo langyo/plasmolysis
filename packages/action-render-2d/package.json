@@ -1,7 +1,6 @@
 {
-  "name": "nickelcat-action-server-db",
+  "name": "nickelcat-action-render-2d",
   "description": "The library for evaluating the action stream.",
-  "version": "0",
   "scripts": {
     "test": "jest --watch"
   },

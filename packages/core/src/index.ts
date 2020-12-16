@@ -17,9 +17,5 @@ import './actionManager';
 import './runtimeManager';
 import './linkManager';
 
-export { to } from './lib/to';
-export { on } from './lib/on';
-
 import 'nickelcat-action-preset';
-import 'nickelcat-action-routes';
 

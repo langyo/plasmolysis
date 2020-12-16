@@ -1,5 +1,5 @@
 {
-  "name": "nickelcat-action-client-3d",
+  "name": "nickelcat-action-render-3d",
   "description": "The library for evaluating the action stream.",
   "scripts": {
     "test": "jest --watch"

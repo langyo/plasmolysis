@@ -1,5 +1,5 @@
 {
-  "name": "nickelcat-action-server-netfs",
+  "name": "nickelcat-action-netfs",
   "description": "The library for evaluating the action stream.",
   "version": "0",
   "scripts": {
