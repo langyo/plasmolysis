@@ -1,10 +1,11 @@
+import { IEnv } from './index';
 import { parse } from '@babel/parser';
 import { traverse } from '@babel/traverse';
 import { generate } from '@babel/generator';
 import * as t from '@babel/types';
 
 export function parseSourceCode(
-  routePath: string, sourceCode: string
+  envTag: IEnv, routePath: string, sourceCode: string
 ): { [env: string]: { [path: string]: { code: string, map: string } } } {
   let importNodes: string[] = [];
   let importSpecSet: string[] = [];
@@ -46,7 +47,7 @@ export function parseSourceCode(
           }
         }
       },
-      ExportNamedDeclaration({ node }) {
+      ExportNamedDeclaration({ node, remove }) {
         if (
           t.isVariableDeclaration(node.declaration) &&
           t.isCallExpression(node.declaration.declarations[0])
@@ -54,10 +55,23 @@ export function parseSourceCode(
           if (t.isStringLiteral(node.declaration.declarations[0].callee, {
             value: specActionMap.on
           })) {
-            node.declaration.declarations[0].replaceWith(traverse(
-              node.declaration.declarations[0], {
+            if (t.isStringLiteral(
+              node.declaration.declarations[0].arguments[0]
+            )) {
+              if (
+                node.declaration.declarations[0].arguments[0].value === envTag
+              ) {
+                node.declaration.declarations[0].replaceWith(
+                  t.asyncFunction();
+                );
+              } else {
+                remove();
               }
-            ));
+            } else {
+              throw node.declaration.declarations[0].buildFrameError(
+                'The first argument must be a string.'
+              );
+            }
           }
         }
       }
