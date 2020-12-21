@@ -14,10 +14,14 @@ export type ISourceMap = {
 export function traverser(
   envTag: IEnv,
   sourceCode: string,
-  actionList: { [path: string]: string[] }
+  methodPathMap: { [path: string]: string }
 ): ISourceMap {
   let ret: ISourceMap = { [envTag]: {} };
   let actionSet: string[] = [];
+
+  function verifyMethodPath(path: string): boolean {
+    
+  }
 
   traverse(parse(sourceCode, {
     sourceType: 'module',
@@ -25,15 +29,12 @@ export function traverser(
   }), {
     ImportDeclaration(path) {
       if (
-        Object.keys(actionList).indexOf(
+        Object.keys(methodPathMap).indexOf(
           join(path.get('source').value)
         ) >= 0
       ) {
         for (const n of path.get('specifiers')) {
-          if (
-            actionList[join(path.get('source').value)].indexOf(
-              n.get('imported').name)
-          ) {
+          if (verifyMethodPath(n.get('imported').name) {
             actionSet.push(n.get('local').value);
           }
         }
@@ -71,6 +72,9 @@ export function traverser(
           path.replaceWith(traverse(
             path.get('children.0.expression.properties'), {
             ObjectMethod(path) {
+
+            },
+            ObjectProperty(path) {
 
             }
           }));

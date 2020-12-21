@@ -1,7 +1,10 @@
+import {
+  setGlobalState as wrappedSetGlobalState
+} from '../../stateManager';
+
 export function setGlobalState(
   obj: { [key: string]: any }
-): { [key: string]: any } {
-  setGlobalState(obj);
-  return payload;
+) {
+  wrappedSetGlobalState(obj);
 };
 

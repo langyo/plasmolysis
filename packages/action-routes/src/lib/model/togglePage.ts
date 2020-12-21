@@ -2,6 +2,8 @@ import {
   togglePage as togglePageInside
 } from '../../routeManager';
 
+// TODO - Maybe we should write a new constructor type 'page'.
+
 export function togglePage(
   type: string,
   initState: { [key: string]: any }

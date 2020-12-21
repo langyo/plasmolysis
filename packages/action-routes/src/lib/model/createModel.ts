@@ -1,3 +1,6 @@
+import {
+  createModel as wrappedCreateModel
+} from '../../stateManager';
 import { generate } from 'shortid';
 
 export function createModel(
@@ -5,7 +8,7 @@ export function createModel(
   initState: { [key: string]: any } = {},
   name: string = generate()
 ): string {
-  createModel(type, initState, name);
-  return payload;
+  wrappedCreateModel(type, initState, name);
+  return name;
 };
 

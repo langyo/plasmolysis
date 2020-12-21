@@ -28,9 +28,3 @@ export { setState } from './lib/model/setState';
 
 export { pushHead } from './lib/service/pushHead';
 export { pushContent } from './lib/service/pushContent';
-
-export { renderReactComponent } from './lib/render/renderReactComponent';
-export { renderVueComponent } from './lib/render/renderVueComponent';
-export { renderEjsComponent } from './lib/render/renderEjsComponent';
-export { renderStaticHtml } from './lib/render/renderStaticHtml';
-

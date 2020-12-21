@@ -21,9 +21,25 @@
   "bugs": {
     "url": "https://github.com/langyo/nickelcat/issues"
   },
-  "nickelcatPackageInfo": {
-    "name": "routes",
-    "version": "1"
+  "nickelcatConstructors": {
+    "browser": {
+      "render": "./lib/render"
+    },
+    "server": {
+      "route": "./lib/route"
+    }
+  },
+  "nickelcatMethods": {
+    "render": {
+      "createModel": "./lib/model/createModel",
+      "destoryModel": "./lib/model/destoryModel",
+      "setGlobalState": "./lib/model/setGlobalState",
+      "setState": "./lib/model/setState"
+    },
+    "route": {
+      "pushHead": "./lib/service/pushHead",
+      "pushContext": "./lib/service/pushContext"
+    }
   },
   "repository": {
     "type": "git",
