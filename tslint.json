@@ -38,7 +38,7 @@
     "no-eval": true,
     "no-for-in-array": true,
     "no-invalid-template-strings": true,
-    "no-invalid-this": false,
+    "no-invalid-this": true,
     "no-null-keyword": true,
     "no-sparse-arrays": false,
     "no-string-throw": true,

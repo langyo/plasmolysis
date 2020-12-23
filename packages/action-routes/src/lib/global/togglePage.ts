@@ -2,7 +2,7 @@ import {
   togglePage as togglePageInside
 } from '../../routeManager';
 
-// TODO - Maybe we should write a new constructor type 'page'.
+// TODO - It will be a global method.
 
 export function togglePage(
   type: string,

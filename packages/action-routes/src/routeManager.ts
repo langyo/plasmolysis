@@ -1,55 +1,7 @@
-import {
-  getModelIDList,
-  createModel,
-  destoryModel
-} from 'nickelcat-action-preset/stateManager';
-import {
-  bindComponent
-} from 'nickelcat-action-preset/modelManager';
 import { generate } from 'shortid';
 
 let pageTitle: string = '';
 let pageID: string = generate();
-
-export function initPage(
-  pageType: string,
-  initState: { [key: string]: any }
-): void {
-  if (typeof getModelIDList()[pageID] !== 'undefined') {
-    throw new Error(`
-      The page has been initialized!
-      You should call 'togglePage' to rewrite the page information.
-    `);
-  }
-  pageID = generate();
-  createModel(
-    pageType, initState, pageID,
-    bindComponent(pageTitle, pageID, initState)
-  );
-}
-
-export function togglePage(
-  pageType: string,
-  initState: { [key: string]: any }
-): void {
-  if (typeof getModelIDList()[pageID] !== 'undefined') {
-    destoryModel(pageID);
-  }
-  pageID = generate();
-  createModel(
-    pageType, initState, pageID,
-    bindComponent(pageTitle, pageID, initState)
-  );
-}
-
-export function getPageType(): string {
-  if (typeof getModelIDList()[pageID] === 'undefined') {
-    throw new Error('The page has not been initialized.');
-  }
-  else {
-    return getModelIDList()[pageID];
-  }
-}
 
 export function setPageTitle(currentTitle: string): void {
   pageTitle = currentTitle;

@@ -20,11 +20,3 @@ export interface IModelVariants {
   globalState: { [key: string]: unknown },
   modelLists: { [type: string]: string }
 };
-
-export { createModel } from './lib/model/createModel';
-export { destoryModel } from './lib/model/destoryModel';
-export { setGlobalState } from './lib/model/setGlobalState';
-export { setState } from './lib/model/setState';
-
-export { pushHead } from './lib/service/pushHead';
-export { pushContent } from './lib/service/pushContent';

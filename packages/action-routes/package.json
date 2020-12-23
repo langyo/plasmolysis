@@ -30,15 +30,8 @@
     }
   },
   "nickelcatMethods": {
-    "render": {
-      "createModel": "./lib/model/createModel",
-      "destoryModel": "./lib/model/destoryModel",
-      "setGlobalState": "./lib/model/setGlobalState",
-      "setState": "./lib/model/setState"
-    },
-    "route": {
-      "pushHead": "./lib/service/pushHead",
-      "pushContext": "./lib/service/pushContext"
+    "browser": {
+      "togglePage": "./lib/global/togglePage"
     }
   },
   "repository": {

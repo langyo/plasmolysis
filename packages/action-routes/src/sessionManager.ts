@@ -1,4 +1,3 @@
-import { registerVariantsGenerator } from 'nickelcat/runtimeManager';
 import { generate } from 'shortid';
 import { Writable } from 'stream';
 
@@ -119,20 +118,3 @@ export function killSession(ip: string): void {
 export function writeToSession(id: string, data: string) {
   return;
 }
-
-registerVariantsGenerator('sessionInfo', (id: string) => {
-  for (const ip of Object.keys(activeConnections)) {
-    if (Object.keys(activeConnections[ip]).indexOf(id) >= 0) {
-      return ip;
-    }
-  }
-  throw new Error(`Cannot find the address of the connection '${id}'.`);
-});
-registerVariantsGenerator('connectionInfo', (id: string) => {
-  for (const ip of Object.keys(activeConnections)) {
-    if (typeof activeConnections[ip][id] !== 'undefined') {
-      return activeConnections[ip][id];
-    }
-  }
-  throw new Error(`Cannot find the address of the connection '${id}'.`);
-})
