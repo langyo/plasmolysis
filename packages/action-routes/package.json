@@ -22,17 +22,9 @@
     "url": "https://github.com/langyo/nickelcat/issues"
   },
   "nickelcatConstructors": {
-    "browser": {
-      "render": "./lib/render"
-    },
-    "server": {
-      "route": "./lib/route"
-    }
-  },
-  "nickelcatMethods": {
-    "browser": {
-      "togglePage": "./lib/global/togglePage"
-    }
+    "render": "./render",
+    "route": "./route",
+    "page": "./page"
   },
   "repository": {
     "type": "git",
