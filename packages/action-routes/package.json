@@ -22,7 +22,7 @@
     "url": "https://github.com/langyo/nickelcat/issues"
   },
   "nickelcatConstructors": {
-    "render": "./render",
+    "component": "./component",
     "route": "./route",
     "page": "./page"
   },
