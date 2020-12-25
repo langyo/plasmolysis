@@ -8,8 +8,8 @@
 
 格式如下：
 ```ts
-setState(obj:{ [key: string]: any })
-setState(func: (preload:{ [key: string]: any }) =>{ [key: string]: any })
+setState(obj:{ [key: string]: unknown })
+setState(func: (preload:{ [key: string]: unknown }) =>{ [key: string]: unknown })
 ```
 
 其中，第一个版本的函数直接将参数与原有的组件数据进行合并，冲突的部分以传进的参数数据覆盖原来的数据；第二个版本则需要传入具有一个参数的函数，函数接收的参数由组件在调用时提供，其返回的对象将会像第一个版本那样与原有的组件数据合并。
@@ -20,8 +20,8 @@ setState(func: (preload:{ [key: string]: any }) =>{ [key: string]: any })
 
 格式如下：
 ```ts
-setData(obj:{ [key: string]: any })
-setData(func: (preload:{ [key: string]: any }) =>{ [key: string]: any })
+setData(obj:{ [key: string]: unknown })
+setData(func: (preload:{ [key: string]: unknown }) =>{ [key: string]: unknown })
 ```
 )
 

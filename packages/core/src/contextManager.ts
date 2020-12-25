@@ -3,13 +3,13 @@ import {
 } from './index';
 
 const platform: IPlatforms = typeof window !== 'undefined' ? 'js.browser' : 'js.node';
-let configs: { [key: string]: any } = {};
+let configs: { [key: string]: unknown } = {};
 
 export function getPlatform(): IPlatforms {
   return platform;
 }
 
-export function getConfig(context: string): Readonly<{ [key: string]: any }> {
+export function getConfig(context: string): Readonly<{ [key: string]: unknown }> {
   if (typeof configs[context] === 'undefined') {
     return Object.freeze({});
   } else {
@@ -19,7 +19,7 @@ export function getConfig(context: string): Readonly<{ [key: string]: any }> {
 
 export function pushConfig(
   context: string,
-  value: { [key: string]: any }
+  value: { [key: string]: unknown }
 ): void {
   if (typeof configs[context] === 'undefined') {
     configs[context] = value;
@@ -32,22 +32,22 @@ export function pushConfig(
 }
 
 let beforeHook: {
-  [target: string]: ((args: any[]) => any)[]
+  [target: string]: ((args: unknown[]) => unknown)[]
 } = {};
 let afterHook: {
-  [target: string]: ((ret: any) => any)[]
+  [target: string]: ((ret: unknown) => unknown)[]
 } = {};
 
 export function registerHook(
-  beforeOrAfter: 'before', target: string, callback: (args: any[]) => any
+  beforeOrAfter: 'before', target: string, callback: (args: unknown[]) => unknown
 ): void;
 export function registerHook(
-  beforeOrAfter: 'after', target: string, callback: (ret: any) => any
+  beforeOrAfter: 'after', target: string, callback: (ret: unknown) => unknown
 ): void;
 export function registerHook(
   beforeOrAfter: 'before' | 'after',
   target: string,
-  callback: ((args: any[]) => any) | ((ret: any) => any)
+  callback: ((args: unknown[]) => unknown) | ((ret: unknown) => unknown)
 ): void {
   if (beforeOrAfter === 'before') {
     if (typeof beforeHook[target] === 'undefined') {
@@ -62,7 +62,7 @@ export function registerHook(
   }
 }
 
-export function transferArgs(target: string, args: any[]) {
+export function transferArgs(target: string, args: unknown[]) {
   if (typeof beforeHook[target] === 'undefined') {
     return args;
   }
@@ -71,7 +71,7 @@ export function transferArgs(target: string, args: any[]) {
   );
 }
 
-export function transferRet(target: string, ret: any) {
+export function transferRet(target: string, ret: unknown) {
   if (typeof afterHook[target] === 'undefined') {
     return ret;
   }
@@ -82,6 +82,6 @@ export function transferRet(target: string, ret: any) {
 
 export function registerContext(
   contextName: string
-): { [config: string]: any } {
+): { [config: string]: unknown } {
   return configs[contextName] || {};
 }

@@ -4,7 +4,7 @@ export interface IMethods {
 
   togglePage(
     type: string,
-    initState: { [key: string]: any }
+    initState: { [key: string]: unknown }
   ): void;
   setPageTitle(title: string): void;
   setCookie(
@@ -29,7 +29,7 @@ export const privateMethods = {
 export const globalMethods = {
   togglePage(
     type: string,
-    initState: { [key: string]: any }
+    initState: { [key: string]: unknown }
   ): void {
     window.history.pushState(
       initState, '',

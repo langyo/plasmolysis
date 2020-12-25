@@ -33,7 +33,7 @@ export function hasRuntime(
 }
 
 type IVariantsGenerator =
-  (id: string) => string | number | { [key: string]: any };
+  (id: string) => string | number | { [key: string]: unknown };
 
 let variantsGenerators: { [tag: string]: IVariantsGenerator } = {};
 
@@ -53,7 +53,7 @@ export async function runRuntime(
   tag: string,
   name: string,
   id: string,
-  payload: { [key: string]: any }
+  payload: { [key: string]: unknown }
 ) {
   const { type, args } = runtimes[tag][name];
   return await runAction(type, args, payload, generateVariants(id));

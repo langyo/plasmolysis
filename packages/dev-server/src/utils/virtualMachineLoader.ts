@@ -6,14 +6,14 @@ import { log } from 'nickelcat/logManager';
 export function vmLoader(
   { code, sourceMap }: { code: string, sourceMap: string },
   path: string,
-  caller: (...args: any[]) => Promise<any>
+  caller: (...args: unknown[]) => Promise<unknown>
 ) {
   const context = createContext({
     global,
     process,
     require,
     console,
-    __CALLBACK: (func: (...args: any[]) => Promise<any>) => caller = func
+    __CALLBACK: (func: (...args: unknown[]) => Promise<unknown>) => caller = func
   });
 
   try {
@@ -43,8 +43,8 @@ export function vmLoader(
   }
 
   return async function (
-    anything: any
-  ): Promise<(...args: any[]) => Promise<any>> {
-    return await caller(anything);
+    unknownthing: unknown
+  ): Promise<(...args: unknown[]) => Promise<unknown>> {
+    return await caller(unknownthing);
   };
 };

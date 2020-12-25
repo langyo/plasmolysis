@@ -4,7 +4,7 @@ import {
 } from 'nickelcat';
 
 interface IRuntimeObjectWithRoute {
-  type: string, args: { [key: string]: any }, route: string
+  type: string, args: { [key: string]: unknown }, route: string
 }
 
 export function filterSpecialAction(stream: IRuntimeObject, type: string) {

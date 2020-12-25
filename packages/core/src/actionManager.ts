@@ -35,10 +35,10 @@ export function hasAction(
 
 export async function runAction(
   type: string,
-  args: { [key: string]: any },
-  payload: { [key: string]: any },
-  variants: { [key: string]: any }
-): Promise<{ [key: string]: any }> {
+  args: { [key: string]: unknown },
+  payload: { [key: string]: unknown },
+  variants: { [key: string]: unknown }
+): Promise<{ [key: string]: unknown }> {
   if (typeof actions[type] === 'undefined') {
     throw new Error(
       `Unknown action '${type}' at the platform '${getPlatform()}'.`

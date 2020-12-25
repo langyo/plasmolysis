@@ -18,7 +18,7 @@ function vfsLoader(
   }), {});
 
   const mfs = Volume.fromJSON(vf);
-  let fs = (new Union()).use(realFs).use(mfs as any);
+  let fs = (new Union()).use(realFs).use(mfs as unknown);
   if (typeof fs['join'] === 'undefined') {
     fs['join'] = join;
   }
@@ -95,7 +95,7 @@ export async function webpackCompiler(
     ...extraOpts
   });
   compiler.inputFileSystem = fs;
-  compiler.outputFileSystem = fs as any;
+  compiler.outputFileSystem = fs as unknown;
 
   return new Promise((resolve, reject) => {
     compiler.run((err: Error, status) => {
