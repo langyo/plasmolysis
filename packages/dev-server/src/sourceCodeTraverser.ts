@@ -11,6 +11,61 @@ export type ISourceMap = {
   };
 };
 
+type IEnvTagTypes = 'as' | 'on' | 'to';
+const envTagTypes = ['as', 'on', 'to'];
+
+interface IEnvTagInfo {
+  type: IEnvTagTypes,
+  attrs: {
+    [key: string]: string | { pattern: string, flags: string }
+  },
+  props: {
+    // There are two ways to declare the properties.
+    // 1. (a, b) => { ... }
+    // 2. ({ set, get }, { var1, var2 }) => { ... }
+    [key: string]: string | { [imported: string]: string }
+  },
+  body: t.Statement[]
+}
+
+function JSXPicker(path): IEnvTagInfo {
+  if (envTagTypes.indexOf(path.get('openingElement.name.name')) < 0) {
+    throw path.buildFrameError(`Only allow to use the environment tags.`);
+  }
+
+  let ret: IEnvTagInfo = {
+    type: path.get('openingElement.name.name'),
+    attrs: {},
+    props: {},
+    body: []
+  }
+
+  for (const attr of path.get('openingElement.attributes')) {
+    if (attr.get('value').isStringLiteral()) {
+      ret.attrs[attr.get('name.name')] = attr.get('value.value');
+    } else if (
+      attr.get('value').isJSXExpressionContainer() &&
+      attr.get('value.expression').isRegExpLiteral()
+    ) {
+      ret.attrs[attr.get('name.name')] = {
+        pattern: attr.get('value.expression.pattern'),
+        flags: attr.get('value.expression.flags')
+      };
+    } else {
+      throw attr.buildFrameError('Only support the string/RegExp attributes.');
+    }
+  }
+
+  if (typeof path.node.children === 'undefined') {
+    throw path.buildFrameError('');
+  }
+  if (path.get('children').length > 1) {
+    throw path.buildFrameError('');
+  }
+
+  return ret;
+}
+
 export function traverser(
   envTag: IEnv,
   sourceCode: string,
@@ -19,71 +74,11 @@ export function traverser(
   let ret: ISourceMap = { [envTag]: {} };
   let actionSet: string[] = [];
 
-  function verifyMethodPath(path: string): boolean {
-    
-  }
-
   traverse(parse(sourceCode, {
     sourceType: 'module',
     plugins: ['jsx', 'typescript']
   }), {
-    ImportDeclaration(path) {
-      if (
-        Object.keys(methodPathMap).indexOf(
-          join(path.get('source').value)
-        ) >= 0
-      ) {
-        for (const n of path.get('specifiers')) {
-          if (verifyMethodPath(n.get('imported').name) {
-            actionSet.push(n.get('local').value);
-          }
-        }
-      }
-    },
     JSXElement(path) {
-      if (path.get('openingElement.name').name === 'on') {
-        const args = Array(
-          path.get('openingElement.attributes').length
-        ).map((_v, i) => i).reduce((obj, i) => ({
-          ...obj,
-          [path.get(`openingElement.attributes.${i}.name`).name]:
-            path.get(`openingElement.attributes.${i}.value`).isStringLiteral() ?
-              path.get(`openingElement.attributes.${i}.value`).value : true
-        }), {});
-        const envFromExport = Object.keys(args).find(
-          n => envMap.indexOf(n) >= 0
-        );
-
-        if (path.get('children.0.expression').isObjectExpression()) {
-          throw path.get('children.0.expression').buildFrameError(
-            `The inside must be an object.`
-          );
-        }
-        traverse(path.get('children.0.expression'), {
-          JSXElement(path) {
-            if (path.get('openingElement.name').name === 'on') {
-              throw path.get('openingElement.name').buildFrameError(
-                `Not allowed to nest again within an environment declaration.`
-              );
-            }
-          }
-        });
-        if (envFromExport === envTag) {
-          path.replaceWith(traverse(
-            path.get('children.0.expression.properties'), {
-            ObjectMethod(path) {
-
-            },
-            ObjectProperty(path) {
-
-            }
-          }));
-        } else {
-          path.remove();
-        }
-      } else {
-        throw path.buildFrameError('Only support the tag "on".');
-      }
     }
   });
 
