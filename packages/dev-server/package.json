@@ -19,7 +19,7 @@
     "@babel/generator": "^7.12.10",
     "@babel/parser": "^7.12.10",
     "@babel/preset-react": "^7.12.10",
-    "@babel/preset-typescript": "^7.12.10",
+    "@babel/preset-typescript": "^7.12.7",
     "@babel/traverse": "^7.12.10",
     "@babel/types": "^7.12.10",
     "error-stack-parser": "^2.0.6",
