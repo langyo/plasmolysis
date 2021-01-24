@@ -8,8 +8,7 @@
     "clean": "gulp clean",
     "publish": "gulp publish",
     "watch": "gulp watch",
-    "link": "gulp link",
-    "debug-global-link": "gulp debugGlobalLink"
+    "link": "gulp link"
   },
   "dependencies": {
     "@types/gulp": "^4.0.7",

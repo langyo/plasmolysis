@@ -141,13 +141,6 @@ async function linkDistDepsFolder() {
 
 export const link = series(linkDepsToSrc, linkPkgJsonFile, linkDistDepsFolder);
 
-export const debugGlobalLink = series.apply(undefined,
-  packageNames.map(name => () => spawn(
-    process.platform === 'win32' ? `yarn.cmd` : 'yarn', ['link'], {
-    stdio: 'inherit',
-    cwd: resolve(`./packages/${name}/dist`)
-  })));
-
 export const build = series(clean, linkDepsToSrc, compile, link);
 
 export const publish = series(
