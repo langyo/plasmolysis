@@ -13,7 +13,7 @@ export function loadRuntime(
 };
 
 export function getRuntimeList(tag: string): string[] {
-  if (typeof runtimes[tag] === 'undefined') {
+  if (!runtimes[tag]) {
     throw new Error(`Unknown tag '${tag}' at the getPlatform() '${getPlatform()}'.`);
   }
   return Object.keys(runtimes[tag]);
@@ -23,8 +23,8 @@ export function hasRuntime(
   tag: string, streamName: string
 ): boolean {
   if (
-    typeof runtimes[tag] === 'undefined' ||
-    typeof runtimes[tag][streamName] === 'undefined'
+    !runtimes[tag] ||
+    !runtimes[tag][streamName]
   ) {
     return false;
   } else {

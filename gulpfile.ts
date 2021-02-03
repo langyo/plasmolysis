@@ -181,10 +181,7 @@ export const publish = series(
             const { name } = JSON.parse(readFile(
               resolve(`./packages/${depName}/package.json`), 'utf8'
             ));
-            if (
-              typeof cfg.peerDependencies !== 'undefined' &&
-              typeof cfg.peerDependencies[name] !== 'undefined'
-            ) {
+            if (cfg.peerDependencies && cfg.peerDependencies[name]) {
               cfg.peerDependencies[name] = version;
             }
           }

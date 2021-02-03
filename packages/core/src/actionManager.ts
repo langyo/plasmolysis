@@ -19,7 +19,7 @@ export function registerAction(
     actions[type] = () => async payload => payload
   }
 
-  if (typeof actionPlatformTags[type] === 'undefined') {
+  if (!actionPlatformTags[type]) {
     actionPlatformTags[type] = [];
   }
   actionPlatformTags[type].push(platform);
@@ -29,7 +29,7 @@ export function registerAction(
 export function hasAction(
   type: string, platform: IPlatforms
 ): boolean {
-  return typeof actionPlatformTags[type] !== 'undefined' &&
+  return actionPlatformTags[type] &&
     actionPlatformTags[type].indexOf(platform) >= 0;
 }
 
@@ -39,7 +39,7 @@ export async function runAction(
   payload: { [key: string]: unknown },
   variants: { [key: string]: unknown }
 ): Promise<{ [key: string]: unknown }> {
-  if (typeof actions[type] === 'undefined') {
+  if (!actions[type]) {
     throw new Error(
       `Unknown action '${type}' at the platform '${getPlatform()}'.`
     );

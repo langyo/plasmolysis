@@ -15,7 +15,7 @@ export function getProtocol(platform: IPlatforms): (
   path: string,
   obj: { [key: string]: unknown }
 ) => Promise<{ [key: string]: unknown }> {
-  if (typeof targetProtocols[platform] === 'undefined') {
+  if (!targetProtocols[platform]) {
     throw new Error(`Unknown protocol: ${platform}.`);
   }
   return targetProtocols[platform];
@@ -47,7 +47,7 @@ export async function linkTo(
   path: string,
   payload: { [key: string]: unknown }
 ): Promise<{ [key: string]: unknown }> {
-  if (typeof targetProtocols[platform] === 'undefined') {
+  if (!targetProtocols[platform]) {
     throw new Error(`Cannot transfer to the platform: ${platform}.`);
   }
   return await targetProtocols[platform](path, payload);

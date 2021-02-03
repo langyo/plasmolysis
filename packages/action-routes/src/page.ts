@@ -61,10 +61,10 @@ export const globalMethods = {
     } = {}
   ): void {
     let options: string[] = [];
-    if (typeof expire !== 'undefined') {
+    if (expire) {
       options.push(`Expires=${expire.toUTCString()}`);
     }
-    if (typeof domain !== 'undefined') {
+    if (domain) {
       if (
         !/^\.?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}$/
           .test(domain)
@@ -73,16 +73,16 @@ export const globalMethods = {
       }
       options.push(`Domain=${domain}`);
     }
-    if (typeof path !== 'undefined') {
+    if (path) {
       if (!/^(\/\w+)+$/.test(path)) {
         throw new Error(`Illegal path: '${path}'.`);
       }
       options.push(`Path=${path}`);
     }
-    if (typeof sameSite !== 'undefined') {
+    if (sameSite) {
       options.push(`SameSite=${sameSite}`);
     }
-    if (typeof secure === 'undefined' || secure) {
+    if (secure || true) {
       options.push('Secure');
     }
 

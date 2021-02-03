@@ -8,33 +8,19 @@ import { Volume } from 'memfs';
 import { Union } from 'unionfs'
 import * as realFs from 'fs';
 
-function vfsLoader(
-  virtualFiles: { [key: string]: string },
-  entryPath: string = process.cwd()
-) {
-  const vf = Object.keys(virtualFiles).reduce((obj, key) => ({
-    ...obj,
-    [join(entryPath, key)]: virtualFiles[key]
-  }), {});
-
-  const mfs = Volume.fromJSON(vf);
-  let fs = (new Union()).use(realFs).use(mfs as unknown);
-  if (typeof fs['join'] === 'undefined') {
-    fs['join'] = join;
-  }
-
-  return fs;
-}
-
 export async function webpackCompiler(
   code: string,
   extraOpts: webpack.Configuration = {},
   extraFiles: { [path: string]: string } = {}
 ): Promise<{ code: string, sourceMap: string }> {
-  const fs = vfsLoader({
-    './__entry.ts': code,
+  const fs = ((new Union()) as any).use(realFs).use(Volume.fromJSON({
+    [join(process.cwd(), './__entry.ts')]: code,
     ...extraFiles
-  });
+  }));
+  if (!fs['join']) {
+    fs['join'] = join;
+  }
+
   const compiler = webpack({
     entry: join(process.cwd(), './__entry.ts'),
     mode: process.env.NODE_ENV === 'development' ? 'development' : 'production',
@@ -95,7 +81,7 @@ export async function webpackCompiler(
     ...extraOpts
   });
   compiler.inputFileSystem = fs;
-  compiler.outputFileSystem = fs as unknown;
+  compiler.outputFileSystem = fs;
 
   return new Promise((resolve, reject) => {
     compiler.run((err: Error, status) => {
@@ -116,10 +102,16 @@ export async function webpackCompiler(
       }
 
       else {
-        fs.readFile('/output.js', { encoding: 'utf8' },
-          (err, code) => {
-            fs.readFile('/output.js.map', { encoding: 'utf8' },
-              (err, sourceMap) => {
+        fs.readFile(join(process.cwd(), '/output.js'), { encoding: 'utf8' },
+          (err: Error, code: string) => {
+            if (err) {
+              throw err;
+            }
+            fs.readFile(join(process.cwd(), '/output.js.map'), { encoding: 'utf8' },
+              (err: Error, sourceMap: string) => {
+                if (err) {
+                  throw err;
+                }
                 resolve({
                   code, sourceMap
                 })
