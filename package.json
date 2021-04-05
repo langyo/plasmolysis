@@ -8,7 +8,8 @@
     "clean": "gulp clean",
     "publish": "gulp publish",
     "watch": "gulp watch",
-    "link": "gulp link"
+    "link": "gulp link",
+    "test": "jest"
   },
   "dependencies": {
     "@types/gulp": "^4.0.7",
@@ -22,6 +23,11 @@
     "promisely-fs": "^0.1.1",
     "ts-node": "^9.0.0",
     "tslint": "^6.1.3",
-    "typescript": "^4.1.2"
+    "typescript": "^4.2.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.22",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.4"
   }
 }
