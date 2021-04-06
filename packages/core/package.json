@@ -7,11 +7,7 @@
   "homepage": "https://github.com/langyo/nickelcat#readme",
   "keywords": [],
   "main": "./src/index",
-  "scripts": {
-    "test": "jest ./test --watch"
-  },
   "dependencies": {
-    "@babel/cli": "^7.13.14",
     "@babel/core": "^7.13.14"
   },
   "peerDependencies": {
