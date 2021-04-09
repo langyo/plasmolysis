@@ -40,5 +40,52 @@ describe('Environment filter', () => {
     `, { ast: true });
     expect(source.ast).toEqual(target.ast);
   });
+
+  test('On function, same environment', async () => {
+    const source = await transformAsync(`
+      function test() {
+        'on client';
+        let i = 1;
+      }
+    `, {
+      plugins: [
+        [
+          join(__dirname, '../src/babelPlugin.ts'),
+          { targetEnv: 'client' }
+        ]
+      ],
+      ast: true
+    });
+    const target = await transformAsync(`
+      function test() {
+        'on client';
+        let i = 1;
+      }
+    `, { ast: true });
+    expect(source.ast).toEqual(target.ast);
+  });
+
+  test('On function, different environment', async () => {
+    const source = await transformAsync(`
+      function test() {
+        'on server';
+        let i = 1;
+      }
+    `, {
+      plugins: [
+        [
+          join(__dirname, '../src/babelPlugin.ts'),
+          { targetEnv: 'client' }
+        ]
+      ],
+      ast: true
+    });
+    const target = await transformAsync(`
+      function test() {
+        'on server';
+      }
+    `, { ast: true });
+    expect(source.ast).toEqual(target.ast);
+  });
 });
 
