@@ -1,8 +1,7 @@
 import { Parser } from 'acorn';
 import { Node, Statement } from 'estree';
-import { generate } from 'escodegen';
 
-export const transform = (code: string, platform: string): string => {
+export const transform = (code: string, platform: string): Node => {
   const ast = Parser.extend(
     require("acorn-jsx")(),
     require("acorn-bigint")
@@ -42,6 +41,7 @@ export const transform = (code: string, platform: string): string => {
           ) {
             const targetPlatform = s.expression.raw.substr(3);
             willRetain = platform === targetPlatform;
+            console.debug('debug', willRetain);
           } else if (!willRetain) {
             s = undefined;
           } else {
@@ -54,6 +54,6 @@ export const transform = (code: string, platform: string): string => {
     }
   }
 
-  return generate(dfs(ast));
+  return dfs(ast);
 };
 
