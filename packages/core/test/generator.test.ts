@@ -26,7 +26,7 @@ function removeLocationInfo(node: Node | any): Node {
   }
 }
 
-describe('Environment filter', () => {
+describe('Simgle environment filter', () => {
   test('On top, same environment', async () => {
     const source = `
       'on client';
@@ -125,3 +125,150 @@ describe('Environment filter', () => {
   });
 });
 
+describe('Multiple environment filter', () => {
+  test('On top, same environment', async () => {
+    const source = `
+      'on client';
+      let i = 1;
+      'on client';
+      let j = 1;
+    `;
+    const target = `
+      'on client';
+      let i = 1;
+      'on client';
+      let j = 1;
+    `;
+    expect(removeLocationInfo(
+      transform(source, 'client')
+    )).toEqual(removeLocationInfo(parse(target)));
+  });
+
+  test('On top, different environment', async () => {
+    const source = `
+      'on client';
+      let i = 1;
+      'on server';
+      let j = 1;
+    `;
+    const target = `
+      'on client';
+      let i = 1;
+      'on server';
+    `;
+    expect(removeLocationInfo(
+      transform(source, 'client')
+    )).toEqual(removeLocationInfo(parse(target)));
+  });
+
+  test('On block, same environment', async () => {
+    const source = `
+      'on client';
+      let i = 1;
+      {
+        'on client';
+        let i = 1;
+      }
+      'on client';
+      let j = 1;
+    `;
+    const target = `
+      'on client';
+      let i = 1;
+      {
+        'on client';
+        let i = 1;
+      }
+      'on client';
+      let j = 1;
+    `;
+    expect(removeLocationInfo(
+      transform(source, 'client')
+    )).toEqual(removeLocationInfo(parse(target)));
+  });
+
+  test('On block, different environment', async () => {
+    const source = `
+      'on client';
+      let i = 1;
+      {
+        'on server';
+        let i = 1;
+      }
+      'on client';
+      let j = 1;
+      {
+        'on server';
+        let j = 1;
+      }
+      'on server';
+      let k = 1;
+    `;
+    const target = `
+      'on client';
+      let i = 1;
+      {
+        'on server';
+      }
+      'on client';
+      let j = 1;
+      {
+        'on server';
+      }
+      'on server';
+    `;
+    expect(removeLocationInfo(
+      transform(source, 'client')
+    )).toEqual(removeLocationInfo(parse(target)));
+  });
+
+  test('On function, same environment', async () => {
+    const source = `
+      'on client';
+      let i = 1;
+      function test() {
+        'on client';
+        let i = 1;
+      }
+      'on client';
+      let j = 1;
+    `;
+    const target = `
+      'on client';
+      let i = 1;
+      function test() {
+        'on client';
+        let i = 1;
+      }
+      'on client';
+      let j = 1;
+    `;
+    expect(removeLocationInfo(
+      transform(source, 'client')
+    )).toEqual(removeLocationInfo(parse(target)));
+  });
+
+  test('On function, different environment', async () => {
+    const source = `
+      'on client';
+      let i = 1;
+      function test() {
+        'on server';
+        let i = 1;
+      }
+      'on server';
+      let j = 1;
+    `;
+    const target = `
+      'on client';
+      let i = 1;
+      function test() {
+        'on server';
+      }
+      'on server';
+    `;
+    expect(removeLocationInfo(
+      transform(source, 'client')
+    )).toEqual(removeLocationInfo(parse(target)));
+  });
+});
