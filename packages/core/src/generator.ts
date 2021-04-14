@@ -32,6 +32,7 @@ export const transform = (code: string, platform: string): Node => {
             : [currentPlatform];
         }
         break;
+
       case 'ArrowFunctionExpression':
       case 'FunctionDeclaration':
         if (node.body.type === 'BlockStatement') {
@@ -50,7 +51,7 @@ export const transform = (code: string, platform: string): Node => {
             }
           }
         }
-        return node;
+        break;
 
       case 'Program':
       case 'BlockStatement':
@@ -67,10 +68,11 @@ export const transform = (code: string, platform: string): Node => {
             s = dfs(s) as Statement;
           }
         }
-        return node;
+        break;
       default:
-        return node;
     }
+
+    return node;
   }
 
   return dfs(ast);
