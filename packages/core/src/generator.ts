@@ -1,11 +1,11 @@
 import { Parser } from 'acorn';
-import { Node, Statement, Identifier } from 'estree';
+import { Node, Program, Statement, Identifier } from 'estree';
 
 export const transform = (code: string, platform: string): Node => {
-  const ast = Parser.extend(
+  const ast: Program = Parser.extend(
     require("acorn-jsx")(),
     require("acorn-bigint")
-  ).parse(code, { ecmaVersion: 'latest', sourceType: 'module' }) as Node;
+  ).parse(code, { ecmaVersion: 'latest', sourceType: 'module' }) as any;
 
   // Every closure has the platform list, which the first element in this list
   // is the current platform.
@@ -16,6 +16,70 @@ export const transform = (code: string, platform: string): Node => {
   let currentPlatform: string = platform;
 
   function dfs(node: Node) {
+    switch (node.type) {
+      case 'VariableDeclaration':
+        for (const decl of node.declarations) {
+          const { name } = decl.id as Identifier;
+          closureList[name] = closureList[name]
+            ? [currentPlatform, ...closureList[name]]
+            : [currentPlatform];
+        }
+        break;
+
+      case 'ArrowFunctionExpression':
+      case 'FunctionDeclaration':
+        if (node.body.type === 'BlockStatement') {
+          // TODO - Needs platform transform middleware.
+          for (let stat of node.body.body) {
+            switch (stat.type) {
+              case 'ExpressionStatement':
+                if (
+                  stat.expression.type === 'Literal' &&
+                  stat.expression.raw.substr(0, 3) === 'on '
+                ) {
+                  currentPlatform = stat.expression.raw.substr(3);
+                }
+                // Needs to get all the variants that be used in the scope.
+                // We will compare the variants' usage between the outer scope
+                // and the inner scope.
+                break;
+              default:
+                if (currentPlatform !== platform) {
+                  stat = undefined;
+                } else {
+                  stat = dfs(stat) as Statement;
+                }
+                break;
+            }
+          }
+        }
+        break;
+
+      case 'BlockStatement':
+        for (let stat of node.body) {
+          if (
+            stat.type === 'ExpressionStatement' &&
+            stat.expression.type === 'Literal' &&
+            stat.expression.raw.substr(0, 3) === 'on '
+          ) {
+            currentPlatform = stat.expression.raw.substr(3);
+          } else if (currentPlatform !== platform) {
+            stat = undefined;
+          } else {
+            stat = dfs(stat) as Statement;
+          }
+        }
+        break;
+      default:
+        // TODO - Traverse all possible child nodes to record variable usage.
+        break;
+    }
+
+    return node;
+  }
+
+  // Parse the most top scope.
+  for (let node of ast.body) {
     switch (node.type) {
       case 'ImportDeclaration':
         for (const spec of node.specifiers) {
@@ -32,49 +96,20 @@ export const transform = (code: string, platform: string): Node => {
             : [currentPlatform];
         }
         break;
-
-      case 'ArrowFunctionExpression':
-      case 'FunctionDeclaration':
-        if (node.body.type === 'BlockStatement') {
-          // TODO - Needs platform transform middleware.
-          for (let s of node.body.body) {
-            if (
-              s.type === 'ExpressionStatement' &&
-              s.expression.type === 'Literal' &&
-              s.expression.raw.substr(0, 3) === 'on '
-            ) {
-              currentPlatform = s.expression.raw.substr(3);
-            } else if (currentPlatform !== platform) {
-              s = undefined;
-            } else {
-              s = dfs(s) as Statement;
-            }
-          }
+      case 'ExpressionStatement':
+        if (
+          node.expression.type === 'Literal' &&
+          node.expression.raw.substr(0, 3) === 'on '
+        ) {
+          currentPlatform = node.expression.raw.substr(3);
+        } else if (currentPlatform !== platform) {
+          node = undefined;
+        } else {
+          node = dfs(node) as Statement;
         }
-        break;
-
-      case 'Program':
-      case 'BlockStatement':
-        for (let s of node.body) {
-          if (
-            s.type === 'ExpressionStatement' &&
-            s.expression.type === 'Literal' &&
-            s.expression.raw.substr(0, 3) === 'on '
-          ) {
-            currentPlatform = s.expression.raw.substr(3);
-          } else if (currentPlatform !== platform) {
-            s = undefined;
-          } else {
-            s = dfs(s) as Statement;
-          }
-        }
-        break;
-      default:
     }
-
-    return node;
   }
 
-  return dfs(ast);
+  return ast;
 };
 
