@@ -4,8 +4,7 @@ import { transform } from '../src/generator';
 
 function parse(code: string) {
   return Parser.extend(
-    require("acorn-jsx")(),
-    require("acorn-bigint")
+    require("acorn-jsx")()
   ).parse(code, { ecmaVersion: 'latest', sourceType: 'module' }) as Node;
 }
 

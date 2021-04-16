@@ -3,8 +3,7 @@ import { Node, Program, Statement, Identifier } from 'estree';
 
 export const transform = (code: string, platform: string): Node => {
   const ast: Program = Parser.extend(
-    require("acorn-jsx")(),
-    require("acorn-bigint")
+    require("acorn-jsx")()
   ).parse(code, { ecmaVersion: 'latest', sourceType: 'module' }) as any;
 
   // Every closure has the platform list, which the first element in this list
