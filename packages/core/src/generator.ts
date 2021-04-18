@@ -1,10 +1,9 @@
-import { Parser } from 'acorn';
 import { Node, Program, Statement, Identifier } from 'estree';
+import { parse } from '../utils/astParser';
 
 export const transform = (code: string, platform: string): Node => {
-  const ast: Program = Parser.extend(
-    require("acorn-jsx")()
-  ).parse(code, { ecmaVersion: 'latest', sourceType: 'module' }) as any;
+  const ast: Program = parse(code) as any;
+  console.log('old ast', ast)
 
   // Every closure has the platform list, which the first element in this list
   // is the current platform.
@@ -29,56 +28,58 @@ export const transform = (code: string, platform: string): Node => {
       case 'FunctionDeclaration':
         if (node.body.type === 'BlockStatement') {
           // TODO - Needs platform transform middleware.
-          for (let stat of node.body.body) {
-            switch (stat.type) {
+          node.body.body = node.body.body.map(node => {
+            // TODO - Needs to get all the variants that be used in the scope.
+            //        We will compare the variants' usage between the outer
+            //        scope and the inner scope.
+            switch (node.type) {
               case 'ExpressionStatement':
                 if (
-                  stat.expression.type === 'Literal' &&
-                  stat.expression.raw.substr(0, 3) === 'on '
+                  node.expression.type === 'Literal' &&
+                  node.expression.raw.substr(0, 3) === 'on '
                 ) {
-                  currentPlatform = stat.expression.raw.substr(3);
+                  currentPlatform = node.expression.raw.substr(3);
                 }
-                // Needs to get all the variants that be used in the scope.
-                // We will compare the variants' usage between the outer scope
-                // and the inner scope.
-                break;
+                return node;
               default:
                 if (currentPlatform !== platform) {
-                  stat = undefined;
+                  return undefined;
                 } else {
-                  stat = dfs(stat) as Statement;
+                  return dfs(node) as Statement;
                 }
-                break;
             }
-          }
+          }).filter(node => typeof node !== 'undefined');
         }
-        break;
+        return node;
 
       case 'BlockStatement':
-        for (let stat of node.body) {
+        node.body = node.body.map(node => {
           if (
-            stat.type === 'ExpressionStatement' &&
-            stat.expression.type === 'Literal' &&
-            stat.expression.raw.substr(0, 3) === 'on '
+            node.type === 'ExpressionStatement' &&
+            node.expression.type === 'Literal' &&
+            (node.expression.value as string).substr(0, 3) === 'on '
           ) {
-            currentPlatform = stat.expression.raw.substr(3);
-          } else if (currentPlatform !== platform) {
-            stat = undefined;
+            currentPlatform = (node.expression.value as string).substr(3);
+            return undefined;
           } else {
-            stat = dfs(stat) as Statement;
+            return dfs(node) as Statement;
           }
-        }
+        }).filter(node => typeof node !== 'undefined');
         break;
       default:
         // TODO - Traverse all possible child nodes to record variable usage.
-        break;
     }
-
-    return node;
+    if (currentPlatform !== platform) {
+      return undefined;
+    } else {
+      return node;
+    }
   }
 
   // Parse the most top scope.
-  for (let node of ast.body) {
+  ast.body = ast.body.map(node => {
+    // TODO - I needs a way to generate a tree that can describe the general
+    //        relation between any function calling and closure reference.
     switch (node.type) {
       case 'ImportDeclaration':
         for (const spec of node.specifiers) {
@@ -98,16 +99,23 @@ export const transform = (code: string, platform: string): Node => {
       case 'ExpressionStatement':
         if (
           node.expression.type === 'Literal' &&
-          node.expression.raw.substr(0, 3) === 'on '
+          (node.expression.value as string).substr(0, 3) === 'on '
         ) {
-          currentPlatform = node.expression.raw.substr(3);
-        } else if (currentPlatform !== platform) {
-          node = undefined;
+          currentPlatform = (node.expression.value as string).substr(3);
+          return undefined;
         } else {
-          node = dfs(node) as Statement;
+          return dfs(node) as Statement;
         }
     }
-  }
+    if (currentPlatform !== platform) {
+      return undefined;
+    } else {
+      return node;
+    }
+  }).filter(node => typeof node !== 'undefined');
+
+  console.log('new ast', ast)
+  console.log('------')
 
   return ast;
 };
