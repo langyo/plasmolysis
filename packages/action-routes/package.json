@@ -21,11 +21,6 @@
   "bugs": {
     "url": "https://github.com/langyo/nickelcat/issues"
   },
-  "nickelcatConstructors": {
-    "component": "./component",
-    "route": "./route",
-    "page": "./page"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/langyo/nickelcat.git"
