@@ -10,6 +10,6 @@ browser.entry = function (
   }
 };
 
-export const web = {
+export const remote = {
   browser
 };

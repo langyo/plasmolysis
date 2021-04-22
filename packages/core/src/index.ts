@@ -1,2 +1,2 @@
-export { web } from './webConstructor';
+export { remote } from './remoteConstructor';
 export { native } from './nativeConstructor';

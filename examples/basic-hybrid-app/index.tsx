@@ -1,9 +1,9 @@
-import { web, native } from '../../packages/core/src/index';
+import { remote, native } from '../../packages/core/src/index';
 import React, { useState } from 'react';
 
-@web.browser
+@remote.browser
 class ClientEntry {
-  @web.browser.entry('react', '#root')
+  @remote.browser.entry('react', '#root')
   public render() {
     const [val, setVal] = useState('click me!');
 
