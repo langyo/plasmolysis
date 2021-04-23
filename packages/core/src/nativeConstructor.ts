@@ -1,6 +1,8 @@
 function http(type: 'express' | 'koa', connection?: any) {
-  return function (target: Function) {
+  return function <T extends { new(...args: any[]): any }>(target: T) {
+    return class extends target {
 
+    };
   };
 }
 
@@ -21,9 +23,11 @@ http.inject = function () {
 };
 
 function websocket(connection?: any) {
-  return function (target: Function) {
+  return function <T extends { new(...args: any[]): any }>(target: T) {
+    return class extends target {
 
-  }
+    };
+  };
 }
 
 websocket.get = function (path: string) {
@@ -43,8 +47,10 @@ websocket.inject = function () {
 };
 
 function serverless(type: 'aliyun-fc' | 'tencent-scf', connection?: any) {
-  return function (target: Function) {
+  return function <T extends { new(...args: any[]): any }>(target: T) {
+    return class extends target {
 
+    };
   };
 }
 
@@ -65,8 +71,10 @@ serverless.inject = function () {
 };
 
 function hybrid(type: 'electron' | 'cordova', connection?: any) {
-  return function (target: Function) {
+  return function <T extends { new(...args: any[]): any }>(target: T) {
+    return class extends target {
 
+    };
   };
 }
 
