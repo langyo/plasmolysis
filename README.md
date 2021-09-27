@@ -7,7 +7,7 @@
 
 > 请先在您的机器上安装 Git 与 NodeJS。
 
-1. 在终端下克隆该项目 ```git clone https://github.com/langyo/nickelcat```。
+1. 在终端下克隆该项目 ```git clone https://github.com/langyo/plasmolysis```。
 
 2. 进入项目目录，运行 ```npm install``` 或 ```yarn```（如果您的机器已经安装了 Yarn，推荐使用）；NPM 会自动运行 Gulp 构建任务，同时帮助您下载各个子包的依赖。
 
