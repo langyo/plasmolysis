@@ -1,7 +1,8 @@
-import { remote, native } from '../../packages/core/src/index';
+/// <reference path="../../src/type.d.ts" />
+
 import React, { useState } from 'react';
 
-@remote.browser
+@remote.browser()
 class ClientEntry {
   @remote.browser.entry('react', '#root')
   public render() {
@@ -20,9 +21,6 @@ class Services {
     return 'test';
   }
 
-  @native.http.get('/').bind(ClientEntry)
-  public clientEntry;
-
-  @native.http.inject()
-  public ctx;
+  @native.http.get('/')
+  public clientEntry = ClientEntry;
 }
