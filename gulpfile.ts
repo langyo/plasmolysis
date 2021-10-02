@@ -1,16 +1,16 @@
-import {
-  src, dest, series, watch as watchFiles, parallel
-} from 'gulp';
-import {
-  existsSync as exists,
-  readFileSync as readFile,
-  writeFileSync as writeFile,
-} from 'fs';
-import { resolve } from 'path';
-import { spawn } from 'child_process';
+import { src, dest, series } from 'gulp';
+import { join } from 'path';
 import * as ts from 'gulp-typescript';
 
-export const install = process.env.CI ?
-  series() : series();
+export const install = series(() => {});
 
-export const build = series();
+export const build = series(() => {
+  return src(join(__dirname, './src/babelPlugin.ts'))
+    .pipe(
+      ts({
+        module: 'commonjs',
+        allowSyntheticDefaultImports: true,
+      })
+    )
+    .js.pipe(dest(join(__dirname, './dist/')));
+});

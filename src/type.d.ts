@@ -1,7 +1,7 @@
 declare namespace remote {
-  function browser(): (target: any) => any;
+  function browser(type: 'react' | 'vue' | 'ejs'): (target: any) => any;
   namespace browser {
-    function entry(type: 'react' | 'vue' | 'ejs', target: string): any;
+    function inject(domSelector: string): any;
   }
 }
 

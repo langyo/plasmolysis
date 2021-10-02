@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 
-@remote.browser()
+@remote.browser('react')
 class ClientEntry {
-  @remote.browser.entry('react', '#root')
+  @remote.browser.inject('#root')
   public render() {
     const [val, setVal] = useState('click me!');
 

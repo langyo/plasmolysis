@@ -24,7 +24,7 @@ import { join, parse } from 'path';
         映射表以交换编号对应具体的执行函数，通过从上一个步骤生成的每一份文件导入常量以获取对应的函数
 */
 
-export function BabelPluginObj({ types }: typeof BabelCore): PluginObj {
+export default function({ types }: typeof BabelCore): PluginObj {
   return {
     name: 'nickelcat-demo',
     visitor: {
