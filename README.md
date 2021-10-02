@@ -34,6 +34,6 @@ Enter the project's folder, and run the command `npm i` or `yarn` (We recommend 
 
 3.
 
-执行 `npm run build` 或 `npm run watch` 即可编译项目。
+执行 `npm run build` 即可编译项目。
 
-Run the command `npm run build` or `npm run watch` to compile the project.
+Run the command `npm run build` to compile the project.
