@@ -2,25 +2,44 @@
 
 import React, { useState } from 'react';
 
-@remote.browser('react')
+@native.browser('react')
 class ClientEntry {
-  @remote.browser.inject('#root')
+  @native.browser.inject('#root')
   public render() {
     const [val, setVal] = useState('click me!');
 
-    return <button onClick={async () => setVal(await Services.test())}>
-      {val}
-    </button>;
+    return (
+      <>
+        <button
+          onClick={async () =>
+            setVal(await native.to.remote.http().get('/test'))
+          }
+        >
+          {val}
+        </button>
+        <button
+          onClick={async () =>
+            setVal(
+              await native.to.remote.http().run(async () => {
+                return 'test2';
+              })
+            )
+          }
+        >
+          {val}
+        </button>
+      </>
+    );
   }
 }
 
-@native.http('koa')
+@remote.http('koa')
 class Services {
-  @native.http.get('/test')
+  @remote.http.get('/test')
   public static async test() {
     return 'test';
   }
 
-  @native.http.get('/')
+  @remote.http.get('/')
   public clientEntry = ClientEntry;
 }
