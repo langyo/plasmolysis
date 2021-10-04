@@ -17,7 +17,7 @@ let test = 123;
       ],
       plugins: [
         '@babel/plugin-transform-runtime',
-        join(__dirname, '../../dist/babelPlugin.js'),
+        join(__dirname, '../../dist/export.js'),
       ],
     });
     console.log('------ Code ------');
