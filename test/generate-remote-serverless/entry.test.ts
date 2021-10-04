@@ -1,7 +1,7 @@
 import { transform } from '@babel/core';
 import { join } from 'path';
 
-describe('Single test', () => {
+describe('Generate remote serverless', () => {
   test('Test', () => {
     const codeFrame = `
 let test = 123;
@@ -17,7 +17,7 @@ let test = 123;
       ],
       plugins: [
         '@babel/plugin-transform-runtime',
-        join(__dirname, '../dist/babelPlugin.js'),
+        join(__dirname, '../../dist/babelPlugin.js'),
       ],
     });
     console.log('------ Code ------');

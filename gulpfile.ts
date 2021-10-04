@@ -1,11 +1,11 @@
 import { src, dest, series } from 'gulp';
 import { join } from 'path';
-import * as ts from 'gulp-typescript';
+import ts from 'gulp-typescript';
 
 export const install = series(() => {});
 
 export const build = series(() => {
-  return src(join(__dirname, './src/babelPlugin.ts'))
+  return src(join(__dirname, './src/export.ts'))
     .pipe(
       ts({
         module: 'commonjs',
