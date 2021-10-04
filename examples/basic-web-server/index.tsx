@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 @native.browser('react')
 class ClientEntry {
   @native.browser.inject('#root')
-  public render() {
+  render() {
     const [val, setVal] = useState('click me!');
 
     return (
@@ -36,10 +36,10 @@ class ClientEntry {
 @remote.http('koa')
 class Services {
   @remote.http.get('/test')
-  public static async test() {
+  static async test() {
     return 'test';
   }
 
   @remote.http.get('/')
-  public clientEntry = ClientEntry;
+  clientEntry = ClientEntry;
 }
