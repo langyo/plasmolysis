@@ -5,8 +5,12 @@ import React, { useState } from 'react';
 @native.browser('react')
 class ClientEntry {
   @native.browser.inject('#root')
-  render() {
-    const [val, setVal] = useState('click me!');
+  async render() {
+    const [val, setVal] = useState(
+      await native.to.remote.http().run(async () => {
+        return 1;
+      })
+    );
 
     return (
       <>
@@ -15,13 +19,15 @@ class ClientEntry {
             setVal(await native.to.remote.http().get('/test'))
           }
         >
-          {val}
+          {native.to.remote.http().run(async () => {
+            return 'test';
+          })}
         </button>
         <button
           onClick={async () =>
             setVal(
               await native.to.remote.http().run(async () => {
-                return 'test2';
+                return val + 1;
               })
             )
           }
