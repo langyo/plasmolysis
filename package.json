@@ -3,8 +3,7 @@
   "version": "0.4.5",
   "scripts": {
     "build": "gulp build",
-    "clean": "gulp clean",
-    "test": "jest"
+    "test": "gulp build && jest"
   },
   "devDependencies": {
     "@types/gulp": "^4.0.7",
