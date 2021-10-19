@@ -1,4 +1,4 @@
-import { babelCompiler } from '../utils';
+import { compile } from '../utils';
 
 describe('Special expression parse', () => {
   test('Test', () => {

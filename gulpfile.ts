@@ -5,7 +5,7 @@ import ts from 'gulp-typescript';
 export const install = series(() => {});
 
 export const build = series(() => {
-  return src(join(__dirname, './src/export.ts'))
+  return src(join(__dirname, './src/**/*.ts'))
     .pipe(
       ts({
         module: 'commonjs',
