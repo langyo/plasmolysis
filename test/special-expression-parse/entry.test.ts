@@ -1,19 +1,12 @@
-import { compare } from '../utils';
+import pluginTester from 'babel-plugin-tester';
+import pluginObject from '../../src/export';
 
-describe('Special expression parse', () => {
-  test('Test 1', () => {
-    expect(compare(`
-1 + 1    
-`, `
-1 + 1
-`)).toBeTruthy();
-  });
-
-  test('Test 2', () => {
-    expect(compare(`
-1 + 1    
-`, `
-1 + 2
-`)).toBeFalsy();
-  });
+pluginTester({
+  plugin: pluginObject,
+  tests: [
+    {
+      code: 'let hello = "hi";',
+      output: 'let hello = "hi";',
+    },
+  ],
 });
